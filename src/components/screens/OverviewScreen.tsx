@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { TimeRange } from '../../types/nexus';
 import { MetricStrip } from '../common/MetricStrip';
 import { useNexus } from '../../context/NexusContext';
+import { OVERVIEW_SNAPSHOTS } from '../../data/mockIntelligence';
 import { Radio, AlertCircle } from 'lucide-react';
 
 interface OverviewScreenProps {
@@ -17,10 +18,19 @@ export const OverviewScreen: React.FC<OverviewScreenProps> = ({
   const { activeDataset, sourceMode } = useNexus();
   const [timeRange, setTimeRange] = useState<TimeRange>('24h');
 
-  const narratives = activeDataset.narratives;
-  const alerts = activeDataset.alerts;
-  const metrics = activeDataset.metrics;
-  const sentimentSeries = activeDataset.sentimentSeries;
+  // Retrieve deterministic snapshot for current sourceMode and timeRange
+  const snapshot =
+    OVERVIEW_SNAPSHOTS[sourceMode]?.[timeRange] || {
+      metrics: activeDataset.metrics,
+      narratives: activeDataset.narratives,
+      alerts: activeDataset.alerts,
+      sentimentSeries: activeDataset.sentimentSeries,
+    };
+
+  const narratives = snapshot.narratives;
+  const alerts = snapshot.alerts;
+  const metrics = snapshot.metrics;
+  const sentimentSeries = snapshot.sentimentSeries;
 
   return (
     <div className="space-y-6">

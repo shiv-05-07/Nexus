@@ -109,24 +109,24 @@ export const CoordinationScreen: React.FC = () => {
               <button
                 onClick={() => updateStatus(cluster.id, 'CONFIRMED')}
                 disabled={!permissions.canMutateCoordination}
-                className={`px-3 py-1.5 font-bold text-[10px] rounded-xs transition-colors cursor-pointer border ${
+                className={`px-3 py-1.5 font-bold text-[10px] rounded-xs transition-colors border ${
                   permissions.canMutateCoordination
-                    ? 'bg-[#5AA9A0]/20 hover:bg-[#5AA9A0] text-[#5AA9A0] hover:text-[#0D1012] border-[#5AA9A0]/40'
-                    : 'bg-[#232729] text-[#737C80] border-[#232729] cursor-not-allowed'
+                    ? 'bg-[#5AA9A0]/20 hover:bg-[#5AA9A0] text-[#5AA9A0] hover:text-[#0D1012] border-[#5AA9A0]/40 cursor-pointer'
+                    : 'bg-[#232729] text-[#737C80] border-[#232729] cursor-not-allowed opacity-60'
                 }`}
               >
-                CONFIRM SIGNAL
+                {permissions.canMutateCoordination ? 'CONFIRM SIGNAL' : 'CONFIRM SIGNAL [DISABLED]'}
               </button>
               <button
                 onClick={() => updateStatus(cluster.id, 'DISMISSED')}
                 disabled={!permissions.canMutateCoordination}
-                className={`px-3 py-1.5 font-bold text-[10px] rounded-xs transition-colors cursor-pointer border ${
+                className={`px-3 py-1.5 font-bold text-[10px] rounded-xs transition-colors border ${
                   permissions.canMutateCoordination
-                    ? 'bg-[#232729] hover:bg-[#737C80]/40 text-[#737C80] hover:text-[#E8E3D8] border-[#232729]'
-                    : 'bg-[#232729] text-[#737C80] border-[#232729] cursor-not-allowed'
+                    ? 'bg-[#232729] hover:bg-[#737C80]/40 text-[#737C80] hover:text-[#E8E3D8] border-[#232729] cursor-pointer'
+                    : 'bg-[#232729] text-[#737C80] border-[#232729] cursor-not-allowed opacity-60'
                 }`}
               >
-                DISMISS SIGNAL
+                {permissions.canMutateCoordination ? 'DISMISS SIGNAL' : 'DISMISS SIGNAL [DISABLED]'}
               </button>
             </div>
           </div>

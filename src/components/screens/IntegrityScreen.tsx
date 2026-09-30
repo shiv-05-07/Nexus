@@ -120,16 +120,16 @@ export const IntegrityScreen: React.FC = () => {
                 <button
                   onClick={() => handleVerify(rec.id)}
                   disabled={isVerifying || !permissions.canVerifyEvidence}
-                  className={`px-4 py-2 font-mono font-bold text-xs rounded-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md ${
+                  className={`px-4 py-2 font-mono font-bold text-xs rounded-xs flex items-center justify-center gap-2 transition-all shadow-md ${
                     permissions.canVerifyEvidence
-                      ? 'bg-[#5AA9A0] hover:bg-[#5AA9A0]/90 text-[#0D1012]'
-                      : 'bg-[#232729] text-[#737C80] cursor-not-allowed'
+                      ? 'bg-[#5AA9A0] hover:bg-[#5AA9A0]/90 text-[#0D1012] cursor-pointer'
+                      : 'bg-[#232729] text-[#737C80] border border-[#232729] cursor-not-allowed opacity-60'
                   }`}
                 >
                   <FileCheck className="w-3.5 h-3.5" />
                   <span>
                     {!permissions.canVerifyEvidence
-                      ? 'VERIFICATION DISABLED (VIEWER ROLE)'
+                      ? 'VERIFY RECORD [DISABLED]'
                       : isVerifying
                       ? 'RUNNING FORENSIC VERIFICATION...'
                       : 'VERIFY RECORD'}

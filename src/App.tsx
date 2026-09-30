@@ -205,8 +205,18 @@ function MainAppContent() {
 }
 
 export default function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
+
+  if (!isAuthenticated) {
+    return (
+      <NexusProvider>
+        <LoginScreen onLogin={() => setIsAuthenticated(true)} />
+      </NexusProvider>
+    );
+  }
+
   return (
-    <NexusProvider>
+    <NexusProvider onSignOut={() => setIsAuthenticated(false)}>
       <MainAppContent />
     </NexusProvider>
   );

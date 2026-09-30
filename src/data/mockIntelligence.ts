@@ -686,3 +686,229 @@ export const DATASETS: Record<string, NexusDataset> = {
   ARCHIVE: ARCHIVE_DATASET,
   LIVE: LIVE_DEMO_DATASET,
 };
+
+export interface OverviewSnapshot {
+  metrics: IntelligenceMetric[];
+  narratives: EmergingNarrative[];
+  alerts: IntelligenceAlert[];
+  sentimentSeries: SentimentDataPoint[];
+}
+
+export const OVERVIEW_SNAPSHOTS: Record<string, Record<string, OverviewSnapshot>> = {
+  SYNTHETIC: {
+    '10m': {
+      metrics: [
+        { key: 'events', label: 'EVENTS', value: 2840, format: 'number', delta: '+310 in 10m', isPositiveDelta: true, timestamp: '10M WINDOW' },
+        { key: 'actors', label: 'OBSERVED ACTORS', value: 1420, format: 'number', delta: '+42 new', isPositiveDelta: true, timestamp: '10M WINDOW' },
+        { key: 'topics', label: 'ACTIVE TOPICS', value: 14, format: 'number', delta: '+1 emerging', isPositiveDelta: true, timestamp: '10M WINDOW' },
+        { key: 'alerts', label: 'INTELLIGENCE ALERTS', value: 2, format: 'number', delta: '1 critical', isPositiveDelta: false, timestamp: '10M WINDOW' },
+        { key: 'velocity', label: 'NARRATIVE VELOCITY', value: 42.6, format: 'percentage', delta: '+18.2% surge', isPositiveDelta: true, timestamp: '10M WINDOW' },
+      ],
+      narratives: [
+        {
+          id: 'TP-8842',
+          rank: '01',
+          topic: 'PUBLIC TRANSPORT STRIKE',
+          trendScore: 94,
+          acceleration: '+480%',
+          volume: '1.2K mentions / 10m',
+          mentionCount: 1240,
+          sentiment: { positive: 8, neutral: 14, negative: 78 },
+          platforms: ['X', 'TELEGRAM'],
+          communitiesCount: 4,
+          primaryCommunity: 'Community 04',
+          keyBridgeNode: 'N184',
+          summary: 'Rapid burst of coordinated strike hashtags and telegram forward spikes within the latest 10-minute window.',
+          status: 'EMERGING',
+        },
+        ...SYNTHETIC_NARRATIVES.slice(1),
+      ],
+      alerts: SYNTHETIC_ALERTS.slice(0, 2),
+      sentimentSeries: [
+        { time: '11:32', positive: 10, neutral: 28, negative: 62, sarcasmLikelihood: 0.78 },
+        { time: '11:42', positive: 8, neutral: 14, negative: 78, sarcasmLikelihood: 0.86 },
+      ],
+    },
+    '1h': {
+      metrics: [
+        { key: 'events', label: 'EVENTS', value: 24190, format: 'number', delta: '+1,820 in 1h', isPositiveDelta: true, timestamp: '1H WINDOW' },
+        { key: 'actors', label: 'OBSERVED ACTORS', value: 8640, format: 'number', delta: '+112 new', isPositiveDelta: true, timestamp: '1H WINDOW' },
+        { key: 'topics', label: 'ACTIVE TOPICS', value: 48, format: 'number', delta: '+2 emerging', isPositiveDelta: true, timestamp: '1H WINDOW' },
+        { key: 'alerts', label: 'INTELLIGENCE ALERTS', value: 5, format: 'number', delta: '1 critical', isPositiveDelta: false, timestamp: '1H WINDOW' },
+        { key: 'velocity', label: 'NARRATIVE VELOCITY', value: 31.4, format: 'percentage', delta: '+12.0% surge', isPositiveDelta: true, timestamp: '1H WINDOW' },
+      ],
+      narratives: [
+        {
+          id: 'TP-8842',
+          rank: '01',
+          topic: 'PUBLIC TRANSPORT STRIKE',
+          trendScore: 91,
+          acceleration: '+380%',
+          volume: '2.8K mentions / 1h',
+          mentionCount: 2810,
+          sentiment: { positive: 10, neutral: 18, negative: 72 },
+          platforms: ['X', 'TELEGRAM', 'YOUTUBE'],
+          communitiesCount: 6,
+          primaryCommunity: 'Community 04',
+          keyBridgeNode: 'N184',
+          summary: 'Accelerating strike mobilization thread activity across X, Telegram, and YouTube commentary clips.',
+          status: 'EMERGING',
+        },
+        ...SYNTHETIC_NARRATIVES.slice(1),
+      ],
+      alerts: SYNTHETIC_ALERTS.slice(0, 3),
+      sentimentSeries: [
+        { time: '10:42', positive: 14, neutral: 32, negative: 54, sarcasmLikelihood: 0.62 },
+        { time: '11:42', positive: 10, neutral: 18, negative: 72, sarcasmLikelihood: 0.84 },
+      ],
+    },
+    '6h': {
+      metrics: [
+        { key: 'events', label: 'EVENTS', value: 98420, format: 'number', delta: '+3,100 in 6h', isPositiveDelta: true, timestamp: '6H WINDOW' },
+        { key: 'actors', label: 'OBSERVED ACTORS', value: 21800, format: 'number', delta: '+210 new', isPositiveDelta: true, timestamp: '6H WINDOW' },
+        { key: 'topics', label: 'ACTIVE TOPICS', value: 84, format: 'number', delta: '+3 emerging', isPositiveDelta: true, timestamp: '6H WINDOW' },
+        { key: 'alerts', label: 'INTELLIGENCE ALERTS', value: 8, format: 'number', delta: '2 critical', isPositiveDelta: false, timestamp: '6H WINDOW' },
+        { key: 'velocity', label: 'NARRATIVE VELOCITY', value: 22.8, format: 'percentage', delta: '+6.8% vs avg', isPositiveDelta: true, timestamp: '6H WINDOW' },
+      ],
+      narratives: SYNTHETIC_NARRATIVES,
+      alerts: SYNTHETIC_ALERTS,
+      sentimentSeries: SYNTHETIC_SENTIMENT_SERIES,
+    },
+    '24h': {
+      metrics: SYNTHETIC_METRICS,
+      narratives: SYNTHETIC_NARRATIVES,
+      alerts: SYNTHETIC_ALERTS,
+      sentimentSeries: SYNTHETIC_SENTIMENT_SERIES,
+    },
+    '7d': {
+      metrics: [
+        { key: 'events', label: 'EVENTS', value: 1840290, format: 'number', delta: '+18,400 in 7d', isPositiveDelta: true, timestamp: '7D WINDOW' },
+        { key: 'actors', label: 'OBSERVED ACTORS', value: 148200, format: 'number', delta: '+1,240 new', isPositiveDelta: true, timestamp: '7D WINDOW' },
+        { key: 'topics', label: 'ACTIVE TOPICS', value: 320, format: 'number', delta: '+8 emerging', isPositiveDelta: true, timestamp: '7D WINDOW' },
+        { key: 'alerts', label: 'INTELLIGENCE ALERTS', value: 24, format: 'number', delta: '4 critical', isPositiveDelta: false, timestamp: '7D WINDOW' },
+        { key: 'velocity', label: 'NARRATIVE VELOCITY', value: 14.2, format: 'percentage', delta: '+1.8% vs avg', isPositiveDelta: true, timestamp: '7D WINDOW' },
+      ],
+      narratives: SYNTHETIC_NARRATIVES.map((n) => ({
+        ...n,
+        volume: `${(n.mentionCount * 4).toLocaleString()} mentions / 7d`,
+      })),
+      alerts: SYNTHETIC_ALERTS,
+      sentimentSeries: SYNTHETIC_SENTIMENT_SERIES,
+    },
+  },
+
+  ARCHIVE: {
+    '10m': {
+      metrics: [
+        { key: 'events', label: 'EVENTS', value: 4820, format: 'number', delta: '+420 in 10m', isPositiveDelta: true, timestamp: 'ARCHIVE 10M' },
+        { key: 'actors', label: 'OBSERVED ACTORS', value: 2840, format: 'number', delta: '+68 in 10m', isPositiveDelta: true, timestamp: 'ARCHIVE 10M' },
+        { key: 'topics', label: 'ACTIVE TOPICS', value: 18, format: 'number', delta: '+2 emerging', isPositiveDelta: true, timestamp: 'ARCHIVE 10M' },
+        { key: 'alerts', label: 'INTELLIGENCE ALERTS', value: 3, format: 'number', delta: '1 critical', isPositiveDelta: false, timestamp: 'ARCHIVE 10M' },
+        { key: 'velocity', label: 'NARRATIVE VELOCITY', value: 48.2, format: 'percentage', delta: '+22.1% surge', isPositiveDelta: true, timestamp: 'ARCHIVE 10M' },
+      ],
+      narratives: ARCHIVE_NARRATIVES,
+      alerts: ARCHIVE_ALERTS,
+      sentimentSeries: ARCHIVE_DATASET.sentimentSeries,
+    },
+    '1h': {
+      metrics: [
+        { key: 'events', label: 'EVENTS', value: 48200, format: 'number', delta: '+3,800 in 1h', isPositiveDelta: true, timestamp: 'ARCHIVE 1H' },
+        { key: 'actors', label: 'OBSERVED ACTORS', value: 18400, format: 'number', delta: '+240 new', isPositiveDelta: true, timestamp: 'ARCHIVE 1H' },
+        { key: 'topics', label: 'ACTIVE TOPICS', value: 62, format: 'number', delta: '+4 emerging', isPositiveDelta: true, timestamp: 'ARCHIVE 1H' },
+        { key: 'alerts', label: 'INTELLIGENCE ALERTS', value: 8, format: 'number', delta: '2 critical', isPositiveDelta: false, timestamp: 'ARCHIVE 1H' },
+        { key: 'velocity', label: 'NARRATIVE VELOCITY', value: 36.8, format: 'percentage', delta: '+16.4% surge', isPositiveDelta: true, timestamp: 'ARCHIVE 1H' },
+      ],
+      narratives: ARCHIVE_NARRATIVES,
+      alerts: ARCHIVE_ALERTS,
+      sentimentSeries: ARCHIVE_DATASET.sentimentSeries,
+    },
+    '6h': {
+      metrics: [
+        { key: 'events', label: 'EVENTS', value: 182400, format: 'number', delta: '+8,200 in 6h', isPositiveDelta: true, timestamp: 'ARCHIVE 6H' },
+        { key: 'actors', label: 'OBSERVED ACTORS', value: 44200, format: 'number', delta: '+480 new', isPositiveDelta: true, timestamp: 'ARCHIVE 6H' },
+        { key: 'topics', label: 'ACTIVE TOPICS', value: 110, format: 'number', delta: '+5 emerging', isPositiveDelta: true, timestamp: 'ARCHIVE 6H' },
+        { key: 'alerts', label: 'INTELLIGENCE ALERTS', value: 12, format: 'number', delta: '3 critical', isPositiveDelta: false, timestamp: 'ARCHIVE 6H' },
+        { key: 'velocity', label: 'NARRATIVE VELOCITY', value: 29.4, format: 'percentage', delta: '+9.2% vs avg', isPositiveDelta: true, timestamp: 'ARCHIVE 6H' },
+      ],
+      narratives: ARCHIVE_NARRATIVES,
+      alerts: ARCHIVE_ALERTS,
+      sentimentSeries: ARCHIVE_DATASET.sentimentSeries,
+    },
+    '24h': {
+      metrics: ARCHIVE_METRICS,
+      narratives: ARCHIVE_NARRATIVES,
+      alerts: ARCHIVE_ALERTS,
+      sentimentSeries: ARCHIVE_DATASET.sentimentSeries,
+    },
+    '7d': {
+      metrics: [
+        { key: 'events', label: 'EVENTS', value: 3120400, format: 'number', delta: '+42,800 in 7d', isPositiveDelta: true, timestamp: 'ARCHIVE 7D' },
+        { key: 'actors', label: 'OBSERVED ACTORS', value: 240800, format: 'number', delta: '+3,200 set', isPositiveDelta: true, timestamp: 'ARCHIVE 7D' },
+        { key: 'topics', label: 'ACTIVE TOPICS', value: 410, format: 'number', delta: '+12 historical', isPositiveDelta: true, timestamp: 'ARCHIVE 7D' },
+        { key: 'alerts', label: 'INTELLIGENCE ALERTS', value: 32, format: 'number', delta: '6 critical', isPositiveDelta: false, timestamp: 'ARCHIVE 7D' },
+        { key: 'velocity', label: 'NARRATIVE VELOCITY', value: 19.2, format: 'percentage', delta: '+3.4% vs avg', isPositiveDelta: true, timestamp: 'ARCHIVE 7D' },
+      ],
+      narratives: ARCHIVE_NARRATIVES,
+      alerts: ARCHIVE_ALERTS,
+      sentimentSeries: ARCHIVE_DATASET.sentimentSeries,
+    },
+  },
+
+  LIVE: {
+    '10m': {
+      metrics: [
+        { key: 'events', label: 'EVENTS', value: 3180, format: 'number', delta: '+480 live stream', isPositiveDelta: true, timestamp: 'LIVE 10M' },
+        { key: 'actors', label: 'OBSERVED ACTORS', value: 1840, format: 'number', delta: '+82 active', isPositiveDelta: true, timestamp: 'LIVE 10M' },
+        { key: 'topics', label: 'ACTIVE TOPICS', value: 16, format: 'number', delta: '+1 streaming', isPositiveDelta: true, timestamp: 'LIVE 10M' },
+        { key: 'alerts', label: 'INTELLIGENCE ALERTS', value: 3, format: 'number', delta: '1 UNREVIEWED', isPositiveDelta: false, timestamp: 'LIVE 10M' },
+        { key: 'velocity', label: 'NARRATIVE VELOCITY', value: 52.4, format: 'percentage', delta: '+24.1% SURGING', isPositiveDelta: true, timestamp: 'LIVE 10M' },
+      ],
+      narratives: LIVE_DEMO_NARRATIVES,
+      alerts: LIVE_DEMO_DATASET.alerts,
+      sentimentSeries: LIVE_DEMO_DATASET.sentimentSeries,
+    },
+    '1h': {
+      metrics: [
+        { key: 'events', label: 'EVENTS', value: 31840, format: 'number', delta: '+3,400 live stream', isPositiveDelta: true, timestamp: 'LIVE 1H' },
+        { key: 'actors', label: 'OBSERVED ACTORS', value: 12800, format: 'number', delta: '+210 active', isPositiveDelta: true, timestamp: 'LIVE 1H' },
+        { key: 'topics', label: 'ACTIVE TOPICS', value: 54, format: 'number', delta: '+2 streaming', isPositiveDelta: true, timestamp: 'LIVE 1H' },
+        { key: 'alerts', label: 'INTELLIGENCE ALERTS', value: 7, format: 'number', delta: '2 UNREVIEWED', isPositiveDelta: false, timestamp: 'LIVE 1H' },
+        { key: 'velocity', label: 'NARRATIVE VELOCITY', value: 41.2, format: 'percentage', delta: '+18.2% SURGING', isPositiveDelta: true, timestamp: 'LIVE 10M' },
+      ],
+      narratives: LIVE_DEMO_NARRATIVES,
+      alerts: LIVE_DEMO_DATASET.alerts,
+      sentimentSeries: LIVE_DEMO_DATASET.sentimentSeries,
+    },
+    '6h': {
+      metrics: [
+        { key: 'events', label: 'EVENTS', value: 118200, format: 'number', delta: '+6,800 live stream', isPositiveDelta: true, timestamp: 'LIVE 6H' },
+        { key: 'actors', label: 'OBSERVED ACTORS', value: 28400, format: 'number', delta: '+380 active', isPositiveDelta: true, timestamp: 'LIVE 6H' },
+        { key: 'topics', label: 'ACTIVE TOPICS', value: 92, format: 'number', delta: '+3 streaming', isPositiveDelta: true, timestamp: 'LIVE 6H' },
+        { key: 'alerts', label: 'INTELLIGENCE ALERTS', value: 11, format: 'number', delta: '3 UNREVIEWED', isPositiveDelta: false, timestamp: 'LIVE 6H' },
+        { key: 'velocity', label: 'NARRATIVE VELOCITY', value: 34.8, format: 'percentage', delta: '+12.6% SURGING', isPositiveDelta: true, timestamp: 'LIVE 6H' },
+      ],
+      narratives: LIVE_DEMO_NARRATIVES,
+      alerts: LIVE_DEMO_DATASET.alerts,
+      sentimentSeries: LIVE_DEMO_DATASET.sentimentSeries,
+    },
+    '24h': {
+      metrics: LIVE_DEMO_METRICS,
+      narratives: LIVE_DEMO_NARRATIVES,
+      alerts: LIVE_DEMO_DATASET.alerts,
+      sentimentSeries: LIVE_DEMO_DATASET.sentimentSeries,
+    },
+    '7d': {
+      metrics: [
+        { key: 'events', label: 'EVENTS', value: 2180400, format: 'number', delta: '+24,100 live stream', isPositiveDelta: true, timestamp: 'LIVE 7D' },
+        { key: 'actors', label: 'OBSERVED ACTORS', value: 182400, format: 'number', delta: '+1,820 active', isPositiveDelta: true, timestamp: 'LIVE 7D' },
+        { key: 'topics', label: 'ACTIVE TOPICS', value: 340, format: 'number', delta: '+6 streaming', isPositiveDelta: true, timestamp: 'LIVE 7D' },
+        { key: 'alerts', label: 'INTELLIGENCE ALERTS', value: 28, format: 'number', delta: '5 UNREVIEWED', isPositiveDelta: false, timestamp: 'LIVE 7D' },
+        { key: 'velocity', label: 'NARRATIVE VELOCITY', value: 21.6, format: 'percentage', delta: '+4.2% SURGING', isPositiveDelta: true, timestamp: 'LIVE 7D' },
+      ],
+      narratives: LIVE_DEMO_NARRATIVES,
+      alerts: LIVE_DEMO_DATASET.alerts,
+      sentimentSeries: LIVE_DEMO_DATASET.sentimentSeries,
+    },
+  },
+};
+
