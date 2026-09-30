@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { COORDINATION_CLUSTERS } from '../../data/mockIntelligence';
 import { CoordinationCluster, ReviewState } from '../../types/nexus';
-import { ShieldAlert, CheckCircle, XCircle, Info, UserCheck, AlertTriangle } from 'lucide-react';
+import { ShieldAlert, CheckCircle, XCircle, Info, UserCheck, AlertTriangle, Lock } from 'lucide-react';
+import { useNexus } from '../../context/NexusContext';
 
 export const CoordinationScreen: React.FC = () => {
-  const [clusters, setClusters] = useState<CoordinationCluster[]>(COORDINATION_CLUSTERS);
+  const { activeDataset, permissions } = useNexus();
+  const [clusters, setClusters] = useState<CoordinationCluster[]>(
+    activeDataset.coordinationClusters
+  );
 
   const updateStatus = (id: string, newState: ReviewState) => {
+    if (!permissions.canMutateCoordination) return;
     setClusters((prev) =>
       prev.map((c) => (c.id === id ? { ...c, reviewState: newState } : c))
     );
@@ -32,6 +36,16 @@ export const CoordinationScreen: React.FC = () => {
           <span>Statistical association does not establish intent or attribution.</span>
         </div>
       </div>
+
+      {/* Permission Restriction Warning for Viewer/Auditor */}
+      {!permissions.canMutateCoordination && (
+        <div className="p-3 bg-[#171A1C] border border-[#232729] rounded-xs font-mono text-xs flex items-center gap-2 text-[#737C80]">
+          <Lock className="w-3.5 h-3.5 text-[#D6A84F]" />
+          <span>
+            Signal review actions (Confirm / Dismiss) are disabled for your current role.
+          </span>
+        </div>
+      )}
 
       {/* Clusters List */}
       <div className="space-y-4">
@@ -94,13 +108,23 @@ export const CoordinationScreen: React.FC = () => {
             <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#232729]">
               <button
                 onClick={() => updateStatus(cluster.id, 'CONFIRMED')}
-                className="px-3 py-1.5 bg-[#5AA9A0]/20 hover:bg-[#5AA9A0] text-[#5AA9A0] hover:text-[#0D1012] font-bold text-[10px] rounded-xs transition-colors cursor-pointer border border-[#5AA9A0]/40"
+                disabled={!permissions.canMutateCoordination}
+                className={`px-3 py-1.5 font-bold text-[10px] rounded-xs transition-colors cursor-pointer border ${
+                  permissions.canMutateCoordination
+                    ? 'bg-[#5AA9A0]/20 hover:bg-[#5AA9A0] text-[#5AA9A0] hover:text-[#0D1012] border-[#5AA9A0]/40'
+                    : 'bg-[#232729] text-[#737C80] border-[#232729] cursor-not-allowed'
+                }`}
               >
                 CONFIRM SIGNAL
               </button>
               <button
                 onClick={() => updateStatus(cluster.id, 'DISMISSED')}
-                className="px-3 py-1.5 bg-[#232729] hover:bg-[#737C80]/40 text-[#737C80] hover:text-[#E8E3D8] font-bold text-[10px] rounded-xs transition-colors cursor-pointer border border-[#232729]"
+                disabled={!permissions.canMutateCoordination}
+                className={`px-3 py-1.5 font-bold text-[10px] rounded-xs transition-colors cursor-pointer border ${
+                  permissions.canMutateCoordination
+                    ? 'bg-[#232729] hover:bg-[#737C80]/40 text-[#737C80] hover:text-[#E8E3D8] border-[#232729]'
+                    : 'bg-[#232729] text-[#737C80] border-[#232729] cursor-not-allowed'
+                }`}
               >
                 DISMISS SIGNAL
               </button>

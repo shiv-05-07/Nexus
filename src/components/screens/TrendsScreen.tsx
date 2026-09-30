@@ -1,15 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { EMERGING_NARRATIVES } from '../../data/mockIntelligence';
 import { EmergingNarrative } from '../../types/nexus';
 import { TrendingUp, Zap, ArrowRight, Activity, Globe, Share2 } from 'lucide-react';
+import { useNexus } from '../../context/NexusContext';
 
 interface TrendsScreenProps {
   onInvestigateTopic: (topicId: string) => void;
 }
 
 export const TrendsScreen: React.FC<TrendsScreenProps> = ({ onInvestigateTopic }) => {
-  const [selectedTopic, setSelectedTopic] = useState<EmergingNarrative>(EMERGING_NARRATIVES[0]);
+  const { activeDataset } = useNexus();
+  const narratives = activeDataset.narratives;
+  const [selectedTopic, setSelectedTopic] = useState<EmergingNarrative>(narratives[0]);
+
+  useEffect(() => {
+    if (narratives.length > 0) {
+      setSelectedTopic(narratives[0]);
+    }
+  }, [narratives]);
 
   return (
     <div className="space-y-6">
@@ -19,11 +27,11 @@ export const TrendsScreen: React.FC<TrendsScreenProps> = ({ onInvestigateTopic }
           04. TREND EXPLORER & ACCELERATION MATRIX
         </h1>
         <p className="font-mono text-xs text-[#737C80] mt-0.5">
-          Velocity-focused narrative momentum detection — why raw volume alone is insufficient
+          Velocity-focused narrative momentum detection — why raw volume alone is insufficient ({activeDataset.name})
         </p>
       </div>
 
-      {/* Explanatory Banner: Volume vs Acceleration */}
+      {/* Explanatory Banner */}
       <div className="p-4 bg-[#171A1C] border-l-4 border-l-[#C9784A] border border-[#232729] rounded-xs font-mono text-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div className="space-y-1">
           <div className="text-[#C9784A] font-bold uppercase tracking-wider text-[11px]">
@@ -35,12 +43,14 @@ export const TrendsScreen: React.FC<TrendsScreenProps> = ({ onInvestigateTopic }
           </p>
         </div>
 
-        <button
-          onClick={() => onInvestigateTopic(selectedTopic.id)}
-          className="px-4 py-2 bg-[#C9784A] hover:bg-[#C9784A]/90 text-[#0D1012] font-bold text-xs rounded-xs shrink-0 cursor-pointer transition-colors shadow-sm"
-        >
-          INVESTIGATE SELECTED ({selectedTopic.id})
-        </button>
+        {selectedTopic && (
+          <button
+            onClick={() => onInvestigateTopic(selectedTopic.id)}
+            className="px-4 py-2 bg-[#C9784A] hover:bg-[#C9784A]/90 text-[#0D1012] font-bold text-xs rounded-xs shrink-0 cursor-pointer transition-colors shadow-sm"
+          >
+            INVESTIGATE SELECTED ({selectedTopic.id})
+          </button>
+        )}
       </div>
 
       {/* Main Matrix Grid */}
@@ -52,8 +62,8 @@ export const TrendsScreen: React.FC<TrendsScreenProps> = ({ onInvestigateTopic }
           </h2>
 
           <div className="space-y-2">
-            {EMERGING_NARRATIVES.map((topic) => {
-              const isSelected = selectedTopic.id === topic.id;
+            {narratives.map((topic) => {
+              const isSelected = selectedTopic?.id === topic.id;
               return (
                 <div
                   key={topic.id}
@@ -97,48 +107,50 @@ export const TrendsScreen: React.FC<TrendsScreenProps> = ({ onInvestigateTopic }
         </div>
 
         {/* Selected Topic Details (~35% / 4 cols) */}
-        <div className="lg:col-span-4 bg-[#171A1C] border border-[#232729] rounded-sm p-5 space-y-4">
-          <div className="border-b border-[#232729] pb-3">
-            <span className="font-mono text-[10px] text-[#C9784A] uppercase tracking-wider">
-              SELECTED TOPIC PROFILE
-            </span>
-            <h3 className="font-sans font-extrabold text-base text-[#E8E3D8] mt-1">
-              {selectedTopic.topic}
-            </h3>
-          </div>
-
-          <div className="space-y-3 font-mono text-xs">
-            <div className="p-3 bg-[#0D1012] border border-[#232729] rounded-xs space-y-2">
-              <div className="flex justify-between text-[11px]">
-                <span className="text-[#737C80]">Trend Momentum Score:</span>
-                <span className="text-[#E8E3D8] font-bold">{selectedTopic.trendScore} / 100</span>
-              </div>
-              <div className="flex justify-between text-[11px]">
-                <span className="text-[#737C80]">2h Acceleration Delta:</span>
-                <span className="text-[#5AA9A0] font-bold">{selectedTopic.acceleration}</span>
-              </div>
-              <div className="flex justify-between text-[11px]">
-                <span className="text-[#737C80]">Primary Community:</span>
-                <span className="text-[#E8E3D8]">{selectedTopic.primaryCommunity}</span>
-              </div>
+        {selectedTopic && (
+          <div className="lg:col-span-4 bg-[#171A1C] border border-[#232729] rounded-sm p-5 space-y-4">
+            <div className="border-b border-[#232729] pb-3">
+              <span className="font-mono text-[10px] text-[#C9784A] uppercase tracking-wider">
+                SELECTED TOPIC PROFILE
+              </span>
+              <h3 className="font-sans font-extrabold text-base text-[#E8E3D8] mt-1">
+                {selectedTopic.topic}
+              </h3>
             </div>
 
-            <div className="p-3 bg-[#0D1012] border border-[#232729] rounded-xs space-y-1.5">
-              <div className="text-[10px] text-[#737C80] uppercase">TOPIC SUMMARY</div>
-              <p className="font-sans text-xs text-[#BDB5A6]/90 leading-relaxed">
-                {selectedTopic.summary}
-              </p>
-            </div>
+            <div className="space-y-3 font-mono text-xs">
+              <div className="p-3 bg-[#0D1012] border border-[#232729] rounded-xs space-y-2">
+                <div className="flex justify-between text-[11px]">
+                  <span className="text-[#737C80]">Trend Momentum Score:</span>
+                  <span className="text-[#E8E3D8] font-bold">{selectedTopic.trendScore} / 100</span>
+                </div>
+                <div className="flex justify-between text-[11px]">
+                  <span className="text-[#737C80]">2h Acceleration Delta:</span>
+                  <span className="text-[#5AA9A0] font-bold">{selectedTopic.acceleration}</span>
+                </div>
+                <div className="flex justify-between text-[11px]">
+                  <span className="text-[#737C80]">Primary Community:</span>
+                  <span className="text-[#E8E3D8]">{selectedTopic.primaryCommunity}</span>
+                </div>
+              </div>
 
-            <button
-              onClick={() => onInvestigateTopic(selectedTopic.id)}
-              className="w-full py-2.5 bg-[#C9784A] hover:bg-[#C9784A]/90 text-[#0D1012] font-mono font-bold text-xs rounded-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
-            >
-              <span>LAUNCH FULL INVESTIGATION</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
+              <div className="p-3 bg-[#0D1012] border border-[#232729] rounded-xs space-y-1.5">
+                <div className="text-[10px] text-[#737C80] uppercase">TOPIC SUMMARY</div>
+                <p className="font-sans text-xs text-[#BDB5A6]/90 leading-relaxed">
+                  {selectedTopic.summary}
+                </p>
+              </div>
+
+              <button
+                onClick={() => onInvestigateTopic(selectedTopic.id)}
+                className="w-full py-2.5 bg-[#C9784A] hover:bg-[#C9784A]/90 text-[#0D1012] font-mono font-bold text-xs rounded-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
+              >
+                <span>LAUNCH FULL INVESTIGATION</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

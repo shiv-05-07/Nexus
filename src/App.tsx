@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { DataMode, EmergingNarrative, IntelligenceAlert, ScreenId, TimelineEvent } from './types/nexus';
-import { EMERGING_NARRATIVES, INTELLIGENCE_ALERTS, TIMELINE_EVENTS } from './data/mockIntelligence';
+import { ScreenId, EmergingNarrative, TimelineEvent } from './types/nexus';
+import { NexusProvider, useNexus } from './context/NexusContext';
 
 import { Sidebar } from './components/common/Sidebar';
 import { TopBar } from './components/common/TopBar';
@@ -20,19 +20,25 @@ import { CoordinationScreen } from './components/screens/CoordinationScreen';
 import { IntegrityScreen } from './components/screens/IntegrityScreen';
 import { LoginScreen } from './components/screens/LoginScreen';
 
-export default function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true); // default logged in for prototype demo
+function MainAppContent() {
+  const { activeDataset, isSourceSwitching, sourceMode } = useNexus();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
   const [currentScreen, setCurrentScreen] = useState<ScreenId>('overview');
-  const [dataMode, setDataMode] = useState<DataMode>('SYNTHETIC');
 
   // Interactive drawers & search state
   const [isCommandOpen, setIsCommandOpen] = useState<boolean>(false);
   const [isAlertsOpen, setIsAlertsOpen] = useState<boolean>(false);
   const [selectedDrawerTopic, setSelectedDrawerTopic] = useState<EmergingNarrative | null>(null);
 
-  // Live dynamic counter for events
-  const [totalEvents, setTotalEvents] = useState<number>(284391);
-  const [alerts, setAlerts] = useState<IntelligenceAlert[]>(INTELLIGENCE_ALERTS);
+  // Dynamic counter simulation for total events
+  const [totalEvents, setTotalEvents] = useState<number>(activeDataset.metrics[0]?.value || 284391);
+
+  // Sync event count when dataset changes
+  useEffect(() => {
+    if (activeDataset.metrics[0]?.value) {
+      setTotalEvents(activeDataset.metrics[0].value);
+    }
+  }, [activeDataset]);
 
   // Event ticker interval simulation
   useEffect(() => {
@@ -56,8 +62,11 @@ export default function App() {
 
   // Topic selection handler from any screen
   const handleSelectTopic = (topicId: string) => {
-    const found = EMERGING_NARRATIVES.find((t) => t.id === topicId) || EMERGING_NARRATIVES[0];
-    setSelectedDrawerTopic(found);
+    const found =
+      activeDataset.narratives.find((t) => t.id === topicId) || activeDataset.narratives[0];
+    if (found) {
+      setSelectedDrawerTopic(found);
+    }
   };
 
   // Direct navigate to Narrative Investigation Screen
@@ -70,16 +79,37 @@ export default function App() {
     return <LoginScreen onLogin={() => setIsAuthenticated(true)} />;
   }
 
+  const alerts = activeDataset.alerts;
   const unreadAlertsCount = alerts.filter((a) => !a.read).length;
 
   return (
-    <div className="flex h-screen w-screen bg-[#0D1012] text-[#E8E3D8] font-sans antialiased overflow-hidden select-none">
+    <div className="flex h-screen w-screen bg-[#0D1012] text-[#E8E3D8] font-sans antialiased overflow-hidden select-none relative">
+      {/* Source Switching Transition Overlay */}
+      <AnimatePresence>
+        {isSourceSwitching && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="absolute inset-0 bg-[#0D1012]/90 backdrop-blur-xs z-50 flex items-center justify-center font-mono text-xs text-[#C9784A]"
+          >
+            <div className="p-4 bg-[#171A1C] border border-[#232729] rounded-xs space-y-2 text-center">
+              <div className="font-bold tracking-widest uppercase text-sm">
+                DATA SOURCE SWITCHING...
+              </div>
+              <div className="text-[10px] text-[#737C80]">
+                RECONFIGURING PIPELINE TO {sourceMode} MODE
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Persistent Left Navigation Rail */}
       <Sidebar
         currentScreen={currentScreen}
         onNavigate={(screen) => setCurrentScreen(screen)}
-        dataMode={dataMode}
-        onDataModeChange={(mode) => setDataMode(mode)}
       />
 
       {/* Main Workspace Frame */}
@@ -87,7 +117,6 @@ export default function App() {
         {/* Top Status & Command Header Bar */}
         <TopBar
           totalEvents={totalEvents}
-          dataMode={dataMode}
           unreadAlertsCount={unreadAlertsCount}
           onOpenAlerts={() => setIsAlertsOpen(true)}
           onOpenCommandSearch={() => setIsCommandOpen(true)}
@@ -97,7 +126,7 @@ export default function App() {
         <main className="flex-1 overflow-y-auto p-6 relative">
           <AnimatePresence mode="wait">
             <motion.div
-              key={currentScreen}
+              key={`${currentScreen}-${sourceMode}`}
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0.92, y: 4 }}
@@ -106,8 +135,6 @@ export default function App() {
             >
               {currentScreen === 'overview' && (
                 <OverviewScreen
-                  narratives={EMERGING_NARRATIVES}
-                  alerts={alerts}
                   onSelectTopic={handleSelectTopic}
                   onNavigateToScreen={(s) => setCurrentScreen(s as ScreenId)}
                 />
@@ -116,7 +143,6 @@ export default function App() {
               {currentScreen === 'timeline' && (
                 <TimelineScreen
                   onSelectEvent={(evt) => handleSelectTopic(evt.topicId || 'TP-8842')}
-                  dataMode={dataMode}
                 />
               )}
 
@@ -175,5 +201,13 @@ export default function App() {
         onFullInvestigate={handleLaunchFullInvestigation}
       />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <NexusProvider>
+      <MainAppContent />
+    </NexusProvider>
   );
 }

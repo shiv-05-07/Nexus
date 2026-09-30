@@ -17,6 +17,81 @@ export type Platform = 'ALL' | 'X' | 'TELEGRAM' | 'YOUTUBE' | 'REDDIT';
 
 export type ReviewState = 'UNREVIEWED' | 'CONFIRMED' | 'DISMISSED';
 
+export type UserRole = 'ANALYST' | 'AUDITOR' | 'VIEWER' | 'ADMINISTRATOR';
+
+export interface UserIdentity {
+  id: string; // e.g. "AN-9042"
+  name: string; // e.g. "Senior Narrative Analyst"
+  role: UserRole;
+  department: string; // e.g. "NTRO / CYBER-INT"
+  avatarInitials: string;
+}
+
+export interface RolePermissions {
+  canMutateCoordination: boolean; // Confirm / Dismiss signals
+  canVerifyEvidence: boolean; // Verify Record in Integrity
+  canInvestigate: boolean; // Launch investigation
+  canAccessAdminPanel: boolean; // Admin controls
+}
+
+export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
+  ANALYST: {
+    canMutateCoordination: true,
+    canVerifyEvidence: true,
+    canInvestigate: true,
+    canAccessAdminPanel: false,
+  },
+  AUDITOR: {
+    canMutateCoordination: false,
+    canVerifyEvidence: true,
+    canInvestigate: true,
+    canAccessAdminPanel: false,
+  },
+  VIEWER: {
+    canMutateCoordination: false,
+    canVerifyEvidence: false,
+    canInvestigate: true,
+    canAccessAdminPanel: false,
+  },
+  ADMINISTRATOR: {
+    canMutateCoordination: true,
+    canVerifyEvidence: true,
+    canInvestigate: true,
+    canAccessAdminPanel: true,
+  },
+};
+
+export const DEMO_IDENTITIES: Record<UserRole, UserIdentity> = {
+  ANALYST: {
+    id: 'AN-9042',
+    name: 'Senior Narrative Analyst',
+    role: 'ANALYST',
+    department: 'NTRO / CYBER-INT',
+    avatarInitials: 'AN',
+  },
+  AUDITOR: {
+    id: 'AU-1173',
+    name: 'Evidence Auditor',
+    role: 'AUDITOR',
+    department: 'NTRO / COMPLIANCE',
+    avatarInitials: 'AU',
+  },
+  VIEWER: {
+    id: 'VW-2210',
+    name: 'Read-Only Intelligence Viewer',
+    role: 'VIEWER',
+    department: 'NTRO / EXECUTIVE',
+    avatarInitials: 'VW',
+  },
+  ADMINISTRATOR: {
+    id: 'AD-001',
+    name: 'System Administrator',
+    role: 'ADMINISTRATOR',
+    department: 'NTRO / SYS-ADMIN',
+    avatarInitials: 'AD',
+  },
+};
+
 export interface TimelineEvent {
   id: string;
   timestamp: string; // ISO or HH:MM:SS
@@ -167,4 +242,20 @@ export interface EvidenceRecord {
   chainStatus: 'VALID' | 'TAMPERED';
   merkleCheckpoint: string;
   payloadSummary: string;
+}
+
+export interface NexusDataset {
+  name: string;
+  metrics: IntelligenceMetric[];
+  narratives: EmergingNarrative[];
+  alerts: IntelligenceAlert[];
+  timelineEvents: TimelineEvent[];
+  sentimentSeries: SentimentDataPoint[];
+  emotionBreakdown: EmotionBreakdown;
+  networkNodes: NetworkNode[];
+  networkEdges: NetworkEdge[];
+  propagationSequence: PropagationStep[];
+  audienceClusters: AudienceCluster[];
+  coordinationClusters: CoordinationCluster[];
+  evidenceRecords: EvidenceRecord[];
 }

@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { PROPAGATION_SEQUENCE, EMERGING_NARRATIVES, EVIDENCE_RECORDS } from '../../data/mockIntelligence';
-import { Search, Play, Pause, RotateCcw, ArrowRight, ShieldAlert, CheckCircle, FileCheck, Share2 } from 'lucide-react';
+import { motion } from 'motion/react';
+import { Play, Pause, RotateCcw, FileCheck } from 'lucide-react';
+import { useNexus } from '../../context/NexusContext';
 
 interface InvestigateScreenProps {
   onNavigateToScreen: (screen: string) => void;
 }
 
 export const InvestigateScreen: React.FC<InvestigateScreenProps> = ({ onNavigateToScreen }) => {
+  const { activeDataset } = useNexus();
+  const propagationSequence = activeDataset.propagationSequence;
+  const topic = activeDataset.narratives[0];
+
   const [activeStep, setActiveStep] = useState(1);
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -17,7 +21,7 @@ export const InvestigateScreen: React.FC<InvestigateScreenProps> = ({ onNavigate
     if (isPlaying) {
       timer = setInterval(() => {
         setActiveStep((prev) => {
-          if (prev >= PROPAGATION_SEQUENCE.length) {
+          if (prev >= propagationSequence.length) {
             setIsPlaying(false);
             return prev;
           }
@@ -26,9 +30,9 @@ export const InvestigateScreen: React.FC<InvestigateScreenProps> = ({ onNavigate
       }, 1200);
     }
     return () => clearInterval(timer);
-  }, [isPlaying]);
+  }, [isPlaying, propagationSequence]);
 
-  const topic = EMERGING_NARRATIVES[0]; // Public Transport Strike
+  if (!topic) return null;
 
   return (
     <div className="space-y-6">
@@ -39,6 +43,8 @@ export const InvestigateScreen: React.FC<InvestigateScreenProps> = ({ onNavigate
             <span>TOPIC ID: {topic.id}</span>
             <span>·</span>
             <span>STATUS: {topic.status}</span>
+            <span>·</span>
+            <span>DATASET: {activeDataset.name}</span>
           </div>
           <h1 className="font-sans font-extrabold text-2xl text-[#E8E3D8] tracking-wide uppercase mt-0.5">
             07. NARRATIVE PROPAGATION RECONSTRUCTION
@@ -54,7 +60,7 @@ export const InvestigateScreen: React.FC<InvestigateScreenProps> = ({ onNavigate
             className="px-3 py-1.5 bg-[#232729] hover:bg-[#737C80]/30 text-[#E8E3D8] font-mono text-[11px] rounded-xs flex items-center gap-2 transition-colors cursor-pointer"
           >
             <FileCheck className="w-3.5 h-3.5 text-[#5AA9A0]" />
-            <span>EVIDENCE NX-2026-0917</span>
+            <span>EVIDENCE PROVENANCE</span>
           </button>
         </div>
       </div>
@@ -84,12 +90,12 @@ export const InvestigateScreen: React.FC<InvestigateScreenProps> = ({ onNavigate
             <div className="text-[10px] text-[#737C80] uppercase">SENTIMENT SHIFT DYNAMICS</div>
             <div className="flex justify-between text-[11px] pt-1">
               <span>BEFORE: <strong className="text-[#737C80]">Neutral 54%</strong></span>
-              <span>AFTER: <strong className="text-[#C75C5C]">Negative 68%</strong></span>
+              <span>AFTER: <strong className="text-[#C75C5C]">Negative {topic.sentiment.negative}%</strong></span>
             </div>
             <div className="h-2 w-full bg-[#232729] rounded-xs overflow-hidden flex mt-1">
-              <div className="w-[68%] bg-[#C75C5C]" />
-              <div className="w-[20%] bg-[#737C80]" />
-              <div className="w-[12%] bg-[#5AA9A0]" />
+              <div style={{ width: `${topic.sentiment.negative}%` }} className="bg-[#C75C5C]" />
+              <div style={{ width: `${topic.sentiment.neutral}%` }} className="bg-[#737C80]" />
+              <div style={{ width: `${topic.sentiment.positive}%` }} className="bg-[#5AA9A0]" />
             </div>
           </div>
 
@@ -97,11 +103,12 @@ export const InvestigateScreen: React.FC<InvestigateScreenProps> = ({ onNavigate
           <div className="p-4 bg-[#171A1C] border border-[#232729] rounded-sm space-y-2">
             <div className="text-[10px] text-[#737C80] uppercase">CROSS-PLATFORM SPREAD PATH</div>
             <div className="flex items-center justify-between text-[11px] font-bold text-[#C9784A] pt-1">
-              <span>X</span>
-              <span>→</span>
-              <span>TELEGRAM</span>
-              <span>→</span>
-              <span>YOUTUBE</span>
+              {topic.platforms.map((p, i) => (
+                <React.Fragment key={p}>
+                  <span>{p}</span>
+                  {i < topic.platforms.length - 1 && <span>→</span>}
+                </React.Fragment>
+              ))}
             </div>
           </div>
 
@@ -112,7 +119,7 @@ export const InvestigateScreen: React.FC<InvestigateScreenProps> = ({ onNavigate
               <span className="text-[#D6A84F] font-bold">UNREVIEWED</span>
             </div>
             <p className="font-sans text-xs text-[#E8E3D8]/90 leading-relaxed">
-              Statistical association detected across 7 accounts ($p = 0.003$). Analyst review required.
+              Statistical association detected across active accounts ($p = 0.003$). Analyst review required.
             </p>
             <button
               onClick={() => onNavigateToScreen('coordination')}
@@ -158,7 +165,7 @@ export const InvestigateScreen: React.FC<InvestigateScreenProps> = ({ onNavigate
 
           {/* Sequential Propagation Path Visual */}
           <div className="space-y-3">
-            {PROPAGATION_SEQUENCE.map((step) => {
+            {propagationSequence.map((step) => {
               const isRevealed = step.stepIndex <= activeStep;
               const isCurrent = step.stepIndex === activeStep;
 
@@ -204,7 +211,7 @@ export const InvestigateScreen: React.FC<InvestigateScreenProps> = ({ onNavigate
             })}
           </div>
 
-          {/* Structured Evidence Explanation: "WHY THIS ALERT EXISTS" */}
+          {/* Structured Evidence Explanation */}
           <div className="p-4 bg-[#0D1012] border border-[#232729] rounded-xs space-y-3 font-mono text-xs">
             <h3 className="font-sans font-bold text-xs text-[#E8E3D8] uppercase tracking-wide text-[#C9784A]">
               WHY THIS ALERT EXISTS (STRUCTURED EVIDENCE REASONING)
@@ -213,7 +220,7 @@ export const InvestigateScreen: React.FC<InvestigateScreenProps> = ({ onNavigate
             <div className="space-y-1.5 text-[11px] text-[#BDB5A6]">
               <div className="flex items-start gap-2">
                 <span className="text-[#5AA9A0] font-bold">•</span>
-                <span>Topic volume increased 312% in 4 hours across 4 platforms</span>
+                <span>Topic volume increased {topic.acceleration} in monitored window</span>
               </div>
               <div className="flex items-start gap-2">
                 <span className="text-[#5AA9A0] font-bold">•</span>
@@ -221,19 +228,15 @@ export const InvestigateScreen: React.FC<InvestigateScreenProps> = ({ onNavigate
               </div>
               <div className="flex items-start gap-2">
                 <span className="text-[#5AA9A0] font-bold">•</span>
-                <span>Negative sentiment increased 21.4% with 0.82 sarcasm likelihood score</span>
+                <span>Negative sentiment increased with high sarcasm likelihood score</span>
               </div>
               <div className="flex items-start gap-2">
                 <span className="text-[#5AA9A0] font-bold">•</span>
-                <span>Community 04 activity preceded Community 07 Telegram crossover</span>
+                <span>Primary community activity preceded cross-platform crossover</span>
               </div>
               <div className="flex items-start gap-2">
                 <span className="text-[#5AA9A0] font-bold">•</span>
-                <span>Bridge Node N184 exhibited high betweenness centrality (0.81)</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="text-[#5AA9A0] font-bold">•</span>
-                <span>Statistical coordination test produced $p = 0.003$ (FDR-adjusted)</span>
+                <span>Bridge Node {topic.keyBridgeNode} exhibited high betweenness centrality</span>
               </div>
             </div>
           </div>

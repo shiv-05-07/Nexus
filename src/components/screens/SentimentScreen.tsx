@@ -1,9 +1,12 @@
 import React from 'react';
-import { motion } from 'motion/react';
-import { SENTIMENT_SERIES, EMOTION_BREAKDOWN, EMERGING_NARRATIVES } from '../../data/mockIntelligence';
-import { Smile, AlertCircle, HelpCircle } from 'lucide-react';
+import { useNexus } from '../../context/NexusContext';
 
 export const SentimentScreen: React.FC = () => {
+  const { activeDataset } = useNexus();
+  const sentimentSeries = activeDataset.sentimentSeries;
+  const emotionBreakdown = activeDataset.emotionBreakdown;
+  const narratives = activeDataset.narratives;
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -12,7 +15,7 @@ export const SentimentScreen: React.FC = () => {
           03. SENTIMENT & EMOTION INTELLIGENCE
         </h1>
         <p className="font-mono text-xs text-[#737C80] mt-0.5">
-          Multi-dimensional affective NLP analytics, stance extraction, and sarcasm detection
+          Multi-dimensional affective NLP analytics, stance extraction, and sarcasm detection ({activeDataset.name})
         </p>
       </div>
 
@@ -37,17 +40,15 @@ export const SentimentScreen: React.FC = () => {
             </div>
           </div>
 
-          {/* Custom SVG Line & Area Visualization */}
+          {/* SVG Line Visualization */}
           <div className="h-64 w-full bg-[#0D1012] p-4 border border-[#232729] rounded-xs flex flex-col justify-between font-mono text-[10px] text-[#737C80] relative">
             <svg className="absolute inset-0 w-full h-full p-6 overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 100">
-              {/* Negative Sentiment Line (Surging) */}
               <polyline
                 fill="none"
                 stroke="#C75C5C"
                 strokeWidth="2.5"
                 points="0,82 20,76 40,68 60,54 80,42 100,32"
               />
-              {/* Neutral Line */}
               <polyline
                 fill="none"
                 stroke="#737C80"
@@ -55,7 +56,6 @@ export const SentimentScreen: React.FC = () => {
                 strokeDasharray="4 2"
                 points="0,42 20,46 40,52 60,62 80,72 100,80"
               />
-              {/* Positive Line */}
               <polyline
                 fill="none"
                 stroke="#5AA9A0"
@@ -84,27 +84,27 @@ export const SentimentScreen: React.FC = () => {
             <div className="grid grid-cols-2 sm:grid-cols-6 gap-2 font-mono text-[10px]">
               <div className="p-2.5 bg-[#0D1012] border border-[#232729] rounded-xs">
                 <div className="text-[#737C80]">OPPOSITION</div>
-                <div className="text-base font-bold text-[#C75C5C]">{EMOTION_BREAKDOWN.opposition}%</div>
+                <div className="text-base font-bold text-[#C75C5C]">{emotionBreakdown.opposition}%</div>
               </div>
               <div className="p-2.5 bg-[#0D1012] border border-[#232729] rounded-xs">
                 <div className="text-[#737C80]">ANXIETY</div>
-                <div className="text-base font-bold text-[#D6A84F]">{EMOTION_BREAKDOWN.anxiety}%</div>
+                <div className="text-base font-bold text-[#D6A84F]">{emotionBreakdown.anxiety}%</div>
               </div>
               <div className="p-2.5 bg-[#0D1012] border border-[#232729] rounded-xs">
                 <div className="text-[#737C80]">ANGER</div>
-                <div className="text-base font-bold text-[#C75C5C]">{EMOTION_BREAKDOWN.anger}%</div>
+                <div className="text-base font-bold text-[#C75C5C]">{emotionBreakdown.anger}%</div>
               </div>
               <div className="p-2.5 bg-[#0D1012] border border-[#232729] rounded-xs">
                 <div className="text-[#737C80]">SARCASM</div>
-                <div className="text-base font-bold text-[#C9784A]">{EMOTION_BREAKDOWN.sarcasm}%</div>
+                <div className="text-base font-bold text-[#C9784A]">{emotionBreakdown.sarcasm}%</div>
               </div>
               <div className="p-2.5 bg-[#0D1012] border border-[#232729] rounded-xs">
                 <div className="text-[#737C80]">SUPPORTIVE</div>
-                <div className="text-base font-bold text-[#5AA9A0]">{EMOTION_BREAKDOWN.supportive}%</div>
+                <div className="text-base font-bold text-[#5AA9A0]">{emotionBreakdown.supportive}%</div>
               </div>
               <div className="p-2.5 bg-[#0D1012] border border-[#232729] rounded-xs">
                 <div className="text-[#737C80]">EXCITEMENT</div>
-                <div className="text-base font-bold text-[#E8E3D8]">{EMOTION_BREAKDOWN.excitement}%</div>
+                <div className="text-base font-bold text-[#E8E3D8]">{emotionBreakdown.excitement}%</div>
               </div>
             </div>
           </div>
@@ -125,7 +125,9 @@ export const SentimentScreen: React.FC = () => {
 
             <div className="flex items-baseline justify-between my-2">
               <span className="font-mono text-xs text-[#737C80]">LIKELIHOOD:</span>
-              <span className="font-mono text-3xl font-extrabold text-[#C9784A]">0.82</span>
+              <span className="font-mono text-3xl font-extrabold text-[#C9784A]">
+                {sentimentSeries[sentimentSeries.length - 1]?.sarcasmLikelihood || 0.82}
+              </span>
             </div>
 
             <div className="p-3 bg-[#0D1012] border border-[#232729] rounded-xs">
@@ -168,18 +170,6 @@ export const SentimentScreen: React.FC = () => {
                   <div className="w-[12%] bg-[#5AA9A0]" />
                 </div>
               </div>
-
-              <div>
-                <div className="flex justify-between text-[10px] text-[#737C80] mb-1">
-                  <span>YOUTUBE</span>
-                  <span className="text-[#737C80]">48% NEUTRAL</span>
-                </div>
-                <div className="h-1.5 bg-[#232729] rounded-xs overflow-hidden flex">
-                  <div className="w-[38%] bg-[#C75C5C]" />
-                  <div className="w-[48%] bg-[#737C80]" />
-                  <div className="w-[14%] bg-[#5AA9A0]" />
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -192,7 +182,7 @@ export const SentimentScreen: React.FC = () => {
         </h3>
 
         <div className="divide-y divide-[#232729]">
-          {EMERGING_NARRATIVES.map((t) => (
+          {narratives.map((t) => (
             <div key={t.id} className="py-3 flex flex-col md:flex-row md:items-center justify-between gap-3 font-mono text-xs">
               <div>
                 <span className="text-[#C9784A] text-[10px] mr-2">{t.id}</span>

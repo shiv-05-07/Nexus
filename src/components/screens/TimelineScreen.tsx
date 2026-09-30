@@ -1,12 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { TimelineEvent, Platform, TimeRange, DataMode } from '../../types/nexus';
-import { TIMELINE_EVENTS } from '../../data/mockIntelligence';
 import { Clock, Filter, ArrowUpRight, ShieldAlert, Sparkles, Inbox } from 'lucide-react';
+import { useNexus } from '../../context/NexusContext';
 
 interface TimelineScreenProps {
   onSelectEvent: (event: TimelineEvent) => void;
-  dataMode: DataMode;
 }
 
 const TIME_WINDOW_MINUTES: Record<TimeRange, number> = {
@@ -30,14 +29,17 @@ export function filterTimelineEvents(
   });
 }
 
-export const TimelineScreen: React.FC<TimelineScreenProps> = ({ onSelectEvent, dataMode }) => {
+export const TimelineScreen: React.FC<TimelineScreenProps> = ({ onSelectEvent }) => {
+  const { activeDataset, sourceMode } = useNexus();
+  const timelineEvents = activeDataset.timelineEvents;
+
   const [selectedRange, setSelectedRange] = useState<TimeRange>('24h');
   const [selectedPlatform, setSelectedPlatform] = useState<Platform>('ALL');
 
   // Single Source of Truth Filtering
   const visibleEvents = useMemo(() => {
-    return filterTimelineEvents(TIMELINE_EVENTS, selectedRange, selectedPlatform);
-  }, [selectedRange, selectedPlatform]);
+    return filterTimelineEvents(timelineEvents, selectedRange, selectedPlatform);
+  }, [timelineEvents, selectedRange, selectedPlatform]);
 
   // Derived Peak Calculation
   const peakMetric = useMemo(() => {
@@ -57,7 +59,6 @@ export const TimelineScreen: React.FC<TimelineScreenProps> = ({ onSelectEvent, d
     const bucketSize = maxWindowMins / 16;
 
     const buckets = Array.from({ length: 16 }, (_, i) => {
-      // i = 0 is oldest, i = 15 is newest
       const minMinsAgo = (16 - i - 1) * bucketSize;
       const maxMinsAgo = (16 - i) * bucketSize;
 
@@ -91,7 +92,7 @@ export const TimelineScreen: React.FC<TimelineScreenProps> = ({ onSelectEvent, d
             02. LIVE TIMELINE
           </h1>
           <p className="font-mono text-xs text-[#737C80] mt-0.5">
-            Real-time chronological forensic event stream across monitored nodes
+            Real-time chronological forensic event stream across monitored nodes ({activeDataset.name})
           </p>
         </div>
 
@@ -99,12 +100,12 @@ export const TimelineScreen: React.FC<TimelineScreenProps> = ({ onSelectEvent, d
         <div className="flex items-center gap-3 font-mono text-[11px]">
           <div className="bg-[#171A1C] border border-[#232729] px-3 py-1.5 rounded-xs text-[#737C80]">
             SHOWING <span className="text-[#E8E3D8] font-bold">{visibleEvents.length}</span> OF{' '}
-            <span className="text-[#E8E3D8] font-bold">{TIMELINE_EVENTS.length}</span> EVENTS
+            <span className="text-[#E8E3D8] font-bold">{timelineEvents.length}</span> EVENTS
           </div>
 
           <div className="bg-[#171A1C] border border-[#232729] px-3 py-1.5 rounded-xs">
             <span className="text-[#737C80]">SOURCE:</span>{' '}
-            <span className="text-[#C9784A] font-bold">{dataMode} PIPELINE</span>
+            <span className="text-[#C9784A] font-bold">{sourceMode} PIPELINE</span>
           </div>
         </div>
       </div>
@@ -194,10 +195,10 @@ export const TimelineScreen: React.FC<TimelineScreenProps> = ({ onSelectEvent, d
         </div>
       </div>
 
-      {/* Event Stream / Empty State with Smooth Motion Transition */}
+      {/* Event Stream / Empty State */}
       <AnimatePresence mode="wait">
         <motion.div
-          key={`${selectedRange}-${selectedPlatform}`}
+          key={`${selectedRange}-${selectedPlatform}-${sourceMode}`}
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -6 }}

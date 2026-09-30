@@ -1,22 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { NETWORK_EDGES, NETWORK_NODES } from '../../data/mockIntelligence';
 import { NetworkNode } from '../../types/nexus';
 import { Share2, ZoomIn, ZoomOut, Filter, Info, ShieldAlert } from 'lucide-react';
+import { useNexus } from '../../context/NexusContext';
 
 interface NetworkScreenProps {
   onSelectNode: (node: NetworkNode) => void;
 }
 
 export const NetworkScreen: React.FC<NetworkScreenProps> = ({ onSelectNode }) => {
-  const [selectedNode, setSelectedNode] = useState<NetworkNode>(NETWORK_NODES[0]);
+  const { activeDataset } = useNexus();
+  const networkNodes = activeDataset.networkNodes;
+  const networkEdges = activeDataset.networkEdges;
+
+  const [selectedNode, setSelectedNode] = useState<NetworkNode>(networkNodes[0]);
   const [hoveredNode, setHoveredNode] = useState<NetworkNode | null>(null);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [communityFilter, setCommunityFilter] = useState<string>('ALL');
 
-  const activeNode = hoveredNode || selectedNode;
+  useEffect(() => {
+    if (networkNodes.length > 0) {
+      setSelectedNode(networkNodes[0]);
+    }
+  }, [networkNodes]);
 
-  const filteredNodes = NETWORK_NODES.filter((n) => {
+  const activeNode = hoveredNode || selectedNode || networkNodes[0];
+
+  const filteredNodes = networkNodes.filter((n) => {
     if (communityFilter === 'ALL') return true;
     return n.communityId === communityFilter;
   });
@@ -30,7 +40,7 @@ export const NetworkScreen: React.FC<NetworkScreenProps> = ({ onSelectNode }) =>
             06. NETWORK TOPOLOGY & STRUCTURAL INFLUENCE
           </h1>
           <p className="font-mono text-xs text-[#737C80] mt-0.5">
-            Inter-community relationships, bridge node centrality, and information flow edges
+            Inter-community relationships, bridge node centrality, and information flow edges ({activeDataset.name})
           </p>
         </div>
 
@@ -65,13 +75,13 @@ export const NetworkScreen: React.FC<NetworkScreenProps> = ({ onSelectNode }) =>
             <div className="flex items-center gap-1 bg-[#0D1012] p-1 border border-[#232729] rounded-xs">
               <button
                 onClick={() => setZoomLevel((z) => Math.min(z + 0.2, 1.8))}
-                className="p-1 hover:bg-[#232729] text-[#737C80] hover:text-[#E8E3D8] rounded-xs"
+                className="p-1 hover:bg-[#232729] text-[#737C80] hover:text-[#E8E3D8] rounded-xs cursor-pointer"
               >
                 <ZoomIn className="w-3.5 h-3.5" />
               </button>
               <button
                 onClick={() => setZoomLevel((z) => Math.max(z - 0.2, 0.6))}
-                className="p-1 hover:bg-[#232729] text-[#737C80] hover:text-[#E8E3D8] rounded-xs"
+                className="p-1 hover:bg-[#232729] text-[#737C80] hover:text-[#E8E3D8] rounded-xs cursor-pointer"
               >
                 <ZoomOut className="w-3.5 h-3.5" />
               </button>
@@ -87,9 +97,9 @@ export const NetworkScreen: React.FC<NetworkScreenProps> = ({ onSelectNode }) =>
               viewBox="0 0 700 520"
             >
               {/* Render Edges */}
-              {NETWORK_EDGES.map((edge) => {
-                const sourceNode = NETWORK_NODES.find((n) => n.id === edge.source);
-                const targetNode = NETWORK_NODES.find((n) => n.id === edge.target);
+              {networkEdges.map((edge) => {
+                const sourceNode = networkNodes.find((n) => n.id === edge.source);
+                const targetNode = networkNodes.find((n) => n.id === edge.target);
                 if (!sourceNode || !targetNode) return null;
 
                 const isConnectedToActive =
@@ -112,7 +122,7 @@ export const NetworkScreen: React.FC<NetworkScreenProps> = ({ onSelectNode }) =>
 
               {/* Render Nodes */}
               {filteredNodes.map((node) => {
-                const isSelected = selectedNode.id === node.id;
+                const isSelected = selectedNode?.id === node.id;
                 const isHovered = hoveredNode?.id === node.id;
                 const isBridge = node.isBridge;
 
@@ -164,53 +174,55 @@ export const NetworkScreen: React.FC<NetworkScreenProps> = ({ onSelectNode }) =>
 
           <div className="flex justify-between font-mono text-[9px] text-[#737C80] mt-2">
             <span>ZOOM: {Math.round(zoomLevel * 100)}%</span>
-            <span>NODES: {filteredNodes.length} · EDGES: {NETWORK_EDGES.length}</span>
+            <span>NODES: {filteredNodes.length} · EDGES: {networkEdges.length}</span>
           </div>
         </div>
 
         {/* Node Detail Inspector (~30% / 4 cols) */}
-        <div className="lg:col-span-4 bg-[#171A1C] border border-[#232729] rounded-sm p-5 space-y-4">
-          <div className="border-b border-[#232729] pb-3">
-            <span className="font-mono text-[10px] text-[#C9784A] font-bold uppercase tracking-wider">
-              TOPOLOGICAL INSPECTOR
-            </span>
-            <h3 className="font-sans font-bold text-base text-[#E8E3D8] mt-1">
-              {activeNode.label} ({activeNode.id})
-            </h3>
-          </div>
-
-          <div className="space-y-3 font-mono text-xs">
-            <div className="p-3 bg-[#0D1012] border border-[#232729] rounded-xs space-y-2">
-              <div className="flex justify-between text-[11px]">
-                <span className="text-[#737C80]">Betweenness Centrality:</span>
-                <span className="text-[#C9784A] font-bold">{activeNode.betweenness}</span>
-              </div>
-              <div className="flex justify-between text-[11px]">
-                <span className="text-[#737C80]">PageRank Index:</span>
-                <span className="text-[#E8E3D8] font-bold">{activeNode.pageRank}</span>
-              </div>
-              <div className="flex justify-between text-[11px]">
-                <span className="text-[#737C80]">Observed Event Activity:</span>
-                <span className="text-[#5AA9A0] font-bold">{activeNode.observedActivity}</span>
-              </div>
-              <div className="flex justify-between text-[11px]">
-                <span className="text-[#737C80]">Platform Host:</span>
-                <span className="text-[#E8E3D8]">{activeNode.platform}</span>
-              </div>
+        {activeNode && (
+          <div className="lg:col-span-4 bg-[#171A1C] border border-[#232729] rounded-sm p-5 space-y-4">
+            <div className="border-b border-[#232729] pb-3">
+              <span className="font-mono text-[10px] text-[#C9784A] font-bold uppercase tracking-wider">
+                TOPOLOGICAL INSPECTOR
+              </span>
+              <h3 className="font-sans font-bold text-base text-[#E8E3D8] mt-1">
+                {activeNode.label} ({activeNode.id})
+              </h3>
             </div>
 
-            <div className="p-3 bg-[#0D1012] border border-[#232729] rounded-xs">
-              <div className="text-[10px] text-[#737C80] uppercase mb-1">
-                STRUCTURAL CLASSIFICATION
+            <div className="space-y-3 font-mono text-xs">
+              <div className="p-3 bg-[#0D1012] border border-[#232729] rounded-xs space-y-2">
+                <div className="flex justify-between text-[11px]">
+                  <span className="text-[#737C80]">Betweenness Centrality:</span>
+                  <span className="text-[#C9784A] font-bold">{activeNode.betweenness}</span>
+                </div>
+                <div className="flex justify-between text-[11px]">
+                  <span className="text-[#737C80]">PageRank Index:</span>
+                  <span className="text-[#E8E3D8] font-bold">{activeNode.pageRank}</span>
+                </div>
+                <div className="flex justify-between text-[11px]">
+                  <span className="text-[#737C80]">Observed Event Activity:</span>
+                  <span className="text-[#5AA9A0] font-bold">{activeNode.observedActivity}</span>
+                </div>
+                <div className="flex justify-between text-[11px]">
+                  <span className="text-[#737C80]">Platform Host:</span>
+                  <span className="text-[#E8E3D8]">{activeNode.platform}</span>
+                </div>
               </div>
-              <p className="font-sans text-xs text-[#E8E3D8]/90 leading-relaxed">
-                {activeNode.isBridge
-                  ? 'High structural influence bridge account connecting Community 04 (X) to Community 07 (Telegram).'
-                  : 'Standard cluster member account within local community graph.'}
-              </p>
+
+              <div className="p-3 bg-[#0D1012] border border-[#232729] rounded-xs">
+                <div className="text-[10px] text-[#737C80] uppercase mb-1">
+                  STRUCTURAL CLASSIFICATION
+                </div>
+                <p className="font-sans text-xs text-[#E8E3D8]/90 leading-relaxed">
+                  {activeNode.isBridge
+                    ? 'High structural influence bridge account connecting distinct network community clusters.'
+                    : 'Standard cluster member account within local community graph.'}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -7,12 +7,18 @@ import {
   IntelligenceMetric,
   NetworkEdge,
   NetworkNode,
+  NexusDataset,
   PropagationStep,
   SentimentDataPoint,
   TimelineEvent,
 } from '../types/nexus';
 
-export const INITIAL_METRICS: IntelligenceMetric[] = [
+// =========================================================
+// 1. SYNTHETIC DATASET (Primary Demonstration Universe)
+// Narrative: PUBLIC TRANSPORT STRIKE (TP-8842)
+// =========================================================
+
+export const SYNTHETIC_METRICS: IntelligenceMetric[] = [
   {
     key: 'events',
     label: 'EVENTS',
@@ -60,7 +66,7 @@ export const INITIAL_METRICS: IntelligenceMetric[] = [
   },
 ];
 
-export const EMERGING_NARRATIVES: EmergingNarrative[] = [
+export const SYNTHETIC_NARRATIVES: EmergingNarrative[] = [
   {
     id: 'TP-8842',
     rank: '01',
@@ -125,25 +131,9 @@ export const EMERGING_NARRATIVES: EmergingNarrative[] = [
     summary: 'Fintech discussion focused on official pilot release notes and policy debate.',
     status: 'STABLE',
   },
-  {
-    id: 'TP-8846',
-    rank: '05',
-    topic: 'SEMICONDUCTOR SUBSIDY',
-    trendScore: 52,
-    acceleration: '+18%',
-    volume: '750 mentions / 2h',
-    mentionCount: 750,
-    sentiment: { positive: 55, neutral: 30, negative: 15 },
-    platforms: ['X', 'REDDIT'],
-    communitiesCount: 2,
-    primaryCommunity: 'Community 03',
-    keyBridgeNode: 'N033',
-    summary: 'Industrial policy discussion following government trade brief update.',
-    status: 'STABLE',
-  },
 ];
 
-export const INTELLIGENCE_ALERTS: IntelligenceAlert[] = [
+export const SYNTHETIC_ALERTS: IntelligenceAlert[] = [
   {
     id: 'ALT-1042',
     time: '10:42 UTC',
@@ -180,19 +170,9 @@ export const INTELLIGENCE_ALERTS: IntelligenceAlert[] = [
     topicId: 'TP-8842',
     read: false,
   },
-  {
-    id: 'ALT-0950',
-    time: '09:50 UTC',
-    title: 'SENTIMENT SHIFT',
-    detail: 'Negative sentiment increased +21.4% in 30 minutes',
-    type: 'EMERGING',
-    topicId: 'TP-8842',
-    read: true,
-  },
 ];
 
-export const TIMELINE_EVENTS: TimelineEvent[] = [
-  // --- 10m Window (0 - 10 mins ago) ---
+export const SYNTHETIC_TIMELINE: TimelineEvent[] = [
   {
     id: 'EV-114208',
     timestamp: '11:42:08 UTC',
@@ -257,8 +237,6 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
     nodeId: 'N045',
     urgency: 'medium',
   },
-
-  // --- 1h Window (10m - 60m ago) ---
   {
     id: 'EV-113115',
     timestamp: '11:31:15 UTC',
@@ -339,8 +317,6 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
     nodeId: 'N092',
     urgency: 'low',
   },
-
-  // --- 6h Window (1h - 6h / 60m - 360m ago) ---
   {
     id: 'EV-094500',
     timestamp: '09:45:00 UTC',
@@ -405,8 +381,6 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
     nodeId: 'N092',
     urgency: 'low',
   },
-
-  // --- 24h Window (6h - 24h / 360m - 1440m ago) ---
   {
     id: 'EV-040000',
     timestamp: '04:00:00 UTC',
@@ -423,139 +397,9 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
     nodeId: 'N209',
     urgency: 'high',
   },
-  {
-    id: 'EV-023000',
-    timestamp: '02:30:00 UTC',
-    timeAgo: '9h ago',
-    minutesAgo: 553,
-    platform: 'X',
-    title: 'Initial Union Rumor Post',
-    description: 'Account N012 posted unverified text claim regarding transit fare revisions.',
-    topicId: 'TP-8842',
-    topicName: 'PUBLIC TRANSPORT STRIKE',
-    eventCount: 95,
-    sentimentDelta: '-1.4%',
-    community: 'Community 03',
-    nodeId: 'N012',
-    urgency: 'low',
-  },
-  {
-    id: 'EV-010000',
-    timestamp: '01:00:00 UTC',
-    timeAgo: '10h ago',
-    minutesAgo: 643,
-    platform: 'REDDIT',
-    title: 'Municipal Transit Budget Analysis',
-    description: 'r/citypolicy thread discussing municipal transport subsidy allocations.',
-    topicId: 'TP-8843',
-    topicName: 'URBAN WATER SUPPLY',
-    eventCount: 175,
-    sentimentDelta: 'Neutral 62%',
-    community: 'Community 02',
-    nodeId: 'N092',
-    urgency: 'low',
-  },
-  {
-    id: 'EV-220000',
-    timestamp: '22:00:00 UTC',
-    timeAgo: '13h ago',
-    minutesAgo: 823,
-    platform: 'YOUTUBE',
-    title: 'Infrastructure Explainer Video',
-    description: 'Independent journalist published 15-minute video breakdown of city transit deficits.',
-    topicId: 'TP-8842',
-    topicName: 'PUBLIC TRANSPORT STRIKE',
-    eventCount: 380,
-    sentimentDelta: 'Neutral 55%',
-    community: 'Community 01',
-    nodeId: 'N045',
-    urgency: 'medium',
-  },
-
-  // --- 7d Window (24h - 7d / 1440m - 10080m ago) ---
-  {
-    id: 'EV-HIST-01',
-    timestamp: '2026-09-28 16:00:00 UTC',
-    timeAgo: '2 days ago',
-    minutesAgo: 2623,
-    platform: 'TELEGRAM',
-    title: 'Fare Board Meeting Notes Circulation',
-    description: 'PDF copy of proposed fare schedule circulated across regional union chats.',
-    topicId: 'TP-8842',
-    topicName: 'PUBLIC TRANSPORT STRIKE',
-    eventCount: 75,
-    sentimentDelta: 'Negative 45%',
-    community: 'Community 07',
-    nodeId: 'N209',
-    urgency: 'medium',
-  },
-  {
-    id: 'EV-HIST-02',
-    timestamp: '2026-09-27 12:00:00 UTC',
-    timeAgo: '3 days ago',
-    minutesAgo: 4063,
-    platform: 'X',
-    title: 'Preliminary Union Ballot Notice',
-    description: 'Union social account published formal notice for strike authorization vote.',
-    topicId: 'TP-8842',
-    topicName: 'PUBLIC TRANSPORT STRIKE',
-    eventCount: 210,
-    sentimentDelta: 'Negative 52%',
-    community: 'Community 04',
-    nodeId: 'N184',
-    urgency: 'high',
-  },
-  {
-    id: 'EV-HIST-03',
-    timestamp: '2026-09-26 09:30:00 UTC',
-    timeAgo: '4 days ago',
-    minutesAgo: 5623,
-    platform: 'YOUTUBE',
-    title: 'Documentary Review of City Transit',
-    description: 'Longform documentary on municipal transit history reached 85K views.',
-    topicId: 'TP-8842',
-    topicName: 'PUBLIC TRANSPORT STRIKE',
-    eventCount: 820,
-    sentimentDelta: 'Neutral 70%',
-    community: 'Community 01',
-    nodeId: 'N045',
-    urgency: 'low',
-  },
-  {
-    id: 'EV-HIST-04',
-    timestamp: '2026-09-25 18:00:00 UTC',
-    timeAgo: '5 days ago',
-    minutesAgo: 7063,
-    platform: 'REDDIT',
-    title: 'Annual Commute Cost Survey Thread',
-    description: 'Community poll on household transit expenditure with 840 votes.',
-    topicId: 'TP-8842',
-    topicName: 'PUBLIC TRANSPORT STRIKE',
-    eventCount: 290,
-    sentimentDelta: 'Negative 48%',
-    community: 'Community 02',
-    nodeId: 'N092',
-    urgency: 'low',
-  },
-  {
-    id: 'EV-HIST-05',
-    timestamp: '2026-09-24 14:15:00 UTC',
-    timeAgo: '6 days ago',
-    minutesAgo: 8383,
-    platform: 'X',
-    title: 'State Transportation Budget Report',
-    description: 'Official release of annual transportation allocation figures.',
-    topicId: 'TP-8846',
-    topicName: 'SEMICONDUCTOR SUBSIDY',
-    eventCount: 140,
-    sentimentDelta: 'Positive 55%',
-    community: 'Community 03',
-    nodeId: 'N012',
-    urgency: 'low',
-  },
 ];
 
-export const SENTIMENT_SERIES: SentimentDataPoint[] = [
+export const SYNTHETIC_SENTIMENT_SERIES: SentimentDataPoint[] = [
   { time: '06:00', positive: 24, neutral: 58, negative: 18, sarcasmLikelihood: 0.12 },
   { time: '07:00', positive: 22, neutral: 54, negative: 24, sarcasmLikelihood: 0.18 },
   { time: '08:00', positive: 20, neutral: 48, negative: 32, sarcasmLikelihood: 0.35 },
@@ -564,7 +408,7 @@ export const SENTIMENT_SERIES: SentimentDataPoint[] = [
   { time: '11:00', positive: 12, neutral: 20, negative: 68, sarcasmLikelihood: 0.82 },
 ];
 
-export const EMOTION_BREAKDOWN = {
+export const SYNTHETIC_EMOTION_BREAKDOWN = {
   supportive: 12,
   opposition: 38,
   anxiety: 24,
@@ -573,259 +417,272 @@ export const EMOTION_BREAKDOWN = {
   sarcasm: 14,
 };
 
-export const NETWORK_NODES: NetworkNode[] = [
-  // Community 04 (Core propagation cluster)
+export const SYNTHETIC_NETWORK_NODES: NetworkNode[] = [
   { id: 'N184', label: 'Bridge Account N184', communityId: 'C04', communityName: 'Community 04 (Transit Focus)', betweenness: 0.81, pageRank: 0.64, observedActivity: 184, platform: 'X', x: 280, y: 190, isBridge: true },
   { id: 'N185', label: 'Node N185', communityId: 'C04', communityName: 'Community 04 (Transit Focus)', betweenness: 0.42, pageRank: 0.38, observedActivity: 92, platform: 'X', x: 220, y: 150 },
   { id: 'N186', label: 'Node N186', communityId: 'C04', communityName: 'Community 04 (Transit Focus)', betweenness: 0.35, pageRank: 0.31, observedActivity: 74, platform: 'X', x: 340, y: 140 },
-  { id: 'N187', label: 'Node N187', communityId: 'C04', communityName: 'Community 04 (Transit Focus)', betweenness: 0.28, pageRank: 0.25, observedActivity: 61, platform: 'X', x: 230, y: 240 },
-  { id: 'N188', label: 'Node N188', communityId: 'C04', communityName: 'Community 04 (Transit Focus)', betweenness: 0.31, pageRank: 0.29, observedActivity: 58, platform: 'X', x: 320, y: 250 },
-
-  // Community 07 (Telegram Crossover)
   { id: 'N209', label: 'Bridge Channel N209', communityId: 'C07', communityName: 'Community 07 (Regional Chat)', betweenness: 0.76, pageRank: 0.58, observedActivity: 142, platform: 'TELEGRAM', x: 520, y: 220, isBridge: true },
   { id: 'N210', label: 'Node N210', communityId: 'C07', communityName: 'Community 07 (Regional Chat)', betweenness: 0.39, pageRank: 0.34, observedActivity: 88, platform: 'TELEGRAM', x: 580, y: 160 },
-  { id: 'N211', label: 'Node N211', communityId: 'C07', communityName: 'Community 07 (Regional Chat)', betweenness: 0.32, pageRank: 0.28, observedActivity: 65, platform: 'TELEGRAM', x: 600, y: 270 },
-  { id: 'N212', label: 'Node N212', communityId: 'C07', communityName: 'Community 07 (Regional Chat)', betweenness: 0.22, pageRank: 0.19, observedActivity: 41, platform: 'TELEGRAM', x: 490, y: 310 },
-
-  // Community 01 (Media & YouTube)
   { id: 'N045', label: 'Media Outlet N045', communityId: 'C01', communityName: 'Community 01 (Broadcasting)', betweenness: 0.55, pageRank: 0.49, observedActivity: 110, platform: 'YOUTUBE', x: 180, y: 380 },
-  { id: 'N046', label: 'Node N046', communityId: 'C01', communityName: 'Community 01 (Broadcasting)', betweenness: 0.25, pageRank: 0.22, observedActivity: 52, platform: 'YOUTUBE', x: 110, y: 350 },
-  { id: 'N047', label: 'Node N047', communityId: 'C01', communityName: 'Community 01 (Broadcasting)', betweenness: 0.21, pageRank: 0.18, observedActivity: 45, platform: 'YOUTUBE', x: 230, y: 430 },
-
-  // Community 02 (Forum & Reddit)
   { id: 'N092', label: 'Forum Host N092', communityId: 'C02', communityName: 'Community 02 (Discussion)', betweenness: 0.48, pageRank: 0.41, observedActivity: 95, platform: 'REDDIT', x: 420, y: 410 },
-  { id: 'N093', label: 'Node N093', communityId: 'C02', communityName: 'Community 02 (Discussion)', betweenness: 0.28, pageRank: 0.23, observedActivity: 49, platform: 'REDDIT', x: 480, y: 460 },
-  { id: 'N094', label: 'Node N094', communityId: 'C02', communityName: 'Community 02 (Discussion)', betweenness: 0.19, pageRank: 0.15, observedActivity: 38, platform: 'REDDIT', x: 360, y: 470 },
-
-  // Peripheral/General
-  { id: 'N012', label: 'Node N012', communityId: 'C03', communityName: 'Community 03 (Policy)', betweenness: 0.18, pageRank: 0.14, observedActivity: 29, platform: 'X', x: 120, y: 190 },
-  { id: 'N014', label: 'Node N014', communityId: 'C03', communityName: 'Community 03 (Policy)', betweenness: 0.15, pageRank: 0.12, observedActivity: 22, platform: 'X', x: 80, y: 260 },
 ];
 
-export const NETWORK_EDGES: NetworkEdge[] = [
-  // Community 04 internal
+export const SYNTHETIC_NETWORK_EDGES: NetworkEdge[] = [
   { id: 'E1', source: 'N184', target: 'N185', type: 'repost', weight: 4.5 },
   { id: 'E2', source: 'N184', target: 'N186', type: 'mention', weight: 3.8 },
-  { id: 'E3', source: 'N185', target: 'N187', type: 'reply', weight: 2.1 },
-  { id: 'E4', source: 'N186', target: 'N188', type: 'quote', weight: 2.9 },
-  { id: 'E5', source: 'N187', target: 'N188', type: 'repost', weight: 1.8 },
-
-  // Core Bridge Link: C04 -> C07 (N184 <-> N209)
   { id: 'E6', source: 'N184', target: 'N209', type: 'forward', weight: 8.2 },
-
-  // Community 07 internal
   { id: 'E7', source: 'N209', target: 'N210', type: 'forward', weight: 5.1 },
-  { id: 'E8', source: 'N209', target: 'N211', type: 'forward', weight: 4.4 },
-  { id: 'E9', source: 'N210', target: 'N212', type: 'reply', weight: 2.0 },
-
-  // C04 -> C01 link
   { id: 'E10', source: 'N184', target: 'N045', type: 'mention', weight: 3.4 },
-  { id: 'E11', source: 'N045', target: 'N046', type: 'reply', weight: 2.2 },
-  { id: 'E12', source: 'N045', target: 'N047', type: 'quote', weight: 1.9 },
-
-  // C07 -> C02 link
   { id: 'E13', source: 'N209', target: 'N092', type: 'quote', weight: 3.1 },
-  { id: 'E14', source: 'N092', target: 'N093', type: 'reply', weight: 2.5 },
-  { id: 'E15', source: 'N092', target: 'N094', type: 'repost', weight: 1.7 },
-
-  // Peripheral
-  { id: 'E16', source: 'N185', target: 'N012', type: 'mention', weight: 1.4 },
-  { id: 'E17', source: 'N012', target: 'N014', type: 'reply', weight: 1.1 },
 ];
 
-export const PROPAGATION_SEQUENCE: PropagationStep[] = [
+export const SYNTHETIC_PROPAGATION: PropagationStep[] = [
+  { stepIndex: 1, time: '10:02 UTC', title: 'TOPIC FIRST OBSERVED', entity: 'Initial fare hike rumor posted in small mobility group', type: 'OBSERVED', detail: 'First single-source posting detected. Low volume baseline.', platform: 'X', active: true },
+  { stepIndex: 2, time: '10:14 UTC', title: 'COMMUNITY 04 ACTIVATION', entity: 'Community 04 (Transit Focus)', type: 'COMMUNITY', communityId: 'C04', detail: 'Dense internal re-posting across 14 connected accounts in C04.', platform: 'X', active: true },
+  { stepIndex: 3, time: '10:18 UTC', title: 'BRIDGE NODE ACTIVATION', entity: 'Bridge Node N184 (Betweenness 0.81)', type: 'BRIDGE_NODE', nodeId: 'N184', detail: 'Account N184 authored quote-tweet amplifying strike call graphics.', platform: 'X', active: true },
+  { stepIndex: 4, time: '10:28 UTC', title: 'CROSSOVER TO COMMUNITY 07', entity: 'Community 07 (Regional Telegram Chat)', type: 'COMMUNITY', communityId: 'C07', detail: 'Direct forward from X quote card into private Telegram channels.', platform: 'TELEGRAM', active: true },
+  { stepIndex: 5, time: '10:31 UTC', title: 'PLATFORM SPREAD: TELEGRAM', entity: 'Broadcast Channel @transit_updates', type: 'PLATFORM', detail: 'Subscribed subscriber base of 12K notified. Acceleration surge.', platform: 'TELEGRAM', active: true },
+];
+
+export const SYNTHETIC_AUDIENCE: AudienceCluster[] = [
+  { id: 'CL-07', name: 'CLUSTER 07', ageBracket: '18–24 (63%)', languages: 'Hindi / English (71%)', region: 'Western India (58%)', interests: 'Technology (46%)', sampleSize: '3,842', confidence: 0.74, coverage: 0.68 },
+  { id: 'CL-04', name: 'CLUSTER 04', ageBracket: '25–34 (54%)', languages: 'English / Marathi (68%)', region: 'Metropolitan Urban (72%)', interests: 'Civic Infrastructure (62%)', sampleSize: '2,190', confidence: 0.81, coverage: 0.52 },
+  { id: 'CL-UNKNOWN', name: 'UNKNOWN / INSUFFICIENT EVIDENCE', ageBracket: 'Unassigned', languages: 'Mixed Public Signals', region: 'VPN / Privacy Shielded', interests: 'Broad Multi-Topic', sampleSize: '1,280', confidence: 0.21, coverage: 0.18, isUnknown: true },
+];
+
+export const SYNTHETIC_COORDINATION: CoordinationCluster[] = [
+  { id: 'CORD-04', name: 'Cluster 04 - Synchronized Account Subset', membersCount: 7, sharedItemsCount: 23, medianTimingGapSec: 42, similarityScore: 0.91, synchronyScore: 0.84, pValue: 0.003, fdrAdjusted: true, reviewState: 'UNREVIEWED', nodeIds: ['N184', 'N185', 'N186', 'N209'], summary: 'High posting synchrony (median gap 42s across 23 distinct image payloads). Statistical association detected with false discovery rate correction.' },
+];
+
+export const SYNTHETIC_EVIDENCE: EvidenceRecord[] = [
+  { id: 'NX-2026-0917', timestamp: '2026-09-30 10:42:17 UTC', source: 'X + TELEGRAM PIPELINE', model: 'nexus-narrative-v3.4', confidence: 0.86, previousHash: '8b3e819fa210c422a912803fe89a19c402128e9d', recordHash: 'f91a783bc89104e8830192e21019f2ce849202a1', signatureStatus: 'VERIFIED', chainStatus: 'VALID', merkleCheckpoint: '0x8f2a...7c1', payloadSummary: 'Topic TP-8842 emergence detection record with p=0.003 coordination payload and N184 bridge activation state.' },
+  { id: 'NX-2026-0916', timestamp: '2026-09-30 10:18:04 UTC', source: 'X GRAPH STREAM', model: 'nexus-topology-v2.1', confidence: 0.92, previousHash: '2a19e0481bc92019488a10984ef20a1f900142bc', recordHash: '8b3e819fa210c422a912803fe89a19c402128e9d', signatureStatus: 'VERIFIED', chainStatus: 'VALID', merkleCheckpoint: '0x7e11...3b8', payloadSummary: 'Betweenness score computation for Node N184 (betweenness=0.81, pageRank=0.64).' },
+];
+
+export const SYNTHETIC_DATASET: NexusDataset = {
+  name: 'SYNTHETIC PIPELINE',
+  metrics: SYNTHETIC_METRICS,
+  narratives: SYNTHETIC_NARRATIVES,
+  alerts: SYNTHETIC_ALERTS,
+  timelineEvents: SYNTHETIC_TIMELINE,
+  sentimentSeries: SYNTHETIC_SENTIMENT_SERIES,
+  emotionBreakdown: SYNTHETIC_EMOTION_BREAKDOWN,
+  networkNodes: SYNTHETIC_NETWORK_NODES,
+  networkEdges: SYNTHETIC_NETWORK_EDGES,
+  propagationSequence: SYNTHETIC_PROPAGATION,
+  audienceClusters: SYNTHETIC_AUDIENCE,
+  coordinationClusters: SYNTHETIC_COORDINATION,
+  evidenceRecords: SYNTHETIC_EVIDENCE,
+};
+
+
+// =========================================================
+// 2. ARCHIVE DATASET (Regional Narrative Archive — 14 Aug 2026)
+// Narrative: REGIONAL POWER GRID FLUCTUATION (TP-7014)
+// =========================================================
+
+export const ARCHIVE_METRICS: IntelligenceMetric[] = [
+  { key: 'events', label: 'EVENTS', value: 512190, format: 'number', delta: '+12,410 historical', isPositiveDelta: true, timestamp: 'ARCHIVE 14-AUG-2026' },
+  { key: 'actors', label: 'OBSERVED ACTORS', value: 84102, format: 'number', delta: 'ARCHIVE RECORD', isPositiveDelta: true, timestamp: 'ARCHIVE 14-AUG-2026' },
+  { key: 'topics', label: 'ACTIVE TOPICS', value: 182, format: 'number', delta: 'HISTORICAL SET', isPositiveDelta: true, timestamp: 'ARCHIVE 14-AUG-2026' },
+  { key: 'alerts', label: 'INTELLIGENCE ALERTS', value: 18, format: 'number', delta: '3 CRITICAL ARCHIVED', isPositiveDelta: false, timestamp: 'ARCHIVE 14-AUG-2026' },
+  { key: 'velocity', label: 'NARRATIVE VELOCITY', value: 24.8, format: 'percentage', delta: 'PEAK MOMENTUM', isPositiveDelta: true, timestamp: 'ARCHIVE 14-AUG-2026' },
+];
+
+export const ARCHIVE_NARRATIVES: EmergingNarrative[] = [
   {
-    stepIndex: 1,
-    time: '10:02 UTC',
-    title: 'TOPIC FIRST OBSERVED',
-    entity: 'Initial fare hike rumor posted in small mobility group',
-    type: 'OBSERVED',
-    detail: 'First single-source posting detected. Low volume baseline.',
-    platform: 'X',
-    active: true,
+    id: 'TP-7014',
+    rank: '01',
+    topic: 'REGIONAL POWER GRID FLUCTUATION',
+    trendScore: 91,
+    acceleration: '+410%',
+    volume: '8.6K mentions / 2h',
+    mentionCount: 8640,
+    sentiment: { positive: 8, neutral: 18, negative: 74 },
+    platforms: ['TELEGRAM', 'X', 'REDDIT'],
+    communitiesCount: 8,
+    primaryCommunity: 'Community 02 (Grid Sector)',
+    keyBridgeNode: 'N092',
+    summary: 'Archived cascade narrative concerning multi-district transformer outages that rapidly triggered public panic and grid maintenance rumors.',
+    status: 'EMERGING',
   },
   {
-    stepIndex: 2,
-    time: '10:14 UTC',
-    title: 'COMMUNITY 04 ACTIVATION',
-    entity: 'Community 04 (Transit Focus)',
-    type: 'COMMUNITY',
-    communityId: 'C04',
-    detail: 'Dense internal re-posting across 14 connected accounts in C04.',
-    platform: 'X',
-    active: true,
+    id: 'TP-7015',
+    rank: '02',
+    topic: 'HARVEST SUBSIDY DEBATE',
+    trendScore: 82,
+    acceleration: '+240%',
+    volume: '4.8K mentions / 2h',
+    mentionCount: 4820,
+    sentiment: { positive: 22, neutral: 30, negative: 48 },
+    platforms: ['REDDIT', 'YOUTUBE'],
+    communitiesCount: 5,
+    primaryCommunity: 'Community 05 (Agricultural Policy)',
+    keyBridgeNode: 'N118',
+    summary: 'Archived agricultural trade reform discourse with high rural forum participation.',
+    status: 'EMERGING',
+  },
+];
+
+export const ARCHIVE_ALERTS: IntelligenceAlert[] = [
+  { id: 'ALT-ARC-01', time: '14-AUG 18:20 UTC', title: 'ARCHIVED GRID SIGNAL', detail: 'Voltage anomaly rumor crossed threshold in Community 02', type: 'EMERGING', topicId: 'TP-7014', read: true },
+  { id: 'ALT-ARC-02', time: '14-AUG 17:45 UTC', title: 'ARCHIVED CROSSOVER', detail: 'Power outage report forwarded to 12 regional Telegram groups', type: 'CROSS_PLATFORM', topicId: 'TP-7014', read: true },
+];
+
+export const ARCHIVE_TIMELINE: TimelineEvent[] = [
+  {
+    id: 'EV-ARC-101',
+    timestamp: '2026-08-14 18:45:00 UTC',
+    timeAgo: '14 Aug 2026',
+    minutesAgo: 5,
+    platform: 'TELEGRAM',
+    title: 'Grid Anomaly Warning Broadcast',
+    description: 'Regional utility channel issued automated load shed alert amid local outage reports.',
+    topicId: 'TP-7014',
+    topicName: 'REGIONAL POWER GRID FLUCTUATION',
+    eventCount: 410,
+    sentimentDelta: '-12.4% Negative',
+    community: 'Community 02',
+    nodeId: 'N092',
+    urgency: 'high',
   },
   {
-    stepIndex: 3,
-    time: '10:18 UTC',
-    title: 'BRIDGE NODE ACTIVATION',
-    entity: 'Bridge Node N184 (Betweenness 0.81)',
-    type: 'BRIDGE_NODE',
+    id: 'EV-ARC-102',
+    timestamp: '2026-08-14 17:30:00 UTC',
+    timeAgo: '14 Aug 2026',
+    minutesAgo: 25,
+    platform: 'X',
+    title: 'Outage Hashtag Trend Surge',
+    description: '#BlackoutAlert peaked across 3 major metropolitan districts.',
+    topicId: 'TP-7014',
+    topicName: 'REGIONAL POWER GRID FLUCTUATION',
+    eventCount: 680,
+    sentimentDelta: '-18.1% Negative',
+    community: 'Community 04',
     nodeId: 'N184',
-    detail: 'Account N184 authored quote-tweet amplifying strike call graphics.',
-    platform: 'X',
-    active: true,
+    urgency: 'high',
   },
   {
-    stepIndex: 4,
-    time: '10:28 UTC',
-    title: 'CROSSOVER TO COMMUNITY 07',
-    entity: 'Community 07 (Regional Telegram Chat)',
-    type: 'COMMUNITY',
-    communityId: 'C07',
-    detail: 'Direct forward from X quote card into private Telegram channels.',
-    platform: 'TELEGRAM',
-    active: true,
-  },
-  {
-    stepIndex: 5,
-    time: '10:31 UTC',
-    title: 'PLATFORM SPREAD: TELEGRAM',
-    entity: 'Broadcast Channel @transit_updates',
-    type: 'PLATFORM',
-    detail: 'Subscribed subscriber base of 12K notified. Acceleration surge.',
-    platform: 'TELEGRAM',
-    active: true,
-  },
-  {
-    stepIndex: 6,
-    time: '10:42 UTC',
-    title: 'PLATFORM SPREAD: X TRENDING',
-    entity: 'Hashtag #TransitShutdown',
-    type: 'PLATFORM',
-    detail: 'Hashtag entered regional top 5 trending list on X.',
-    platform: 'X',
-    active: true,
-  },
-  {
-    stepIndex: 7,
-    time: '11:15 UTC',
-    title: 'PLATFORM SPREAD: YOUTUBE',
-    entity: 'Live Commentary Broadcast',
-    type: 'PLATFORM',
-    detail: 'Video stream published with multi-platform link referrals.',
-    platform: 'YOUTUBE',
-    active: true,
+    id: 'EV-ARC-103',
+    timestamp: '2026-08-14 16:15:00 UTC',
+    timeAgo: '14 Aug 2026',
+    minutesAgo: 120,
+    platform: 'REDDIT',
+    title: 'Subreddit Power Megathread',
+    description: 'r/energy_india megathread collected 420 citizen outage reports in 1 hour.',
+    topicId: 'TP-7014',
+    topicName: 'REGIONAL POWER GRID FLUCTUATION',
+    eventCount: 290,
+    sentimentDelta: 'Negative 78%',
+    community: 'Community 02',
+    nodeId: 'N092',
+    urgency: 'medium',
   },
 ];
 
-export const AUDIENCE_CLUSTERS: AudienceCluster[] = [
+export const ARCHIVE_DATASET: NexusDataset = {
+  name: 'REGIONAL NARRATIVE ARCHIVE — 14 AUG 2026',
+  metrics: ARCHIVE_METRICS,
+  narratives: ARCHIVE_NARRATIVES,
+  alerts: ARCHIVE_ALERTS,
+  timelineEvents: ARCHIVE_TIMELINE,
+  sentimentSeries: [
+    { time: '12:00', positive: 18, neutral: 62, negative: 20, sarcasmLikelihood: 0.15 },
+    { time: '14:00', positive: 14, neutral: 40, negative: 46, sarcasmLikelihood: 0.48 },
+    { time: '16:00', positive: 8, neutral: 18, negative: 74, sarcasmLikelihood: 0.88 },
+  ],
+  emotionBreakdown: { supportive: 8, opposition: 42, anxiety: 32, anger: 12, excitement: 2, sarcasm: 4 },
+  networkNodes: [
+    { id: 'N092', label: 'Grid Host N092', communityId: 'C02', communityName: 'Community 02 (Grid Sector)', betweenness: 0.89, pageRank: 0.72, observedActivity: 410, platform: 'REDDIT', x: 320, y: 210, isBridge: true },
+    { id: 'N184', label: 'News Account N184', communityId: 'C04', communityName: 'Community 04 (News Stream)', betweenness: 0.71, pageRank: 0.61, observedActivity: 290, platform: 'X', x: 510, y: 260, isBridge: true },
+  ],
+  networkEdges: [
+    { id: 'EA1', source: 'N092', target: 'N184', type: 'forward', weight: 9.4 },
+  ],
+  propagationSequence: [
+    { stepIndex: 1, time: '14:10 UTC', title: 'TRANSFORMER TRIP OBSERVED', entity: 'Substation 4B Telemetry', type: 'OBSERVED', detail: 'Voltage spike logged in public utility log.', platform: 'REDDIT', active: true },
+    { stepIndex: 2, time: '14:35 UTC', title: 'TELEGRAM OUTAGE CHANNEL', entity: 'Community 02', type: 'COMMUNITY', detail: 'Citizens shared neighborhood dark spot photos.', platform: 'TELEGRAM', active: true },
+  ],
+  audienceClusters: [
+    { id: 'CL-ARC-01', name: 'CLUSTER 02 (GRID AFFECTED)', ageBracket: '25–45 (68%)', languages: 'Regional / English', region: 'North-Western Power Zone', interests: 'Public Infrastructure', sampleSize: '12,400', confidence: 0.88, coverage: 0.82 },
+  ],
+  coordinationClusters: [
+    { id: 'CORD-GRID-01', name: 'Cluster Grid-01 (Outage Copy Paste)', membersCount: 12, sharedItemsCount: 48, medianTimingGapSec: 18, similarityScore: 0.96, synchronyScore: 0.92, pValue: 0.001, fdrAdjusted: true, reviewState: 'UNREVIEWED', nodeIds: ['N092', 'N184'], summary: 'Historical coordinated panic text copy-pasting across regional channels.' },
+  ],
+  evidenceRecords: [
+    { id: 'NX-2026-0814', timestamp: '2026-08-14 18:30:00 UTC', source: 'HISTORICAL ARCHIVE PIPELINE', model: 'nexus-narrative-v3.0', confidence: 0.91, previousHash: '4a10e82811a04910281b9e0129a00', recordHash: '1a90f2308103e9102830e0129a4', signatureStatus: 'VERIFIED', chainStatus: 'VALID', merkleCheckpoint: '0x3c90...2e1', payloadSummary: 'Archived Power Grid emergence record verified by Merkle checkpoint 0x3c90.' },
+  ],
+};
+
+
+// =========================================================
+// 3. LIVE DEMONSTRATION PIPELINE (Simulated Live Engine)
+// Narrative: URBAN METRO AUTOMATION FAULT (TP-9901)
+// =========================================================
+
+export const LIVE_DEMO_METRICS: IntelligenceMetric[] = [
+  { key: 'events', label: 'EVENTS', value: 318490, format: 'number', delta: '+1,240 live stream', isPositiveDelta: true, timestamp: 'LIVE PIPELINE' },
+  { key: 'actors', label: 'OBSERVED ACTORS', value: 52190, format: 'number', delta: '+412 active', isPositiveDelta: true, timestamp: 'LIVE PIPELINE' },
+  { key: 'topics', label: 'ACTIVE TOPICS', value: 142, format: 'number', delta: '+1 streaming', isPositiveDelta: true, timestamp: 'LIVE PIPELINE' },
+  { key: 'alerts', label: 'INTELLIGENCE ALERTS', value: 15, format: 'number', delta: '4 UNREVIEWED', isPositiveDelta: false, timestamp: 'LIVE PIPELINE' },
+  { key: 'velocity', label: 'NARRATIVE VELOCITY', value: 29.2, format: 'percentage', delta: '+8.4% SURGING', isPositiveDelta: true, timestamp: 'LIVE PIPELINE' },
+];
+
+export const LIVE_DEMO_NARRATIVES: EmergingNarrative[] = [
   {
-    id: 'CL-07',
-    name: 'CLUSTER 07',
-    ageBracket: '18–24 (63%)',
-    languages: 'Hindi / English (71%)',
-    region: 'Western India (58%)',
-    interests: 'Technology (46%)',
-    sampleSize: '3,842',
-    confidence: 0.74,
-    coverage: 0.68,
-  },
-  {
-    id: 'CL-04',
-    name: 'CLUSTER 04',
-    ageBracket: '25–34 (54%)',
-    languages: 'English / Marathi (68%)',
-    region: 'Metropolitan Urban (72%)',
-    interests: 'Civic Infrastructure (62%)',
-    sampleSize: '2,190',
-    confidence: 0.81,
-    coverage: 0.52,
-  },
-  {
-    id: 'CL-02',
-    name: 'CLUSTER 02',
-    ageBracket: '35–44 (42%)',
-    languages: 'Hindi / English (84%)',
-    region: 'Northern Suburbs (48%)',
-    interests: 'Public Policy / News (59%)',
-    sampleSize: '1,420',
-    confidence: 0.69,
-    coverage: 0.44,
-  },
-  {
-    id: 'CL-UNKNOWN',
-    name: 'UNKNOWN / INSUFFICIENT EVIDENCE',
-    ageBracket: 'Unassigned',
-    languages: 'Mixed Public Signals',
-    region: 'VPN / Privacy Shielded',
-    interests: 'Broad Multi-Topic',
-    sampleSize: '1,280',
-    confidence: 0.21,
-    coverage: 0.18,
-    isUnknown: true,
+    id: 'TP-9901',
+    rank: '01',
+    topic: 'URBAN METRO AUTOMATION FAULT',
+    trendScore: 94,
+    acceleration: '+520%',
+    volume: '6.1K mentions / 2h',
+    mentionCount: 6120,
+    sentiment: { positive: 6, neutral: 14, negative: 80 },
+    platforms: ['X', 'TELEGRAM', 'YOUTUBE', 'REDDIT'],
+    communitiesCount: 9,
+    primaryCommunity: 'Community 06 (Rapid Transit)',
+    keyBridgeNode: 'N302',
+    summary: 'Live simulated stream: Automated train braking anomaly reports spreading rapidly with video posts from central terminal.',
+    status: 'EMERGING',
   },
 ];
 
-export const COORDINATION_CLUSTERS: CoordinationCluster[] = [
-  {
-    id: 'CORD-04',
-    name: 'Cluster 04 - Synchronized Account Subset',
-    membersCount: 7,
-    sharedItemsCount: 23,
-    medianTimingGapSec: 42,
-    similarityScore: 0.91,
-    synchronyScore: 0.84,
-    pValue: 0.003,
-    fdrAdjusted: true,
-    reviewState: 'UNREVIEWED',
-    nodeIds: ['N184', 'N185', 'N186', 'N187', 'N188', 'N209', 'N210'],
-    summary: 'High posting synchrony (median gap 42s across 23 distinct image payloads). Statistical association detected with false discovery rate correction.',
-  },
-  {
-    id: 'CORD-02',
-    name: 'Cluster 02 - Reply Duplication Group',
-    membersCount: 4,
-    sharedItemsCount: 12,
-    medianTimingGapSec: 88,
-    similarityScore: 0.78,
-    synchronyScore: 0.69,
-    pValue: 0.018,
-    fdrAdjusted: true,
-    reviewState: 'UNREVIEWED',
-    nodeIds: ['N092', 'N093', 'N094'],
-    summary: 'Repeated sentence fragment reposting across Reddit and X threads within 90-second intervals.',
-  },
-];
+export const LIVE_DEMO_DATASET: NexusDataset = {
+  name: 'LIVE DEMONSTRATION PIPELINE',
+  metrics: LIVE_DEMO_METRICS,
+  narratives: LIVE_DEMO_NARRATIVES,
+  alerts: [
+    { id: 'ALT-LIVE-01', time: '11:58 UTC', title: 'LIVE STREAM ACCELERATION', detail: '+520% threshold crossed on Metro Automation Fault', type: 'EMERGING', topicId: 'TP-9901', read: false },
+  ],
+  timelineEvents: [
+    { id: 'EV-LIVE-01', timestamp: '11:59:12 UTC', timeAgo: '30s ago', minutesAgo: 0, platform: 'X', title: 'Terminal Passenger Video Stream', description: 'Video clip showing stopped automated metro train gaining 840 retweets/min.', topicId: 'TP-9901', topicName: 'URBAN METRO AUTOMATION FAULT', eventCount: 520, sentimentDelta: '-18.4% Negative', community: 'Community 06', nodeId: 'N302', urgency: 'high' },
+    { id: 'EV-LIVE-02', timestamp: '11:57:40 UTC', timeAgo: '2m ago', minutesAgo: 2, platform: 'TELEGRAM', title: 'Commuter Telegram Channel Alert', description: 'Group forward advising passengers to use alternate bus routes.', topicId: 'TP-9901', topicName: 'URBAN METRO AUTOMATION FAULT', eventCount: 280, sentimentDelta: '-12.0% Negative', community: 'Community 07', nodeId: 'N209', urgency: 'high' },
+  ],
+  sentimentSeries: [
+    { time: '11:00', positive: 10, neutral: 30, negative: 60, sarcasmLikelihood: 0.65 },
+    { time: '11:30', positive: 6, neutral: 14, negative: 80, sarcasmLikelihood: 0.91 },
+  ],
+  emotionBreakdown: { supportive: 6, opposition: 48, anxiety: 28, anger: 14, excitement: 2, sarcasm: 2 },
+  networkNodes: [
+    { id: 'N302', label: 'Transit Stream N302', communityId: 'C06', communityName: 'Community 06 (Rapid Transit)', betweenness: 0.94, pageRank: 0.81, observedActivity: 520, platform: 'X', x: 360, y: 240, isBridge: true },
+  ],
+  networkEdges: [],
+  propagationSequence: [
+    { stepIndex: 1, time: '11:50 UTC', title: 'BRAKING SENSOR LOGGED', entity: 'Central Terminal Sensors', type: 'OBSERVED', detail: 'Automated signal holding pattern initiated.', platform: 'X', active: true },
+  ],
+  audienceClusters: [
+    { id: 'CL-LIVE-01', name: 'CLUSTER 06 (METRO COMMUTERS)', ageBracket: '20–35 (74%)', languages: 'English / Regional', region: 'Metropolitan Central', interests: 'Daily Transit', sampleSize: '8,920', confidence: 0.82, coverage: 0.76 },
+  ],
+  coordinationClusters: [
+    { id: 'CORD-LIVE-01', name: 'Cluster Metro-Live', membersCount: 9, sharedItemsCount: 31, medianTimingGapSec: 14, similarityScore: 0.98, synchronyScore: 0.94, pValue: 0.001, fdrAdjusted: true, reviewState: 'UNREVIEWED', nodeIds: ['N302'], summary: 'Live simulated group synchrony across transit sub-channels.' },
+  ],
+  evidenceRecords: [
+    { id: 'NX-2026-LIVE', timestamp: '2026-09-30 11:59:00 UTC', source: 'LIVE DEMO STREAM PIPELINE', model: 'nexus-narrative-v3.4-live', confidence: 0.89, previousHash: 'f91a783bc89104e8830192e21019f2ce849202a1', recordHash: '9901f2381203a9102830e0129a8', signatureStatus: 'VERIFIED', chainStatus: 'VALID', merkleCheckpoint: '0x9901...a12', payloadSummary: 'Live simulated Metro Automation emergence event.' },
+  ],
+};
 
-export const EVIDENCE_RECORDS: EvidenceRecord[] = [
-  {
-    id: 'NX-2026-0917',
-    timestamp: '2026-09-30 10:42:17 UTC',
-    source: 'X + TELEGRAM PIPELINE',
-    model: 'nexus-narrative-v3.4',
-    confidence: 0.86,
-    previousHash: '8b3e819fa210c422a912803fe89a19c402128e9d',
-    recordHash: 'f91a783bc89104e8830192e21019f2ce849202a1',
-    signatureStatus: 'VERIFIED',
-    chainStatus: 'VALID',
-    merkleCheckpoint: '0x8f2a...7c1',
-    payloadSummary: 'Topic TP-8842 emergence detection record with p=0.003 coordination payload and N184 bridge activation state.',
-  },
-  {
-    id: 'NX-2026-0916',
-    timestamp: '2026-09-30 10:18:04 UTC',
-    source: 'X GRAPH STREAM',
-    model: 'nexus-topology-v2.1',
-    confidence: 0.92,
-    previousHash: '2a19e0481bc92019488a10984ef20a1f900142bc',
-    recordHash: '8b3e819fa210c422a912803fe89a19c402128e9d',
-    signatureStatus: 'VERIFIED',
-    chainStatus: 'VALID',
-    merkleCheckpoint: '0x7e11...3b8',
-    payloadSummary: 'Betweenness score computation for Node N184 (betweenness=0.81, pageRank=0.64).',
-  },
-  {
-    id: 'NX-2026-0915',
-    timestamp: '2026-09-30 09:50:31 UTC',
-    source: 'NLP SENTIMENT ENGINE',
-    model: 'nexus-sentiment-v4.0',
-    confidence: 0.82,
-    previousHash: '1f00a2948271049281a1002931e042817412e098',
-    recordHash: '2a19e0481bc92019488a10984ef20a1f900142bc',
-    signatureStatus: 'VERIFIED',
-    chainStatus: 'VALID',
-    merkleCheckpoint: '0x6d90...1a4',
-    payloadSummary: 'Sentiment shift payload registering 68% negative sentiment and 0.82 sarcasm likelihood score.',
-  },
-];
+export const DATASETS: Record<string, NexusDataset> = {
+  SYNTHETIC: SYNTHETIC_DATASET,
+  ARCHIVE: ARCHIVE_DATASET,
+  LIVE: LIVE_DEMO_DATASET,
+};

@@ -1,30 +1,51 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { EmergingNarrative, IntelligenceAlert, TimeRange } from '../../types/nexus';
+import { TimeRange } from '../../types/nexus';
 import { MetricStrip } from '../common/MetricStrip';
-import { INITIAL_METRICS, SENTIMENT_SERIES } from '../../data/mockIntelligence';
-import { ArrowRight, TrendingUp, AlertTriangle, ShieldCheck, Activity, Share2 } from 'lucide-react';
+import { useNexus } from '../../context/NexusContext';
+import { Radio, AlertCircle } from 'lucide-react';
 
 interface OverviewScreenProps {
-  narratives: EmergingNarrative[];
-  alerts: IntelligenceAlert[];
   onSelectTopic: (topicId: string) => void;
   onNavigateToScreen: (screen: string) => void;
 }
 
 export const OverviewScreen: React.FC<OverviewScreenProps> = ({
-  narratives,
-  alerts,
   onSelectTopic,
   onNavigateToScreen,
 }) => {
+  const { activeDataset, sourceMode } = useNexus();
   const [timeRange, setTimeRange] = useState<TimeRange>('24h');
+
+  const narratives = activeDataset.narratives;
+  const alerts = activeDataset.alerts;
+  const metrics = activeDataset.metrics;
+  const sentimentSeries = activeDataset.sentimentSeries;
 
   return (
     <div className="space-y-6">
+      {/* Live Demonstration Pipeline Disclaimer Banner */}
+      {sourceMode === 'LIVE' && (
+        <div className="p-3 bg-[#171A1C] border border-[#C9784A]/40 rounded-xs font-mono text-xs flex items-center justify-between text-[#C9784A]">
+          <div className="flex items-center gap-2">
+            <Radio className="w-4 h-4 animate-quiet-pulse" />
+            <span className="font-bold">LIVE DEMONSTRATION PIPELINE</span>
+            <span className="text-[#737C80] hidden md:inline">
+              — Simulated connection to X, Telegram, YouTube & Reddit streams
+            </span>
+          </div>
+          <span className="text-[10px] bg-[#C9784A]/20 px-2 py-0.5 rounded-xs">
+            SIMULATED FEED
+          </span>
+        </div>
+      )}
+
       {/* Header Title */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#232729] pb-4">
         <div>
+          <div className="font-mono text-[10px] text-[#C9784A] uppercase tracking-wider mb-0.5">
+            DATASET: {activeDataset.name}
+          </div>
           <h1 className="font-sans font-extrabold text-xl text-[#E8E3D8] tracking-wide uppercase flex items-center gap-2">
             INTELLIGENCE OVERVIEW
           </h1>
@@ -61,14 +82,14 @@ export const OverviewScreen: React.FC<OverviewScreenProps> = ({
 
       {/* Metric Strip */}
       <MetricStrip
-        metrics={INITIAL_METRICS}
+        metrics={metrics}
         onMetricClick={(key) => {
           if (key === 'alerts') onNavigateToScreen('coordination');
           if (key === 'topics') onNavigateToScreen('trends');
         }}
       />
 
-      {/* Main Grid Layout: Left ~65% Emerging Narratives, Right ~35% Active Signals */}
+      {/* Main Grid Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Emerging Narratives List (~65% / 8 cols) */}
         <div className="lg:col-span-8 bg-[#171A1C] border border-[#232729] rounded-sm p-5 space-y-4">
@@ -152,13 +173,13 @@ export const OverviewScreen: React.FC<OverviewScreenProps> = ({
           <div className="bg-[#171A1C] border border-[#232729] rounded-sm p-5 space-y-3">
             <div className="flex items-center justify-between border-b border-[#232729] pb-3">
               <h2 className="font-sans font-bold text-sm text-[#E8E3D8] uppercase tracking-wide">
-                ACTIVE SIGNALS (12)
+                ACTIVE SIGNALS ({alerts.length})
               </h2>
               <span className="font-mono text-[10px] text-[#5AA9A0]">LIVE FEED</span>
             </div>
 
             <div className="space-y-2.5">
-              {alerts.slice(0, 4).map((alert) => (
+              {alerts.map((alert) => (
                 <div
                   key={alert.id}
                   onClick={() => alert.topicId && onSelectTopic(alert.topicId)}
@@ -186,7 +207,7 @@ export const OverviewScreen: React.FC<OverviewScreenProps> = ({
             </div>
 
             <div className="space-y-2 font-mono text-[11px]">
-              {SENTIMENT_SERIES.map((pt, i) => (
+              {sentimentSeries.map((pt, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <span className="w-10 text-[#737C80] text-[10px]">{pt.time}</span>
                   <div className="flex-1 h-2 bg-[#232729] rounded-xs overflow-hidden flex">

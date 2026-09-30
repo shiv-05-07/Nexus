@@ -1,8 +1,11 @@
 import React from 'react';
-import { AUDIENCE_CLUSTERS } from '../../data/mockIntelligence';
 import { Users, Shield, AlertCircle, Lock } from 'lucide-react';
+import { useNexus } from '../../context/NexusContext';
 
 export const AudienceScreen: React.FC = () => {
+  const { activeDataset } = useNexus();
+  const audienceClusters = activeDataset.audienceClusters;
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -11,7 +14,7 @@ export const AudienceScreen: React.FC = () => {
           05. AUDIENCE CLUSTER INTELLIGENCE
         </h1>
         <p className="font-mono text-xs text-[#737C80] mt-0.5">
-          Aggregate demographic cluster estimations, regional distribution, and language indicators
+          Aggregate demographic cluster estimations, regional distribution, and language indicators ({activeDataset.name})
         </p>
       </div>
 
@@ -31,7 +34,7 @@ export const AudienceScreen: React.FC = () => {
 
       {/* Audience Clusters Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {AUDIENCE_CLUSTERS.map((cluster) => (
+        {audienceClusters.map((cluster) => (
           <div
             key={cluster.id}
             className={`p-5 bg-[#171A1C] border rounded-sm space-y-4 font-mono text-xs ${

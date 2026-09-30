@@ -15,12 +15,11 @@ import {
   FileText
 } from 'lucide-react';
 import { DataMode, ScreenId } from '../../types/nexus';
+import { useNexus } from '../../context/NexusContext';
 
 interface SidebarProps {
   currentScreen: ScreenId;
   onNavigate: (screen: ScreenId) => void;
-  dataMode: DataMode;
-  onDataModeChange: (mode: DataMode) => void;
 }
 
 const NAV_ITEMS: { id: ScreenId; num: string; label: string; icon: React.ElementType }[] = [
@@ -35,12 +34,9 @@ const NAV_ITEMS: { id: ScreenId; num: string; label: string; icon: React.Element
   { id: 'integrity', num: '09', label: 'INTEGRITY', icon: FileCheck },
 ];
 
-export const Sidebar: React.FC<SidebarProps> = ({
-  currentScreen,
-  onNavigate,
-  dataMode,
-  onDataModeChange,
-}) => {
+export const Sidebar: React.FC<SidebarProps> = ({ currentScreen, onNavigate }) => {
+  const { sourceMode, setSourceMode, permissions } = useNexus();
+
   return (
     <aside className="w-64 h-screen bg-[#171A1C] border-r border-[#232729] flex flex-col justify-between select-none shrink-0 z-30">
       <div>
@@ -111,42 +107,44 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* System Status Section */}
         <div className="px-3 py-3 mt-2 border-t border-[#232729]">
-          <div className="px-3 py-1 font-mono text-[10px] tracking-widest text-[#737C80] uppercase">
-            System
+          <div className="px-3 py-1 font-mono text-[10px] tracking-widest text-[#737C80] uppercase flex justify-between">
+            <span>System</span>
+            {permissions.canAccessAdminPanel && <span className="text-[#C9784A]">ADMIN</span>}
           </div>
-          <div className="space-y-1 mt-1 text-xs text-[#BDB5A6]/80">
-            <div className="flex items-center gap-2.5 px-3 py-1.5 hover:bg-[#232729]/30 rounded-sm cursor-pointer transition-colors">
+          <div className="space-y-1 mt-1 text-xs text-[#BDB5A6]/80 font-mono text-[11px]">
+            <div className="flex items-center gap-2.5 px-3 py-1.5 hover:bg-[#232729]/30 rounded-sm transition-colors">
               <Database className="w-3.5 h-3.5 text-[#5AA9A0]" />
               <span className="font-sans text-[11px]">Data Ingest Pipeline</span>
-              <span className="ml-auto text-[10px] font-mono text-[#5AA9A0]">OK</span>
+              <span className="ml-auto text-[10px] text-[#5AA9A0]">OK</span>
             </div>
-            <div className="flex items-center gap-2.5 px-3 py-1.5 hover:bg-[#232729]/30 rounded-sm cursor-pointer transition-colors">
+            <div className="flex items-center gap-2.5 px-3 py-1.5 hover:bg-[#232729]/30 rounded-sm transition-colors">
               <Cpu className="w-3.5 h-3.5 text-[#5AA9A0]" />
               <span className="font-sans text-[11px]">ML Models (v3.4)</span>
-              <span className="ml-auto text-[10px] font-mono text-[#5AA9A0]">READY</span>
+              <span className="ml-auto text-[10px] text-[#5AA9A0]">READY</span>
             </div>
-            <div className="flex items-center gap-2.5 px-3 py-1.5 hover:bg-[#232729]/30 rounded-sm cursor-pointer transition-colors">
+            <div className="flex items-center gap-2.5 px-3 py-1.5 hover:bg-[#232729]/30 rounded-sm transition-colors">
               <FileText className="w-3.5 h-3.5 text-[#737C80]" />
               <span className="font-sans text-[11px]">Audit Ledger Log</span>
-              <span className="ml-auto text-[10px] font-mono text-[#737C80]">SYNC</span>
+              <span className="ml-auto text-[10px] text-[#737C80]">SYNC</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Data Mode Selector at Bottom */}
+      {/* Source Mode Selector at Bottom */}
       <div className="p-3 border-t border-[#232729] bg-[#0D1012]/60">
-        <div className="text-[10px] font-mono tracking-widest text-[#737C80] uppercase mb-2 px-1">
-          SOURCE MODE
+        <div className="text-[10px] font-mono tracking-widest text-[#737C80] uppercase mb-2 px-1 flex justify-between">
+          <span>SOURCE MODE</span>
+          <span className="text-[#C9784A] font-bold">{sourceMode}</span>
         </div>
         <div className="grid grid-cols-3 gap-1 p-1 bg-[#232729] rounded-sm relative">
           {(['LIVE', 'ARCHIVE', 'SYNTHETIC'] as DataMode[]).map((mode) => {
-            const isSelected = dataMode === mode;
+            const isSelected = sourceMode === mode;
             return (
               <button
                 key={mode}
-                onClick={() => onDataModeChange(mode)}
-                className={`relative py-1 text-[10px] font-mono tracking-wider transition-colors z-10 ${
+                onClick={() => setSourceMode(mode)}
+                className={`relative py-1 text-[10px] font-mono tracking-wider transition-colors z-10 cursor-pointer ${
                   isSelected ? 'text-[#E8E3D8] font-bold' : 'text-[#737C80] hover:text-[#BDB5A6]'
                 }`}
               >
