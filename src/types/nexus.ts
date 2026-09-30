@@ -21,6 +21,7 @@ export interface TimelineEvent {
   id: string;
   timestamp: string; // ISO or HH:MM:SS
   timeAgo: string;
+  minutesAgo: number;
   platform: 'X' | 'TELEGRAM' | 'YOUTUBE' | 'REDDIT';
   title: string;
   description: string;
