@@ -1,0 +1,6 @@
+{
+  "name": "NEXUS - AI-Powered Social Narrative Intelligence",
+  "description": "Cross-platform social media analytics, narrative emergence reconstruction, network topology, coordination signal detection, and tamper-evident evidence integrity.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

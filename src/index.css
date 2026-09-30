@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+
+  --color-obsidian: #0D1012;
+  --color-graphite-dark: #171A1C;
+  --color-graphite-soft: #232729;
+  --color-ivory: #E8E3D8;
+  --color-sand: #BDB5A6;
+  --color-copper: #C9784A;
+  --color-teal: #5AA9A0;
+  --color-amber: #D6A84F;
+  --color-red-crit: #C75C5C;
+  --color-steel: #737C80;
+}
+
+@layer base {
+  body {
+    background-color: #0D1012;
+    color: #E8E3D8;
+    font-family: var(--font-sans);
+    letter-spacing: -0.01em;
+  }
+
+  /* Custom scrollbar for dark analyst UI */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #171A1C;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #232729;
+    border-radius: 2px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #737C80;
+  }
+}
+
+/* Tabular numbers helper */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Pulse animation without glowing neon */
+@keyframes quiet-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.95); }
+}
+
+.animate-quiet-pulse {
+  animation: quiet-pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Subtle motion curve */
+.transition-bezier {
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
