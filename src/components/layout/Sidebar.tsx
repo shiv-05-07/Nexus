@@ -9,12 +9,14 @@ import {
   Radio,
   X
 } from 'lucide-react';
-import { ScreenId } from '../../types/nexus';
+import { ScreenId, UserProfile, UserRole } from '../../types/nexus';
 
 interface SidebarProps {
   currentScreen: ScreenId;
   onNavigate: (screen: ScreenId) => void;
   userRole?: string;
+  userProfile?: UserProfile;
+  onRoleChange?: (role: UserRole) => void;
   dataProvenance?: string;
   onToggleDataProvenance?: () => void;
   isMobileOpen?: boolean;
@@ -25,6 +27,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   currentScreen,
   onNavigate,
   userRole = 'Lead Analyst',
+  userProfile,
+  onRoleChange,
   dataProvenance = 'DEMO DATA',
   onToggleDataProvenance,
   isMobileOpen = false,
@@ -129,19 +133,49 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <span className="font-mono text-[9px] text-[#8A8A82]">v2.4</span>
         </div>
 
-        {/* User Identity */}
-        <div className="flex items-center gap-2.5 px-3 py-2 rounded-xs">
-          <div className="w-6 h-6 rounded-full bg-[#171717] text-white flex items-center justify-center font-mono text-[10px] font-semibold shrink-0">
-            LA
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="font-sans text-xs font-semibold text-[#171717] truncate">
-              {userRole}
+        {/* User Identity & Role Switcher */}
+        <div className="p-2 bg-[#FDFDFB] border border-[#E8E8E1] rounded-xs space-y-1.5">
+          <div className="flex items-center gap-2.5 px-1 py-1">
+            <div className={`w-6 h-6 rounded-full flex items-center justify-center font-mono text-[10px] font-semibold shrink-0 text-white ${
+              userProfile?.role === 'viewer' ? 'bg-[#575757]' : 'bg-[#171717]'
+            }`}>
+              {userProfile?.avatarInitials || (userRole === 'Viewer' ? 'VR' : 'LA')}
             </div>
-            <div className="font-mono text-[10px] text-[#8A8A82] truncate">
-              AN-9042 • SEC-04
+            <div className="flex-1 min-w-0">
+              <div className="font-sans text-xs font-semibold text-[#171717] truncate">
+                {userProfile?.roleLabel || userRole}
+              </div>
+              <div className="font-mono text-[10px] text-[#8A8A82] truncate">
+                {userProfile ? `${userProfile.callsign} • ${userProfile.clearance}` : 'AN-9042 • SEC-04'}
+              </div>
             </div>
           </div>
+
+          {/* Operational Role Selector */}
+          {onRoleChange && (
+            <div className="pt-1 border-t border-[#F0F0EA]">
+              <div className="flex items-center justify-between px-1 mb-1">
+                <span className="font-mono text-[9px] text-[#8A8A82] uppercase tracking-wider">
+                  Access Role
+                </span>
+                {userProfile?.role === 'viewer' && (
+                  <span className="font-mono text-[9px] text-[#B45309] font-medium">
+                    Read-Only
+                  </span>
+                )}
+              </div>
+              <select
+                value={userProfile?.role || 'lead_analyst'}
+                onChange={(e) => onRoleChange(e.target.value as UserRole)}
+                className="w-full text-[11px] font-mono bg-[#FFFFFF] border border-[#D6D6CC] rounded-xs px-2 py-1 text-[#171717] focus:outline-none focus:border-[#171717] cursor-pointer"
+                aria-label="Operational role selection"
+              >
+                <option value="lead_analyst">Lead Analyst (Full Access)</option>
+                <option value="analyst">Analyst (Full Access)</option>
+                <option value="viewer">Viewer (Read-Only)</option>
+              </select>
+            </div>
+          )}
         </div>
       </div>
     </div>

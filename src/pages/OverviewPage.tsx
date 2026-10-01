@@ -368,21 +368,33 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
 
             <div className="space-y-2 text-xs font-sans pt-1">
               <div className="flex justify-between items-center py-1 border-b border-[#F0F0EA]">
-                <span className="text-[#575757]">Core Demographic Age</span>
-                <span className="font-mono font-medium text-[#171717]">18–24 (48%)</span>
+                <span className="text-[#575757]">Core Demographic Cohort</span>
+                <span className="font-mono font-medium text-[#171717]">
+                  {data.audience?.ageGroups?.length
+                    ? `${data.audience.ageGroups[0].range} (${data.audience.ageGroups[0].percentage}%)`
+                    : 'Unmodeled (Privacy-Preserved)'}
+                </span>
               </div>
               <div className="flex justify-between items-center py-1 border-b border-[#F0F0EA]">
                 <span className="text-[#575757]">Linguistic Syntax</span>
-                <span className="font-mono font-medium text-[#171717]">Hindi / English (61%)</span>
+                <span className="font-mono font-medium text-[#171717]">
+                  {data.audience?.languages?.length
+                    ? `${data.audience.languages[0].language} (${data.audience.languages[0].percentage}%)`
+                    : 'English (en) 100%'}
+                </span>
               </div>
               <div className="flex justify-between items-center py-1">
-                <span className="text-[#575757]">Geographic Core</span>
-                <span className="font-mono font-medium text-[#171717]">Western Region (43%)</span>
+                <span className="text-[#575757]">Geographic / Community Core</span>
+                <span className="font-mono font-medium text-[#171717]">
+                  {data.audience?.regions?.length
+                    ? `${data.audience.regions[0].region} (${data.audience.regions[0].percentage}%)`
+                    : 'Transit & Civic Hubs'}
+                </span>
               </div>
             </div>
 
             <p className="font-sans text-[11px] text-[#8A8A82] leading-tight">
-              Macro inferences derived from geotemporal conversation density. Zero individual tracking.
+              {data.audience?.methodologyNote || 'Macro inferences derived from geotemporal conversation density. Zero individual tracking.'}
             </p>
           </div>
 

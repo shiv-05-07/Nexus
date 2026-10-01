@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   X,
@@ -6,24 +6,67 @@ import {
   Clock,
   ArrowUpRight,
   ShieldCheck,
-  Quote
+  Quote,
+  CheckCircle2,
+  Lock,
+  ShieldAlert
 } from 'lucide-react';
-import { DetailDrawerState, ScreenId } from '../../types/nexus';
+import { DetailDrawerState, ScreenId, UserProfile } from '../../types/nexus';
 import { SentimentBadge } from '../common/SentimentBadge';
 import { PlatformBadge } from '../common/PlatformBadge';
 import { Sparkline } from '../common/Sparkline';
+import { nexusApi } from '../../services/api/nexusApi';
 
 interface DetailDrawerProps {
   selection: DetailDrawerState;
   onClose: () => void;
   onNavigateToScreen?: (screen: ScreenId) => void;
+  userProfile?: UserProfile;
 }
 
 export const DetailDrawer: React.FC<DetailDrawerProps> = ({
   selection,
   onClose,
   onNavigateToScreen,
+  userProfile,
 }) => {
+  const [confirmedSignals, setConfirmedSignals] = useState<Set<string>>(new Set());
+  const [verifiedRecords, setVerifiedRecords] = useState<Set<string>>(new Set());
+  const [isActing, setIsActing] = useState<boolean>(false);
+  const [actionMessage, setActionMessage] = useState<string | null>(null);
+
+  const canConfirm = userProfile?.permissions?.canConfirmSignal ?? (userProfile?.role !== 'viewer');
+  const canVerify = userProfile?.permissions?.canVerifyRecord ?? (userProfile?.role !== 'viewer');
+
+  const handleConfirmSignal = async (signalId: string) => {
+    if (!canConfirm) return;
+    setIsActing(true);
+    setActionMessage(null);
+    try {
+      await nexusApi.confirmSignal(signalId);
+      setConfirmedSignals((prev) => new Set([...prev, signalId]));
+      setActionMessage('Signal confirmed by operational analyst');
+    } catch (err: any) {
+      setActionMessage(err.message || 'Failed to confirm signal');
+    } finally {
+      setIsActing(false);
+    }
+  };
+
+  const handleVerifyRecord = async (recordId: string) => {
+    if (!canVerify) return;
+    setIsActing(true);
+    setActionMessage(null);
+    try {
+      await nexusApi.verifyRecord(recordId);
+      setVerifiedRecords((prev) => new Set([...prev, recordId]));
+      setActionMessage('Record verified in intelligence repository');
+    } catch (err: any) {
+      setActionMessage(err.message || 'Failed to verify record');
+    } finally {
+      setIsActing(false);
+    }
+  };
   return (
     <AnimatePresence>
       {selection && (
@@ -164,8 +207,54 @@ export const DetailDrawer: React.FC<DetailDrawerProps> = ({
                     </div>
                   </div>
 
-                  {/* Action Shortcuts */}
-                  <div className="pt-4 border-t border-[#E8E8E1] flex gap-3">
+                  {/* Operational Action: Confirm Signal */}
+                  <div className="pt-4 border-t border-[#E8E8E1] space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-[10px] font-semibold text-[#8A8A82] uppercase tracking-wider">
+                        Operational Confirmation
+                      </span>
+                      {confirmedSignals.has(selection.data.id) ? (
+                        <span className="flex items-center gap-1 font-mono text-[10px] text-[#2E7D32] font-semibold">
+                          <CheckCircle2 className="w-3 h-3" />
+                          <span>CONFIRMED SIGNAL</span>
+                        </span>
+                      ) : !canConfirm ? (
+                        <span className="flex items-center gap-1 font-mono text-[10px] text-[#B45309] font-medium">
+                          <Lock className="w-3 h-3" />
+                          <span>VIEWER RESTRICTED</span>
+                        </span>
+                      ) : null}
+                    </div>
+
+                    {confirmedSignals.has(selection.data.id) ? (
+                      <div className="p-2.5 bg-[#F0FDF4] border border-[#BBF7D0] rounded-xs flex items-center justify-between text-xs">
+                        <span className="text-[#166534] font-medium flex items-center gap-1.5">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-[#2E7D32]" />
+                          Signal confirmed by analyst
+                        </span>
+                        <span className="font-mono text-[10px] text-[#166534]">Verified Active</span>
+                      </div>
+                    ) : !canConfirm ? (
+                      <div className="p-2.5 bg-[#F7F7F4] border border-[#E8E8E1] rounded-xs flex items-center gap-2 text-xs text-[#575757]">
+                        <ShieldAlert className="w-4 h-4 text-[#B45309] shrink-0" />
+                        <span className="text-[11px] leading-snug">
+                          Viewer role is read-only and cannot confirm signals. Switch to Lead Analyst or Analyst role to authorize.
+                        </span>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleConfirmSignal(selection.data.id)}
+                        disabled={isActing}
+                        className="w-full py-2 px-3 bg-[#171717] hover:bg-[#333333] text-[#FFFFFF] text-xs font-medium rounded-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>{isActing ? 'Confirming Signal...' : 'Confirm Signal'}</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Navigation Shortcuts */}
+                  <div className="pt-2 flex gap-3">
                     {onNavigateToScreen && (
                       <>
                         <button
@@ -173,7 +262,7 @@ export const DetailDrawer: React.FC<DetailDrawerProps> = ({
                             onNavigateToScreen('timeline');
                             onClose();
                           }}
-                          className="flex-1 py-2 px-3 bg-[#171717] text-[#FFFFFF] text-xs font-medium rounded-xs hover:bg-[#333333] transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                          className="flex-1 py-2 px-3 bg-[#F7F7F4] hover:bg-[#EAEAE4] text-[#171717] border border-[#E8E8E1] text-xs font-medium rounded-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                         >
                           <Clock className="w-3.5 h-3.5" />
                           <span>View in Timeline</span>
@@ -183,7 +272,7 @@ export const DetailDrawer: React.FC<DetailDrawerProps> = ({
                             onNavigateToScreen('network');
                             onClose();
                           }}
-                          className="flex-1 py-2 px-3 bg-[#F0F0EA] text-[#171717] text-xs font-medium rounded-xs hover:bg-[#E4E4DC] transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                          className="flex-1 py-2 px-3 bg-[#F0F0EA] hover:bg-[#E4E4DC] text-[#171717] text-xs font-medium rounded-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                         >
                           <Share2 className="w-3.5 h-3.5" />
                           <span>Inspect Network</span>
@@ -342,6 +431,52 @@ export const DetailDrawer: React.FC<DetailDrawerProps> = ({
                         <span className="text-sm font-semibold text-[#B45309]">{selection.data.reachScore}/10</span>
                       </div>
                     </div>
+                  </div>
+
+                  {/* Operational Action: Verify Record */}
+                  <div className="pt-4 border-t border-[#E8E8E1] space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-[10px] font-semibold text-[#8A8A82] uppercase tracking-wider">
+                        Record Verification
+                      </span>
+                      {(selection.data.verified || verifiedRecords.has(selection.data.id)) ? (
+                        <span className="flex items-center gap-1 font-mono text-[10px] text-[#2E7D32] font-semibold">
+                          <ShieldCheck className="w-3.5 h-3.5" />
+                          <span>RECORD VERIFIED</span>
+                        </span>
+                      ) : !canVerify ? (
+                        <span className="flex items-center gap-1 font-mono text-[10px] text-[#B45309] font-medium">
+                          <Lock className="w-3 h-3" />
+                          <span>VIEWER RESTRICTED</span>
+                        </span>
+                      ) : null}
+                    </div>
+
+                    {(selection.data.verified || verifiedRecords.has(selection.data.id)) ? (
+                      <div className="p-2.5 bg-[#F0FDF4] border border-[#BBF7D0] rounded-xs flex items-center justify-between text-xs">
+                        <span className="text-[#166534] font-medium flex items-center gap-1.5">
+                          <ShieldCheck className="w-3.5 h-3.5 text-[#2E7D32]" />
+                          Verified authentic transmission
+                        </span>
+                        <span className="font-mono text-[10px] text-[#166534]">Audited</span>
+                      </div>
+                    ) : !canVerify ? (
+                      <div className="p-2.5 bg-[#F7F7F4] border border-[#E8E8E1] rounded-xs flex items-center gap-2 text-xs text-[#575757]">
+                        <ShieldAlert className="w-4 h-4 text-[#B45309] shrink-0" />
+                        <span className="text-[11px] leading-snug">
+                          Viewer role is read-only and cannot verify records. Switch to Lead Analyst or Analyst role to authorize.
+                        </span>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleVerifyRecord(selection.data.id)}
+                        disabled={isActing}
+                        className="w-full py-2 px-3 bg-[#171717] hover:bg-[#333333] text-[#FFFFFF] text-xs font-medium rounded-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                      >
+                        <ShieldCheck className="w-3.5 h-3.5" />
+                        <span>{isActing ? 'Verifying Record...' : 'Verify Record'}</span>
+                      </button>
+                    )}
                   </div>
                 </div>
               )}

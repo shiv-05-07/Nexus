@@ -6,6 +6,7 @@ import { timelineRouter } from './routes/timeline';
 import { sentimentRouter } from './routes/sentiment';
 import { trendsRouter } from './routes/trends';
 import { networkRouter } from './routes/network';
+import { profileRouter, handleConfirmSignal, handleVerifyRecord } from './routes/profile';
 import { notFound } from './middleware/notFound';
 import { errorHandler } from './middleware/errorHandler';
 
@@ -55,6 +56,13 @@ export function createApp() {
   app.use('/api/sentiment', sentimentRouter);
   app.use('/api/trends', trendsRouter);
   app.use('/api/network', networkRouter);
+  app.use('/api/profile', profileRouter);
+
+  // Dedicated Action endpoints with server-side authorization enforcement
+  app.post('/api/signals/confirm', handleConfirmSignal);
+  app.post('/api/records/verify', handleVerifyRecord);
+  app.post('/api/overview/confirm-signal', handleConfirmSignal);
+  app.post('/api/timeline/verify-record', handleVerifyRecord);
 
   // 404 handler
   app.use(notFound);

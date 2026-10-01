@@ -242,3 +242,40 @@ export type DetailDrawerState =
   | { type: 'node'; data: NetworkNode }
   | { type: 'event'; data: TimelineEvent }
   | null;
+
+export type UserRole = 'lead_analyst' | 'analyst' | 'viewer';
+
+export interface UserRolePermissions {
+  canConfirmSignal: boolean;
+  canVerifyRecord: boolean;
+  canExportData: boolean;
+  canViewIntelligence: boolean;
+}
+
+export interface UserProfile {
+  id: string;
+  name: string;
+  role: UserRole;
+  roleLabel: string;
+  callsign: string;
+  clearance: string;
+  avatarInitials: string;
+  permissions: UserRolePermissions;
+}
+
+export interface ConfirmSignalResult {
+  success: boolean;
+  signalId: string;
+  status: 'confirmed';
+  confirmedAt: string;
+  confirmedBy: string;
+}
+
+export interface VerifyRecordResult {
+  success: boolean;
+  recordId: string;
+  status: 'verified';
+  updatedRecord?: boolean;
+  verifiedAt: string;
+  verifiedBy: string;
+}

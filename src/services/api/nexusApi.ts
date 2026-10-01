@@ -1,5 +1,6 @@
 import {
   AudienceAggregate,
+  ConfirmSignalResult,
   EmergingNarrative,
   EmotionItem,
   GetNetworkParams,
@@ -21,10 +22,11 @@ import {
   TimeFilter,
   TimelineEvent,
   TimelineResponse,
-  TrendItem
+  TrendItem,
+  UserProfile,
+  UserRole,
+  VerifyRecordResult
 } from '../../types/nexus';
-import { MOCK_OVERVIEW_DATA } from '../../data/mock/overviewData';
-import { MOCK_TIMELINE_EVENTS } from '../../data/mock/timelineData';
 
 export type { SentimentComposition };
 export type { GetNetworkParams };
@@ -35,6 +37,9 @@ const API_BASE_URL = (
     ? (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || '')
     : '')
 ).replace(/\/$/, '');
+
+// Track current operational role for server-side authorization headers
+let currentRole: UserRole = 'lead_analyst';
 
 export const nexusApi = {
   /**
@@ -313,8 +318,7 @@ export const nexusApi = {
     } catch {
       // fallback
     }
-    const foundFallback = MOCK_OVERVIEW_DATA.narratives.find((n) => n.id === id);
-    return foundFallback || null;
+    return null;
   },
 
   /**
@@ -331,5 +335,104 @@ export const nexusApi = {
       // fallback
     }
     return null;
+  },
+
+  /**
+   * Fetch current user profile and role permissions from /api/profile
+   */
+  async getProfile(): Promise<UserProfile> {
+    const url = `${API_BASE_URL}/api/profile`;
+    const response = await fetch(url, {
+      headers: {
+        'Accept': 'application/json',
+        'x-user-role': currentRole,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch user profile: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data as UserProfile;
+  },
+
+  /**
+   * Switch the active operational role
+   */
+  async setRole(role: UserRole): Promise<UserProfile> {
+    currentRole = role;
+    const url = `${API_BASE_URL}/api/profile/role`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'x-user-role': role,
+      },
+      body: JSON.stringify({ role }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to switch operational role: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data as UserProfile;
+  },
+
+  /**
+   * Get currently active role
+   */
+  getRole(): UserRole {
+    return currentRole;
+  },
+
+  /**
+   * Confirm an emerging signal (enforces server-side authorization: viewer cannot confirm)
+   */
+  async confirmSignal(signalId: string): Promise<ConfirmSignalResult> {
+    const url = `${API_BASE_URL}/api/signals/confirm`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'x-user-role': currentRole,
+      },
+      body: JSON.stringify({ signalId }),
+    });
+
+    if (!response.ok) {
+      const errJson = await response.json().catch(() => ({}));
+      throw new Error(errJson.error || `Failed to confirm signal: HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data as ConfirmSignalResult;
+  },
+
+  /**
+   * Verify an observed chronological record (enforces server-side authorization: viewer cannot verify)
+   */
+  async verifyRecord(recordId: string): Promise<VerifyRecordResult> {
+    const url = `${API_BASE_URL}/api/records/verify`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'x-user-role': currentRole,
+      },
+      body: JSON.stringify({ recordId }),
+    });
+
+    if (!response.ok) {
+      const errJson = await response.json().catch(() => ({}));
+      throw new Error(errJson.error || `Failed to verify record: HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data as VerifyRecordResult;
   }
 };

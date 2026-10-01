@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   DetailDrawerState,
@@ -7,7 +7,9 @@ import {
   Platform,
   ScreenId,
   TimeFilter,
-  TimelineEvent
+  TimelineEvent,
+  UserProfile,
+  UserRole
 } from '../../types/nexus';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
@@ -17,6 +19,7 @@ import { TimelinePage } from '../../pages/TimelinePage';
 import { SentimentPage } from '../../pages/SentimentPage';
 import { TrendsPage } from '../../pages/TrendsPage';
 import { NetworkPage } from '../../pages/NetworkPage';
+import { nexusApi } from '../../services/api/nexusApi';
 
 export const AppShell: React.FC = () => {
   const [currentScreen, setCurrentScreen] = useState<ScreenId>('overview');
@@ -25,6 +28,24 @@ export const AppShell: React.FC = () => {
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [dataProvenance, setDataProvenance] = useState<string>('DEMO DATA');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
+  
+  // User Profile and Role Access State
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+
+  useEffect(() => {
+    nexusApi.getProfile()
+      .then(setUserProfile)
+      .catch((err) => console.error('Failed to load initial profile:', err));
+  }, []);
+
+  const handleRoleChange = async (role: UserRole) => {
+    try {
+      const updated = await nexusApi.setRole(role);
+      setUserProfile(updated);
+    } catch (err) {
+      console.error('Failed to switch operational role:', err);
+    }
+  };
   
   // Reusable unified detail drawer state
   const [drawerSelection, setDrawerSelection] = useState<DetailDrawerState>(null);
@@ -46,6 +67,8 @@ export const AppShell: React.FC = () => {
       <Sidebar
         currentScreen={currentScreen}
         onNavigate={(screen) => setCurrentScreen(screen)}
+        userProfile={userProfile || undefined}
+        onRoleChange={handleRoleChange}
         dataProvenance={dataProvenance}
         onToggleDataProvenance={handleToggleDataProvenance}
         isMobileOpen={isMobileMenuOpen}
@@ -132,6 +155,7 @@ export const AppShell: React.FC = () => {
       {/* 3. Unified Reusable Right-Side Detail Drawer */}
       <DetailDrawer
         selection={drawerSelection}
+        userProfile={userProfile || undefined}
         onClose={() => setDrawerSelection(null)}
         onNavigateToScreen={(s) => {
           setCurrentScreen(s);
