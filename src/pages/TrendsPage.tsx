@@ -71,11 +71,16 @@ export const TrendsPage: React.FC<TrendsPageProps> = ({
               Signature Analytics
             </span>
             <h2 className="font-sans font-bold text-xl md:text-2xl text-[#171717] tracking-tight mt-0.5">
-              Momentum Landscape
+              Momentum Landscape {platformFilter !== 'all' ? `— ${platformFilter.toUpperCase()}` : ''}
             </h2>
           </div>
 
           <div className="flex items-center gap-4 text-xs font-mono text-[11px] text-[#8A8A82]">
+            {platformFilter !== 'all' && (
+              <span className="font-semibold text-[#171717] px-2 py-0.5 bg-[#F0F0EA] rounded-xs uppercase">
+                {platformFilter} only ({trends.length} topics)
+              </span>
+            )}
             <span className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-[#C62828]" /> Negative
             </span>
@@ -317,7 +322,10 @@ export const TrendsPage: React.FC<TrendsPageProps> = ({
                     <span>{item.communityName}</span>
                     <span>•</span>
                     <div className="flex items-center gap-1">
-                      {item.platforms.map((p) => (
+                      {(platformFilter === 'all'
+                        ? item.platforms
+                        : item.platforms.filter((p) => p === platformFilter)
+                      ).map((p) => (
                         <PlatformBadge key={p} platform={p} size="sm" />
                       ))}
                     </div>

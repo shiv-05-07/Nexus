@@ -102,6 +102,8 @@ export interface NetworkNode {
   communityId: string;
   communityName: string;
   role: string;
+  platform: Platform;
+  platforms?: Platform[];
   pagerank: number;
   betweenness: number;
   connectionsCount: number;
@@ -119,6 +121,7 @@ export interface NetworkEdge {
   target: string;
   weight: number;
   interactionType: 'reply' | 'repost' | 'mention' | 'quote';
+  platform?: Platform;
 }
 
 export interface NetworkCommunity {

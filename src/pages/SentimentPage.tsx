@@ -39,10 +39,10 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
     let isMounted = true;
     setLoading(true);
     Promise.all([
-      nexusApi.getSentimentComposition(timeFilter),
-      nexusApi.getSentimentTrends(timeFilter),
-      nexusApi.getEmotionDistribution(),
-      nexusApi.getPlatformSentiment(),
+      nexusApi.getSentimentComposition(timeFilter, platformFilter),
+      nexusApi.getSentimentTrends(timeFilter, platformFilter),
+      nexusApi.getEmotionDistribution(platformFilter),
+      nexusApi.getPlatformSentiment(platformFilter),
     ]).then(([compData, trendData, emotionData, platformData]) => {
       if (isMounted) {
         setComposition(compData);
@@ -103,11 +103,11 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
               Sentiment Composition
             </h2>
             <p className="font-sans text-xs text-[#575757] mt-0.5">
-              Current breakdown of conversation sentiment across monitored channels
+              Current breakdown of conversation sentiment across {platformFilter !== 'all' ? platformFilter.toUpperCase() : 'monitored channels'}
             </p>
           </div>
           <span className="font-mono text-[11px] text-[#8A8A82]">
-            Horizon: {timeFilter.toUpperCase()} • {composition ? `${composition.totalAnalyzed.toLocaleString()} posts analyzed` : ''}
+            Scope: {platformFilter !== 'all' ? platformFilter.toUpperCase() : 'All Platforms'} • {timeFilter.toUpperCase()} • {composition ? `${composition.totalAnalyzed.toLocaleString()} posts` : ''}
           </span>
         </div>
 
@@ -143,7 +143,7 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
               {composition?.description}
             </p>
             <div className="flex items-center gap-4 pt-1 font-mono text-[11px] text-[#8A8A82]">
-              <span>Coverage: 4 Platforms</span>
+              <span>Coverage: {platformFilter !== 'all' ? `${platformFilter.toUpperCase()} Channels` : '4 Monitored Networks'}</span>
               <span>•</span>
               <span>Confidence: 94.2%</span>
             </div>

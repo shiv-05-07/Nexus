@@ -90,7 +90,10 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
                 </span>
                 <SentimentBadge sentiment={leadNarrative.sentiment} size="sm" />
                 <div className="flex items-center gap-1">
-                  {leadNarrative.platforms.map((p) => (
+                  {(platformFilter === 'all'
+                    ? leadNarrative.platforms
+                    : leadNarrative.platforms.filter((p) => p === platformFilter)
+                  ).map((p) => (
                     <PlatformBadge key={p} platform={p} size="sm" />
                   ))}
                 </div>
@@ -182,7 +185,10 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
                     ↑ +{narrative.growthPct}%
                   </span>
                   <div className="flex items-center gap-1 ml-1">
-                    {narrative.platforms.map((p) => (
+                    {(platformFilter === 'all'
+                      ? narrative.platforms
+                      : narrative.platforms.filter((p) => p === platformFilter)
+                    ).map((p) => (
                       <PlatformBadge key={p} platform={p} size="sm" />
                     ))}
                   </div>
@@ -228,12 +234,14 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 py-6 border-y border-[#E8E8E1]">
           <div className="space-y-1">
             <span className="font-mono text-[10px] text-[#8A8A82] block uppercase tracking-wider">
-              Total Intake
+              {platformFilter !== 'all' ? `${platformFilter.toUpperCase()} Intake` : 'Total Intake'}
             </span>
             <div className="text-2xl md:text-3xl font-mono font-medium text-[#171717] tracking-tight">
               <AnimatedNumber value={data.metrics.totalPosts} />
             </div>
-            <span className="font-sans text-[11px] text-[#8A8A82] block">across monitored nodes</span>
+            <span className="font-sans text-[11px] text-[#8A8A82] block">
+              {platformFilter !== 'all' ? `across ${platformFilter.toUpperCase()}` : 'across monitored nodes'}
+            </span>
           </div>
 
           <div className="space-y-1">
@@ -282,7 +290,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
                 Sentiment Balance
               </h4>
               <span className="font-mono text-[10px] text-[#8A8A82]">
-                {timeFilter.toUpperCase()} Composition
+                {platformFilter !== 'all' ? platformFilter.toUpperCase() : timeFilter.toUpperCase()} Composition
               </span>
             </div>
 

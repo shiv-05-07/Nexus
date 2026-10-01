@@ -215,6 +215,9 @@ export const DetailDrawer: React.FC<DetailDrawerProps> = ({
                             Bridge
                           </span>
                         )}
+                        {selection.data.platform && selection.data.platform !== 'all' && (
+                          <PlatformBadge platform={selection.data.platform} size="sm" />
+                        )}
                       </div>
                       <p className="font-sans text-xs text-[#575757]">{selection.data.alias}</p>
                       <span className="inline-block mt-0.5 text-[11px] font-sans font-medium text-[#2563EB]">

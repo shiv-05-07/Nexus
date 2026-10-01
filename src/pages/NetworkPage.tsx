@@ -72,7 +72,7 @@ export const NetworkPage: React.FC<NetworkPageProps> = ({
     else if (selectedTimeRange === '1h') daysBack = 1 / 24;
     else if (selectedTimeRange === '6h') daysBack = 0.25;
 
-    nexusApi.getNetwork({ daysBack, timeFilter: selectedTimeRange }).then((res) => {
+    nexusApi.getNetwork({ daysBack, timeFilter: selectedTimeRange, platform: platformFilter }).then((res) => {
       if (isMounted) {
         setNodes(res.nodes);
         setEdges(res.edges);
@@ -173,7 +173,9 @@ export const NetworkPage: React.FC<NetworkPageProps> = ({
           <span className="font-mono font-medium text-2xl text-[#171717] tracking-tight tabular-nums">
             {summary.monitoredNodes} Accounts
           </span>
-          <span className="font-sans text-[11px] text-[#8A8A82] block mt-0.5">active in {selectedTimeRange.toUpperCase()}</span>
+          <span className="font-sans text-[11px] text-[#8A8A82] block mt-0.5">
+            {platformFilter !== 'all' ? `monitored on ${platformFilter.toUpperCase()}` : `active in ${selectedTimeRange.toUpperCase()}`}
+          </span>
         </div>
         <div>
           <span className="font-mono text-[10px] text-[#8A8A82] uppercase tracking-wider block">
@@ -518,7 +520,7 @@ export const NetworkPage: React.FC<NetworkPageProps> = ({
                           textAnchor="middle"
                           className="font-sans text-[9px] fill-[#8A8A82] select-none"
                         >
-                          {node.role}
+                          {node.role} • {node.platform.toUpperCase()}
                         </text>
                       )}
                     </motion.g>
@@ -544,7 +546,7 @@ export const NetworkPage: React.FC<NetworkPageProps> = ({
             Identified Community Clusters
           </h3>
           <p className="font-sans text-xs text-[#575757]">
-            Topological partition based on cross-platform interaction density in {selectedTimeRange.toUpperCase()}
+            Topological partition based on interaction density in {selectedTimeRange.toUpperCase()} {platformFilter !== 'all' ? `(${platformFilter.toUpperCase()})` : ''}
           </p>
         </div>
 
