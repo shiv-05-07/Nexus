@@ -1,0 +1,191 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Platform {
+  X
+  TELEGRAM
+  REDDIT
+  YOUTUBE
+}
+
+enum SentimentType {
+  POSITIVE
+  NEUTRAL
+  NEGATIVE
+}
+
+enum EmotionType {
+  ANXIETY
+  EXCITEMENT
+  SUPPORTIVE
+  OPPOSITION
+  SARCASM
+}
+
+enum EngagementType {
+  LIKE
+  REPOST
+  REPLY
+  MENTION
+  QUOTE
+  SHARE
+}
+
+model User {
+  id                  String         @id @default(cuid())
+  platform            Platform
+  platformUserId      String
+  handle              String
+  displayName         String
+  alias               String?
+  avatarColor         String?        @default("#2563EB")
+  verified            Boolean        @default(false)
+  role                String?
+  communityId         String?
+  community           Community?     @relation(fields: [communityId], references: [id], onDelete: SetNull)
+  
+  posts               Post[]
+  engagementsGiven    Engagement[]   @relation("ActorEngagements")
+  engagementsReceived Engagement[]   @relation("TargetEngagements")
+  outEdges            NetworkEdge[]  @relation("EdgeSource")
+  inEdges             NetworkEdge[]  @relation("EdgeTarget")
+
+  isSynthetic         Boolean        @default(true)
+  metadata            Json?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  @@unique([platform, platformUserId])
+  @@index([platform, handle])
+  @@index([communityId])
+}
+
+model Post {
+  id             String         @id @default(cuid())
+  platform       Platform
+  platformPostId String
+  authorId       String
+  author         User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content        String         @db.Text
+  topicId        String?
+  topic          Topic?         @relation(fields: [topicId], references: [id], onDelete: SetNull)
+  
+  createdAt      DateTime       @default(now())
+  collectedAt    DateTime       @default(now())
+  
+  likesCount     Int            @default(0)
+  repostsCount   Int            @default(0)
+  commentsCount  Int            @default(0)
+  viewsCount     Int            @default(0)
+  reachScore     Float          @default(0.0)
+  
+  sentiment      SentimentType  @default(NEUTRAL)
+  sentimentScore Float          @default(0.0)
+  emotion        EmotionType    @default(SUPPORTIVE)
+  emotionScore   Float          @default(0.0)
+  
+  language       String         @default("en")
+  location       String?
+  
+  parentPostId   String?
+  parentPost     Post?          @relation("PostThread", fields: [parentPostId], references: [id], onDelete: SetNull)
+  childPosts     Post[]         @relation("PostThread")
+  
+  isRepost       Boolean        @default(false)
+  isSynthetic    Boolean        @default(true)
+  rawMetadata    Json?
+  
+  engagements    Engagement[]
+
+  @@unique([platform, platformPostId])
+  @@index([platform])
+  @@index([createdAt])
+  @@index([authorId])
+  @@index([topicId])
+  @@index([sentiment])
+  @@index([collectedAt])
+}
+
+model Topic {
+  id              String    @id @default(cuid())
+  slug            String    @unique
+  name            String
+  description     String    @db.Text
+  firstObservedAt DateTime  @default(now())
+  lastObservedAt  DateTime  @default(now())
+  
+  posts           Post[]
+  
+  isSynthetic     Boolean   @default(true)
+  metadata        Json?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([firstObservedAt])
+}
+
+model Community {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  name        String
+  description String    @db.Text
+  color       String    @default("#2563EB")
+  
+  users       User[]
+  
+  isSynthetic Boolean   @default(true)
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Engagement {
+  id              String         @id @default(cuid())
+  postId          String
+  post            Post           @relation(fields: [postId], references: [id], onDelete: Cascade)
+  actorUserId     String
+  actorUser       User           @relation("ActorEngagements", fields: [actorUserId], references: [id], onDelete: Cascade)
+  targetUserId    String?
+  targetUser      User?          @relation("TargetEngagements", fields: [targetUserId], references: [id], onDelete: SetNull)
+  
+  interactionType EngagementType
+  platform        Platform
+  
+  isSynthetic     Boolean        @default(true)
+  metadata        Json?
+  createdAt       DateTime       @default(now())
+
+  @@index([postId])
+  @@index([actorUserId])
+  @@index([targetUserId])
+  @@index([interactionType])
+  @@index([createdAt])
+}
+
+model NetworkEdge {
+  id              String         @id @default(cuid())
+  sourceUserId    String
+  sourceUser      User           @relation("EdgeSource", fields: [sourceUserId], references: [id], onDelete: Cascade)
+  targetUserId    String
+  targetUser      User           @relation("EdgeTarget", fields: [targetUserId], references: [id], onDelete: Cascade)
+  
+  platform        Platform
+  interactionType EngagementType
+  weight          Float          @default(1.0)
+  
+  isSynthetic     Boolean        @default(true)
+  metadata        Json?
+  occurredAt      DateTime       @default(now())
+
+  @@index([sourceUserId])
+  @@index([targetUserId])
+  @@index([platform])
+  @@index([occurredAt])
+}
