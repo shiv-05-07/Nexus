@@ -177,7 +177,7 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
               }`}
             >
               <span className="w-2 h-2 rounded-full bg-[#C62828]" />
-              <span>Negative (63%)</span>
+              <span>Negative ({composition ? `${composition.negative}%` : '63%'})</span>
             </button>
 
             <button
@@ -191,7 +191,7 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
               }`}
             >
               <span className="w-2 h-2 rounded-full bg-[#64748B]" />
-              <span>Neutral (21%)</span>
+              <span>Neutral ({composition ? `${composition.neutral}%` : '21%'})</span>
             </button>
 
             <button
@@ -205,7 +205,7 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
               }`}
             >
               <span className="w-2 h-2 rounded-full bg-[#2E7D32]" />
-              <span>Positive (16%)</span>
+              <span>Positive ({composition ? `${composition.positive}%` : '16%'})</span>
             </button>
           </div>
         </div>

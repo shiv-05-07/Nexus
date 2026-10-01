@@ -178,10 +178,51 @@ export const nexusApi = {
   },
 
   /**
-   * Fetch sentiment over time series
+   * Fetch sentiment over time series aligned to active time horizon
    */
   async getSentimentTrends(timeRange: TimeFilter = '24h'): Promise<SentimentDataPoint[]> {
     await new Promise((r) => setTimeout(r, 40));
+
+    if (timeRange === '10m') {
+      return [
+        { timestamp: '2026-10-01T08:50:00Z', timeLabel: '-10m', positive: 14, neutral: 22, negative: 64, volume: 80 },
+        { timestamp: '2026-10-01T08:52:00Z', timeLabel: '-8m', positive: 13, neutral: 21, negative: 66, volume: 110 },
+        { timestamp: '2026-10-01T08:54:00Z', timeLabel: '-6m', positive: 12, neutral: 20, negative: 68, volume: 140 },
+        { timestamp: '2026-10-01T08:56:00Z', timeLabel: '-4m', positive: 11, neutral: 19, negative: 70, volume: 185 },
+        { timestamp: '2026-10-01T08:58:00Z', timeLabel: '-2m', positive: 12, neutral: 20, negative: 68, volume: 225 },
+        { timestamp: '2026-10-01T09:00:00Z', timeLabel: 'Now', positive: 12, neutral: 20, negative: 68, volume: 200 },
+      ];
+    }
+    if (timeRange === '1h') {
+      return [
+        { timestamp: '2026-10-01T08:00:00Z', timeLabel: '08:00', positive: 18, neutral: 26, negative: 56, volume: 380 },
+        { timestamp: '2026-10-01T08:15:00Z', timeLabel: '08:15', positive: 16, neutral: 24, negative: 60, volume: 540 },
+        { timestamp: '2026-10-01T08:30:00Z', timeLabel: '08:30', positive: 14, neutral: 22, negative: 64, volume: 720 },
+        { timestamp: '2026-10-01T08:45:00Z', timeLabel: '08:45', positive: 13, neutral: 23, negative: 64, volume: 610 },
+        { timestamp: '2026-10-01T09:00:00Z', timeLabel: '09:00', positive: 14, neutral: 23, negative: 63, volume: 570 },
+      ];
+    }
+    if (timeRange === '7d') {
+      return [
+        { timestamp: '2026-09-25T00:00:00Z', timeLabel: 'Fri', positive: 26, neutral: 34, negative: 40, volume: 6800 },
+        { timestamp: '2026-09-26T00:00:00Z', timeLabel: 'Sat', positive: 28, neutral: 36, negative: 36, volume: 4900 },
+        { timestamp: '2026-09-27T00:00:00Z', timeLabel: 'Sun', positive: 30, neutral: 38, negative: 32, volume: 4200 },
+        { timestamp: '2026-09-28T00:00:00Z', timeLabel: 'Mon', positive: 20, neutral: 28, negative: 52, volume: 8100 },
+        { timestamp: '2026-09-29T00:00:00Z', timeLabel: 'Tue', positive: 18, neutral: 26, negative: 56, volume: 9400 },
+        { timestamp: '2026-09-30T00:00:00Z', timeLabel: 'Wed', positive: 19, neutral: 25, negative: 56, volume: 10200 },
+        { timestamp: '2026-10-01T00:00:00Z', timeLabel: 'Thu', positive: 22, neutral: 28, negative: 50, volume: 10600 },
+      ];
+    }
+    if (timeRange === '30d') {
+      return [
+        { timestamp: '2026-09-02T00:00:00Z', timeLabel: 'W1', positive: 32, neutral: 38, negative: 30, volume: 32000 },
+        { timestamp: '2026-09-09T00:00:00Z', timeLabel: 'W2', positive: 30, neutral: 36, negative: 34, volume: 38000 },
+        { timestamp: '2026-09-16T00:00:00Z', timeLabel: 'W3', positive: 29, neutral: 35, negative: 36, volume: 36000 },
+        { timestamp: '2026-09-23T00:00:00Z', timeLabel: 'W4', positive: 27, neutral: 33, negative: 40, volume: 41000 },
+        { timestamp: '2026-09-30T00:00:00Z', timeLabel: 'W5', positive: 28, neutral: 34, negative: 38, volume: 37500 },
+      ];
+    }
+
     return MOCK_SENTIMENT_SERIES;
   },
 
