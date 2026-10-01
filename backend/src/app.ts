@@ -5,6 +5,7 @@ import { overviewRouter } from './routes/overview';
 import { timelineRouter } from './routes/timeline';
 import { sentimentRouter } from './routes/sentiment';
 import { trendsRouter } from './routes/trends';
+import { networkRouter } from './routes/network';
 import { notFound } from './middleware/notFound';
 import { errorHandler } from './middleware/errorHandler';
 
@@ -53,6 +54,7 @@ export function createApp() {
   app.use('/api/timeline', timelineRouter);
   app.use('/api/sentiment', sentimentRouter);
   app.use('/api/trends', trendsRouter);
+  app.use('/api/network', networkRouter);
 
   // 404 handler
   app.use(notFound);

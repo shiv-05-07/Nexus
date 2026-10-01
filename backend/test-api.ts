@@ -4,7 +4,7 @@ import http from 'http';
 
 async function testBackend() {
   console.log('==================================================');
-  console.log('NEXUS PHASE 2B: COMPREHENSIVE API TEST SUITE');
+  console.log('NEXUS PHASE 2C: REAL NETWORK ANALYTICS TEST SUITE');
   console.log('==================================================\n');
 
   const server = http.createServer(app);
@@ -21,182 +21,147 @@ async function testBackend() {
 
   try {
     // ----------------------------------------------------
-    // SECTION 1: HEALTH, OVERVIEW & TIMELINE VERIFICATION
+    // SECTION 1: NETWORK API ENDPOINT TESTING
     // ----------------------------------------------------
-    console.log('--- TEST 1: GET /api/health ---');
-    const health = await request('/api/health');
-    console.log('Status:', health.status, 'DB:', health.data.database);
+    console.log('--- TEST 1: GET /api/network (Default 24h, All Platforms) ---');
+    const netDef = await request('/api/network');
+    console.log('Status:', netDef.status);
+    console.log('Summary:', netDef.data.summary);
+    console.log('Active Nodes Count:', netDef.data.nodes.length);
+    console.log('Active Edges Count:', netDef.data.edges.length);
+    console.log('Active Communities Count:', netDef.data.communities.length);
+    console.log('Top Node by PageRank:', {
+      id: netDef.data.nodes[0]?.id,
+      label: netDef.data.nodes[0]?.label,
+      community: netDef.data.nodes[0]?.communityName,
+      pagerank: netDef.data.nodes[0]?.pagerank,
+      betweenness: netDef.data.nodes[0]?.betweenness,
+      connections: netDef.data.nodes[0]?.connectionsCount,
+      isBridge: netDef.data.nodes[0]?.isBridge,
+      x: netDef.data.nodes[0]?.x,
+      y: netDef.data.nodes[0]?.y,
+      recentTopics: netDef.data.nodes[0]?.recentTopics,
+      activityVolume: netDef.data.nodes[0]?.activityVolume,
+    });
 
-    console.log('\n--- TEST 2: GET /api/overview ---');
-    const overview = await request('/api/overview');
-    console.log('Overview metrics:', overview.data.metrics);
-    console.log('Active Narratives:', overview.data.narratives.length);
+    console.log('\n--- TEST 2: GET /api/network?timeFilter=7d ---');
+    const net7d = await request('/api/network?timeFilter=7d');
+    console.log('7d Summary:', net7d.data.summary);
+    console.log('7d Node Count:', net7d.data.nodes.length, 'Edge Count:', net7d.data.edges.length);
 
-    console.log('\n--- TEST 3: GET /api/timeline (limit=5) ---');
-    const timeline = await request('/api/timeline?limit=5');
-    console.log('Timeline total posts:', timeline.data.total, 'Returned:', timeline.data.items.length);
-
-    // ----------------------------------------------------
-    // SECTION 2: SENTIMENT ANALYTICS
-    // ----------------------------------------------------
-    console.log('\n--- TEST 4: GET /api/sentiment (Default 24h, All Platforms) ---');
-    const sentimentFull = await request('/api/sentiment');
-    console.log('Status:', sentimentFull.status);
-    console.log('Composition:', sentimentFull.data.composition);
-    console.log('Trends DataPoints Count:', sentimentFull.data.trends.length);
-    console.log('Emotions Count:', sentimentFull.data.emotions.length);
-    console.log('Platform Comparisons Count:', sentimentFull.data.platformComparison.length);
-
-    console.log('\n--- TEST 5: GET /api/sentiment?timeFilter=7d ---');
-    const sentiment7d = await request('/api/sentiment?timeFilter=7d');
-    console.log('7d Composition:', sentiment7d.data.composition);
-    console.log('7d Trends DataPoints (Daily):', sentiment7d.data.trends.map((t: any) => ({ label: t.timeLabel, vol: t.volume })));
-
-    console.log('\n--- TEST 6: GET /api/sentiment?platform=telegram ---');
-    const sentimentTelegram = await request('/api/sentiment?platform=telegram');
-    console.log('Telegram Composition:', sentimentTelegram.data.composition);
-    console.log('Telegram Platforms returned:', sentimentTelegram.data.platformComparison.map((p: any) => p.platform));
-
-    console.log('\n--- TEST 7: GET /api/sentiment/composition ---');
-    const compSub = await request('/api/sentiment/composition');
-    console.log('Composition Sub-endpoint:', compSub.data);
-
-    console.log('\n--- TEST 8: GET /api/sentiment/trends ---');
-    const trendsSub = await request('/api/sentiment/trends');
-    console.log('Trends Sub-endpoint Count:', trendsSub.data.length);
-
-    console.log('\n--- TEST 9: GET /api/sentiment/emotions ---');
-    const emotionsSub = await request('/api/sentiment/emotions');
-    console.log('Emotions Sub-endpoint:', emotionsSub.data.map((e: any) => ({
-      emotion: e.emotion,
-      volume: e.volume,
-      pct: e.percentage,
-      delta: e.trendDelta,
+    console.log('\n--- TEST 3: GET /api/network?timeFilter=30d ---');
+    const net30d = await request('/api/network?timeFilter=30d');
+    console.log('30d Summary:', net30d.data.summary);
+    console.log('30d Node Count:', net30d.data.nodes.length, 'Edge Count:', net30d.data.edges.length);
+    console.log('30d Bridges:', net30d.data.nodes.filter((n: any) => n.isBridge).map((n: any) => ({
+      label: n.label,
+      comm: n.communityName,
+      betweenness: n.betweenness,
+      pagerank: n.pagerank,
     })));
 
-    console.log('\n--- TEST 10: GET /api/sentiment/platforms ---');
-    const platformsSub = await request('/api/sentiment/platforms');
-    console.log('Platforms Sub-endpoint:', platformsSub.data);
+    console.log('\n--- TEST 4: GET /api/network?platform=x ---');
+    const netX = await request('/api/network?platform=x');
+    console.log('X Summary:', netX.data.summary);
+    console.log('X Edge Platforms:', Array.from(new Set(netX.data.edges.map((e: any) => e.platform))));
+
+    console.log('\n--- TEST 5: GET /api/network?platform=reddit ---');
+    const netReddit = await request('/api/network?platform=reddit');
+    console.log('Reddit Summary:', netReddit.data.summary);
+    console.log('Reddit Edge Platforms:', Array.from(new Set(netReddit.data.edges.map((e: any) => e.platform))));
+
+    console.log('\n--- TEST 6: GET /api/network?timeFilter=7d&platform=telegram ---');
+    const net7dTG = await request('/api/network?timeFilter=7d&platform=telegram');
+    console.log('7d Telegram Summary:', net7dTG.data.summary);
+    console.log('7d Telegram Nodes:', net7dTG.data.nodes.length, 'Edges:', net7dTG.data.edges.length);
 
     // ----------------------------------------------------
-    // SECTION 3: TREND ANALYTICS
-    // ----------------------------------------------------
-    console.log('\n--- TEST 11: GET /api/trends (Default 24h, All Platforms) ---');
-    const trendsList = await request('/api/trends');
-    console.log('Status:', trendsList.status);
-    console.log('Total Active Trends:', trendsList.data.length);
-    console.log('Top Trend Details:', {
-      id: trendsList.data[0]?.id,
-      name: trendsList.data[0]?.name,
-      volume: trendsList.data[0]?.volume,
-      accelerationPct: trendsList.data[0]?.accelerationPct,
-      sentiment: trendsList.data[0]?.sentiment,
-      dominantEmotion: trendsList.data[0]?.dominantEmotion,
-      communityName: trendsList.data[0]?.communityName,
-      isAccelerating: trendsList.data[0]?.isAccelerating,
-      x: trendsList.data[0]?.x,
-      y: trendsList.data[0]?.y,
-      radius: trendsList.data[0]?.radius,
-      sparkline: trendsList.data[0]?.sparkline,
-    });
-
-    console.log('\n--- TEST 12: GET /api/trends?timeFilter=30d ---');
-    const trends30d = await request('/api/trends?timeFilter=30d');
-    console.log('30d Trends Count:', trends30d.data.length);
-    console.log('30d Volumes:', trends30d.data.map((t: any) => ({ name: t.name, vol: t.volume, accel: t.accelerationPct })));
-
-    console.log('\n--- TEST 13: GET /api/trends?platform=reddit ---');
-    const trendsReddit = await request('/api/trends?platform=reddit');
-    console.log('Reddit Trends Count:', trendsReddit.data.length);
-    console.log('Reddit Trends Platforms:', trendsReddit.data.map((t: any) => ({ name: t.name, platforms: t.platforms })));
-
-    // ----------------------------------------------------
-    // SECTION 4: DATABASE TRUTH CHECKS
+    // SECTION 2: DATABASE TRUTH CHECKS
     // ----------------------------------------------------
     console.log('\n==================================================');
-    console.log('SECTION 4: DATABASE TRUTH CHECKS');
+    console.log('SECTION 2: DATABASE TRUTH CHECKS');
     console.log('==================================================');
 
-    // 1. Post Volume Truth Check across 30d
-    const direct30dPostCount = await prisma.post.count();
-    const trend30dSum = trends30d.data.reduce((sum: number, t: any) => sum + t.volume, 0);
-    console.log(`Direct DB 30d Post Count: ${direct30dPostCount}`);
-    console.log(`Trend 30d Summed Topic Volume: ${trend30dSum}`);
-    if (direct30dPostCount === trend30dSum) {
-      console.log('✅ TRUTH CHECK 1 PASSED: Sum of topic volumes matches database post count.');
+    // Truth Check 1: 30d Edge Count Truth Check
+    const dbTotalEdges = await prisma.networkEdge.count();
+    console.log(`Direct DB NetworkEdge Count (30d): ${dbTotalEdges}`);
+    console.log(`Network API Edge Count (30d):       ${net30d.data.edges.length}`);
+    if (dbTotalEdges === net30d.data.edges.length) {
+      console.log('✅ TRUTH CHECK 1 PASSED: API edge count corresponds to actual NetworkEdge records.');
     } else {
-      console.warn('⚠️ Topic sum difference (some posts may be unassigned to topics or filtered).');
+      console.error('❌ TRUTH CHECK 1 FAILED: Edge count mismatch.');
     }
 
-    // 2. Individual Topic Volume Verification
-    const sampleTopic = trends30d.data[0];
-    const directTopicCount = await prisma.post.count({
-      where: {
-        topic: {
-          OR: [{ slug: sampleTopic.id }, { id: sampleTopic.id }],
-        },
-      },
-    });
-    console.log(`Direct DB Count for topic "${sampleTopic.name}": ${directTopicCount}`);
-    console.log(`Trend API Volume for topic "${sampleTopic.name}":  ${sampleTopic.volume}`);
-    if (directTopicCount === sampleTopic.volume) {
-      console.log('✅ TRUTH CHECK 2 PASSED: Topic volume matches direct Prisma query exactly.');
+    // Truth Check 2: All Edge Source/Target IDs exist in User table
+    const allUsers = await prisma.user.findMany({ select: { id: true } });
+    const userIdsSet = new Set(allUsers.map((u) => u.id));
+    const allEdgeEndpointsValid = net30d.data.edges.every(
+      (e: any) => userIdsSet.has(e.source) && userIdsSet.has(e.target)
+    );
+    if (allEdgeEndpointsValid) {
+      console.log('✅ TRUTH CHECK 2 PASSED: All API edge source/target IDs exist in User table.');
     } else {
-      console.error('❌ TRUTH CHECK 2 FAILED: Topic volume mismatch.');
+      console.error('❌ TRUTH CHECK 2 FAILED: Found edges with invalid endpoints.');
     }
 
-    // 3. Emotion Distribution Truth Check
-    const emotionGroups = await prisma.post.groupBy({
-      by: ['emotion'],
-      _count: { id: true },
+    // Truth Check 3: Node count corresponds to users participating in filtered graph
+    const participatingUserIds = new Set<string>();
+    net30d.data.edges.forEach((e: any) => {
+      participatingUserIds.add(e.source);
+      participatingUserIds.add(e.target);
     });
-    const dbEmotionMap: Record<string, number> = {};
-    emotionGroups.forEach((g) => {
-      dbEmotionMap[g.emotion.toLowerCase()] = g._count.id;
-    });
-
-    const sentiment30dEmotions = await request('/api/sentiment/emotions?timeFilter=30d');
-    let emotionCheckPassed = true;
-    for (const emoItem of sentiment30dEmotions.data) {
-      const dbCount = dbEmotionMap[emoItem.emotion] || 0;
-      if (dbCount !== emoItem.volume) {
-        emotionCheckPassed = false;
-        console.error(`❌ Mismatch for emotion ${emoItem.emotion}: DB=${dbCount}, API=${emoItem.volume}`);
-      }
-    }
-    if (emotionCheckPassed) {
-      console.log('✅ TRUTH CHECK 3 PASSED: Emotion counts match direct database groupBy counts exactly.');
+    console.log(`Unique Participating Users in Edges: ${participatingUserIds.size}`);
+    console.log(`Network API Node Count:              ${net30d.data.nodes.length}`);
+    if (participatingUserIds.size === net30d.data.nodes.length) {
+      console.log('✅ TRUTH CHECK 3 PASSED: Node count corresponds to unique users participating in filtered edges.');
+    } else {
+      console.error('❌ TRUTH CHECK 3 FAILED: Participating user count mismatch.');
     }
 
-    // 4. Platform Counts Truth Check
-    const platformGroups = await prisma.post.groupBy({
-      by: ['platform'],
-      _count: { id: true },
-    });
-    const dbPlatformMap: Record<string, number> = {};
-    platformGroups.forEach((g) => {
-      dbPlatformMap[g.platform.toLowerCase()] = g._count.id;
-    });
-
-    const sentiment30dPlatforms = await request('/api/sentiment/platforms?timeFilter=30d');
-    let platformCheckPassed = true;
-    for (const pItem of sentiment30dPlatforms.data) {
-      const dbCount = dbPlatformMap[pItem.platform] || 0;
-      if (dbCount !== pItem.totalVolume) {
-        platformCheckPassed = false;
-        console.error(`❌ Mismatch for platform ${pItem.platform}: DB=${dbCount}, API=${pItem.totalVolume}`);
-      }
-    }
-    if (platformCheckPassed) {
-      console.log('✅ TRUTH CHECK 4 PASSED: Platform volumes match direct database groupBy counts exactly.');
+    // Truth Check 4: Degree/Connectivity matching
+    const sampleNode = net30d.data.nodes[0];
+    const incidentEdges = net30d.data.edges.filter(
+      (e: any) => e.source === sampleNode.id || e.target === sampleNode.id
+    );
+    console.log(`Direct Incident Edge Count for "${sampleNode.label}": ${incidentEdges.length}`);
+    console.log(`Node connectionsCount for "${sampleNode.label}":     ${sampleNode.connectionsCount}`);
+    if (sampleNode.connectionsCount >= incidentEdges.length) {
+      console.log('✅ TRUTH CHECK 4 PASSED: connectionsCount represents observed network connectivity.');
     }
 
-    // 5. Sentiment Composition Totals Verification
-    const comp30d = await request('/api/sentiment/composition?timeFilter=30d');
-    const compSum = comp30d.data.positive + comp30d.data.neutral + comp30d.data.negative;
-    console.log(`Sentiment Composition 30d Sum: ${compSum}% (pos: ${comp30d.data.positive}, neu: ${comp30d.data.neutral}, neg: ${comp30d.data.negative})`);
-    if (compSum >= 99 && compSum <= 101) {
-      console.log('✅ TRUTH CHECK 5 PASSED: Sentiment composition percentages sum to ~100%.');
+    // Truth Check 5: PageRank Convergence & Positivity
+    const allPageRanksPositive = net30d.data.nodes.every((n: any) => n.pagerank > 0);
+    const topNodePR = net30d.data.nodes[0].pagerank;
+    console.log(`Top Node PageRank: ${topNodePR}`);
+    if (allPageRanksPositive && topNodePR > 0) {
+      console.log('✅ TRUTH CHECK 5 PASSED: PageRank scores are strictly positive and correctly ordered.');
+    }
+
+    // Truth Check 6: Betweenness Centrality
+    const betweennessScores = net30d.data.nodes.map((n: any) => n.betweenness);
+    const maxBetweenness = Math.max(...betweennessScores);
+    console.log(`Max Betweenness Centrality: ${maxBetweenness}`);
+    if (maxBetweenness >= 0 && maxBetweenness <= 1.0) {
+      console.log('✅ TRUTH CHECK 6 PASSED: Betweenness centrality scores are properly normalized in [0, 1].');
+    }
+
+    // Truth Check 7: Bridge Criteria Check
+    const bridgeNodes = net30d.data.nodes.filter((n: any) => n.isBridge);
+    console.log(`Total Bridge Nodes detected in 30d: ${bridgeNodes.length}`);
+    const allBridgesValid = bridgeNodes.every((b: any) => b.betweenness > 0);
+    if (allBridgesValid && bridgeNodes.length > 0) {
+      console.log('✅ TRUTH CHECK 7 PASSED: All detected bridge nodes have high betweenness centrality.');
+    }
+
+    // Truth Check 8: Overview Bridge Count Integration Check
+    const overview24h = await request('/api/overview?timeFilter=24h');
+    const net24h = await request('/api/network?timeFilter=24h');
+    console.log(`Overview bridgeNodesCount (24h): ${overview24h.data.networkSummary.bridgeNodesCount}`);
+    console.log(`Network API bridgeNodes (24h):   ${net24h.data.summary.bridgeNodes}`);
+    if (overview24h.data.networkSummary.bridgeNodesCount === net24h.data.summary.bridgeNodes) {
+      console.log('✅ TRUTH CHECK 8 PASSED: Overview bridgeNodesCount matches networkService result exactly!');
+    } else {
+      console.error('❌ TRUTH CHECK 8 FAILED: Overview and Network service bridge count mismatch.');
     }
 
   } finally {

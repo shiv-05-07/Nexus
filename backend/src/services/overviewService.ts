@@ -1,5 +1,6 @@
 import { Platform as PrismaPlatform, SentimentType as PrismaSentiment } from '@prisma/client';
 import { prisma } from '../db/prisma';
+import { networkService } from './networkService';
 
 export interface OverviewQueryParams {
   timeRange?: string;
@@ -235,12 +236,13 @@ export class OverviewService {
       };
     });
 
-    // 4. Communities and Network Node counts from database
-    const [communityCount, totalUsersCount] = await Promise.all([
+    // 4. Communities, Users, and Bridge Nodes from networkService
+    const [communityCount, totalUsersCount, bridgeNodesCount] = await Promise.all([
       prisma.community.count(),
       prisma.user.count({
         where: platformFilter ? { platform: platformFilter } : undefined,
       }),
+      networkService.getBridgeNodesCount(params),
     ]);
 
     const lastUpdatedSecondsAgo = latestPost
@@ -270,7 +272,7 @@ export class OverviewService {
       },
       networkSummary: {
         activeCommunities: communityCount,
-        bridgeNodesCount: 0, // Bridge node calculation is computed in Phase 2E Network Graph analytics
+        bridgeNodesCount,
         monitoredNodes: totalUsersCount,
       },
     };
