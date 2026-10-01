@@ -64,7 +64,7 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   const { title, subtitle } = getScreenDetails();
-  const timeOptions: TimeFilter[] = ['10m', '1h', '6h', '24h', '7d'];
+  const timeOptions: TimeFilter[] = ['10m', '1h', '6h', '24h', '7d', '30d'];
   const platformOptions: { id: Platform; label: string }[] = [
     { id: 'all', label: 'All platforms' },
     { id: 'x', label: 'X' },

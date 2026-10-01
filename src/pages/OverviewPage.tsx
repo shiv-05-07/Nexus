@@ -8,6 +8,7 @@ import { SentimentBadge } from '../components/common/SentimentBadge';
 import { PlatformBadge } from '../components/common/PlatformBadge';
 import { Sparkline } from '../components/common/Sparkline';
 import { SkeletonLoader } from '../components/common/SkeletonLoader';
+import { SentimentDonut } from '../components/common/SentimentDonut';
 
 interface OverviewPageProps {
   timeFilter: TimeFilter;
@@ -275,39 +276,25 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           {/* A. Sentiment Composition Snapshot */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div className="flex items-center justify-between border-b border-[#E8E8E1] pb-2">
               <h4 className="font-sans font-semibold text-sm text-[#171717]">
                 Sentiment Balance
               </h4>
-              <span className="font-mono text-[10px] text-[#8A8A82]">24H Aggregate</span>
+              <span className="font-mono text-[10px] text-[#8A8A82]">
+                {timeFilter.toUpperCase()} Composition
+              </span>
             </div>
 
-            {/* Seamless Segmented Bar */}
-            <div className="space-y-2 pt-1">
-              <div className="h-1.5 w-full bg-[#E8E8E1] rounded-full overflow-hidden flex">
-                <div
-                  style={{ width: `${data.sentimentBreakdown.negative}%` }}
-                  className="bg-[#C62828]"
-                  title={`Negative: ${data.sentimentBreakdown.negative}%`}
-                />
-                <div
-                  style={{ width: `${data.sentimentBreakdown.neutral}%` }}
-                  className="bg-[#64748B]"
-                  title={`Neutral: ${data.sentimentBreakdown.neutral}%`}
-                />
-                <div
-                  style={{ width: `${data.sentimentBreakdown.positive}%` }}
-                  className="bg-[#2E7D32]"
-                  title={`Positive: ${data.sentimentBreakdown.positive}%`}
-                />
-              </div>
-
-              <div className="flex items-center justify-between text-xs font-mono text-[11px]">
-                <span className="text-[#C62828]">Neg {data.sentimentBreakdown.negative}%</span>
-                <span className="text-[#64748B]">Neu {data.sentimentBreakdown.neutral}%</span>
-                <span className="text-[#2E7D32]">Pos {data.sentimentBreakdown.positive}%</span>
-              </div>
+            {/* Clean Sentiment Composition Donut */}
+            <div className="pt-1">
+              <SentimentDonut
+                data={data.sentimentBreakdown}
+                totalCount={data.metrics.totalPosts}
+                size={132}
+                strokeWidth={14}
+                centerSubtitle="analyzed"
+              />
             </div>
 
             <p className="font-sans text-xs text-[#575757] leading-relaxed">

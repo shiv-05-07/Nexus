@@ -8,9 +8,10 @@ import {
   SentimentDataPoint,
   TimeFilter
 } from '../types/nexus';
-import { nexusApi } from '../services/api/nexusApi';
+import { nexusApi, SentimentComposition } from '../services/api/nexusApi';
 import { PlatformBadge } from '../components/common/PlatformBadge';
 import { SkeletonLoader } from '../components/common/SkeletonLoader';
+import { SentimentDonut } from '../components/common/SentimentDonut';
 
 interface SentimentPageProps {
   timeFilter: TimeFilter;
@@ -21,6 +22,7 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
   timeFilter,
   platformFilter,
 }) => {
+  const [composition, setComposition] = useState<SentimentComposition | null>(null);
   const [trends, setTrends] = useState<SentimentDataPoint[]>([]);
   const [emotions, setEmotions] = useState<EmotionItem[]>([]);
   const [platformComparison, setPlatformComparison] = useState<PlatformSentimentComparison[]>([]);
@@ -37,11 +39,13 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
     let isMounted = true;
     setLoading(true);
     Promise.all([
+      nexusApi.getSentimentComposition(timeFilter),
       nexusApi.getSentimentTrends(timeFilter),
       nexusApi.getEmotionDistribution(),
       nexusApi.getPlatformSentiment(),
-    ]).then(([trendData, emotionData, platformData]) => {
+    ]).then(([compData, trendData, emotionData, platformData]) => {
       if (isMounted) {
+        setComposition(compData);
         setTrends(trendData);
         setEmotions(emotionData);
         setPlatformComparison(platformData);
@@ -91,8 +95,64 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
 
   return (
     <div className="space-y-12 pb-16 max-w-5xl mx-auto">
-      {/* 1. PRIMARY ELEMENT: Sentiment-over-Time Trajectory (Clean, spacious, uncarded) */}
-      <section className="space-y-6">
+      {/* 1. PRIMARY ELEMENT: Current Sentiment Composition (Clean donut visualization) */}
+      <section className="space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 border-b border-[#E8E8E1] pb-3">
+          <div>
+            <h2 className="font-sans font-bold text-lg md:text-xl text-[#171717] tracking-tight">
+              Sentiment Composition
+            </h2>
+            <p className="font-sans text-xs text-[#575757] mt-0.5">
+              Current breakdown of conversation sentiment across monitored channels
+            </p>
+          </div>
+          <span className="font-mono text-[11px] text-[#8A8A82]">
+            Horizon: {timeFilter.toUpperCase()} • {composition ? `${composition.totalAnalyzed.toLocaleString()} posts analyzed` : ''}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center py-2">
+          {/* Donut Chart with Restrained Compact Legend */}
+          <div className="md:col-span-7 flex justify-start">
+            {composition && (
+              <SentimentDonut
+                data={{
+                  positive: composition.positive,
+                  neutral: composition.neutral,
+                  negative: composition.negative,
+                }}
+                totalCount={composition.totalAnalyzed}
+                size={160}
+                strokeWidth={17}
+                centerSubtitle="analyzed posts"
+              />
+            )}
+          </div>
+
+          {/* Qualitative Context & Dominance Insights */}
+          <div className="md:col-span-5 space-y-3 border-l-0 md:border-l border-[#E8E8E1] md:pl-8">
+            <div>
+              <span className="font-mono text-[10px] text-[#8A8A82] uppercase tracking-wider block">
+                Dominant Polarity
+              </span>
+              <span className="font-sans font-bold text-base text-[#C62828] capitalize">
+                {composition?.dominantSentiment} Skew ({composition?.negative}%)
+              </span>
+            </div>
+            <p className="font-sans text-xs text-[#575757] leading-relaxed">
+              {composition?.description}
+            </p>
+            <div className="flex items-center gap-4 pt-1 font-mono text-[11px] text-[#8A8A82]">
+              <span>Coverage: 4 Platforms</span>
+              <span>•</span>
+              <span>Confidence: 94.2%</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 2. LONGITUDINAL TRAJECTORY: Sentiment Change Over Time (Separate time-series visualization) */}
+      <section className="space-y-6 pt-4 border-t border-[#E8E8E1]">
         {/* Section Header & Interactive Filter Toggles */}
         <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-4 border-b border-[#E8E8E1] pb-3">
           <div>
