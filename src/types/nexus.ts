@@ -52,6 +52,36 @@ export interface TimelineEvent {
   verified?: boolean;
 }
 
+export interface TimelineResponse {
+  items: TimelineEvent[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export interface GetTimelineParams {
+  platform?: Platform;
+  sentiment?: string;
+  topicId?: string;
+  searchQuery?: string;
+  search?: string;
+  q?: string;
+  timeFilter?: TimeFilter;
+  timeRange?: TimeFilter;
+  daysBack?: number | string;
+  limit?: number;
+  offset?: number;
+}
+
+export interface SentimentComposition {
+  positive: number;
+  neutral: number;
+  negative: number;
+  totalAnalyzed: number;
+  dominantSentiment: SentimentType;
+  description: string;
+}
+
 export interface SentimentDataPoint {
   timestamp: string;
   timeLabel: string;
@@ -77,6 +107,27 @@ export interface PlatformSentimentComparison {
   neutralPct: number;
   negativePct: number;
   totalVolume: number;
+}
+
+export interface SentimentResponse {
+  composition: SentimentComposition;
+  trends: SentimentDataPoint[];
+  emotions: EmotionItem[];
+  platformComparison: PlatformSentimentComparison[];
+}
+
+export interface GetSentimentParams {
+  timeRange?: TimeFilter;
+  timeFilter?: TimeFilter;
+  daysBack?: number | string;
+  platform?: Platform;
+}
+
+export interface GetTrendsParams {
+  timeRange?: TimeFilter;
+  timeFilter?: TimeFilter;
+  daysBack?: number | string;
+  platform?: Platform;
 }
 
 export interface TrendItem {
@@ -131,6 +182,30 @@ export interface NetworkCommunity {
   nodeCount: number;
   dominantSentiment: SentimentType;
   description: string;
+}
+
+export interface NetworkSummary {
+  activeCommunities: number;
+  monitoredNodes: number;
+  interactionLinks: number;
+  bridgeNodes: number;
+}
+
+export interface NetworkResponse {
+  nodes: NetworkNode[];
+  edges: NetworkEdge[];
+  communities: NetworkCommunity[];
+  summary: NetworkSummary;
+}
+
+export type NetworkDatasetResult = NetworkResponse;
+
+export interface GetNetworkParams {
+  timeRange?: TimeFilter;
+  timeFilter?: TimeFilter;
+  daysBack?: number | string;
+  platform?: Platform;
+  platformFilter?: Platform;
 }
 
 export interface AudienceAggregate {

@@ -1,17 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Info, ChevronDown, ChevronUp } from 'lucide-react';
 import {
   EmotionItem,
   Platform,
   PlatformSentimentComparison,
+  SentimentComposition,
   SentimentDataPoint,
+  SentimentResponse,
   TimeFilter
 } from '../types/nexus';
-import { nexusApi, SentimentComposition } from '../services/api/nexusApi';
+import { nexusApi } from '../services/api/nexusApi';
 import { PlatformBadge } from '../components/common/PlatformBadge';
 import { SkeletonLoader } from '../components/common/SkeletonLoader';
 import { SentimentDonut } from '../components/common/SentimentDonut';
+import { EmptyState } from '../components/common/EmptyState';
 
 interface SentimentPageProps {
   timeFilter: TimeFilter;
@@ -27,6 +30,7 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
   const [emotions, setEmotions] = useState<EmotionItem[]>([]);
   const [platformComparison, setPlatformComparison] = useState<PlatformSentimentComparison[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [visibleSeries, setVisibleSeries] = useState<{
     positive: boolean;
     neutral: boolean;
@@ -35,33 +39,78 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [isMethodologyOpen, setIsMethodologyOpen] = useState<boolean>(false);
 
-  useEffect(() => {
+  const fetchSentiment = useCallback(() => {
     let isMounted = true;
     setLoading(true);
-    Promise.all([
-      nexusApi.getSentimentComposition(timeFilter, platformFilter),
-      nexusApi.getSentimentTrends(timeFilter, platformFilter),
-      nexusApi.getEmotionDistribution(platformFilter),
-      nexusApi.getPlatformSentiment(platformFilter),
-    ]).then(([compData, trendData, emotionData, platformData]) => {
-      if (isMounted) {
-        setComposition(compData);
-        setTrends(trendData);
-        setEmotions(emotionData);
-        setPlatformComparison(platformData);
-        setLoading(false);
-      }
-    });
+    setError(null);
+    setHoveredIndex(null);
+
+    nexusApi
+      .getSentiment(timeFilter, platformFilter)
+      .then((res: SentimentResponse) => {
+        if (isMounted) {
+          setComposition(res.composition);
+          setTrends(res.trends || []);
+          setEmotions(res.emotions || []);
+          setPlatformComparison(res.platformComparison || []);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (isMounted) {
+          console.error('[SentimentPage] Failed to fetch sentiment intelligence:', err);
+          setError(err.message || 'Failed to load sentiment intelligence.');
+          setLoading(false);
+        }
+      });
+
     return () => {
       isMounted = false;
     };
   }, [timeFilter, platformFilter]);
+
+  useEffect(() => {
+    const cleanup = fetchSentiment();
+    return cleanup;
+  }, [fetchSentiment]);
 
   if (loading) {
     return (
       <div className="space-y-10 max-w-5xl mx-auto">
         <SkeletonLoader type="chart" />
         <SkeletonLoader type="card" count={2} />
+      </div>
+    );
+  }
+
+  if (error || !composition) {
+    return (
+      <div className="space-y-12 max-w-5xl mx-auto">
+        <div className="p-8 border border-[#E8E8E1] bg-[#FFFFFF] rounded-xs text-center space-y-4">
+          <p className="font-sans text-sm text-[#C62828] font-medium">
+            {error || 'Unable to load sentiment intelligence.'}
+          </p>
+          <button
+            onClick={fetchSentiment}
+            className="font-sans text-xs px-4 py-2 bg-[#171717] text-white rounded-xs hover:bg-[#333333] transition-colors cursor-pointer inline-flex items-center gap-1.5"
+          >
+            Retry Connection
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (composition.totalAnalyzed === 0) {
+    return (
+      <div className="space-y-12 max-w-5xl mx-auto">
+        <EmptyState
+          title="No sentiment dispatches in this time window"
+          description={`No social media posts were detected for ${
+            platformFilter !== 'all' ? platformFilter.toUpperCase() : 'any platform'
+          } over the ${timeFilter.toUpperCase()} time range.`}
+          className="my-8"
+        />
       </div>
     );
   }
@@ -91,7 +140,24 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
     }, '');
   };
 
-  const activeHoverPoint = hoveredIndex !== null ? trends[hoveredIndex] : null;
+  const activeHoverPoint =
+    hoveredIndex !== null && hoveredIndex >= 0 && hoveredIndex < trends.length
+      ? trends[hoveredIndex]
+      : null;
+
+  const dominantPct =
+    composition.dominantSentiment === 'positive'
+      ? composition.positive
+      : composition.dominantSentiment === 'neutral'
+      ? composition.neutral
+      : composition.negative;
+
+  const dominantColor =
+    composition.dominantSentiment === 'positive'
+      ? 'text-[#2E7D32]'
+      : composition.dominantSentiment === 'neutral'
+      ? 'text-[#64748B]'
+      : 'text-[#C62828]';
 
   return (
     <div className="space-y-12 pb-16 max-w-5xl mx-auto">
@@ -107,26 +173,24 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
             </p>
           </div>
           <span className="font-mono text-[11px] text-[#8A8A82]">
-            Scope: {platformFilter !== 'all' ? platformFilter.toUpperCase() : 'All Platforms'} • {timeFilter.toUpperCase()} • {composition ? `${composition.totalAnalyzed.toLocaleString()} posts` : ''}
+            Scope: {platformFilter !== 'all' ? platformFilter.toUpperCase() : 'All Platforms'} • {timeFilter.toUpperCase()} • {`${composition.totalAnalyzed.toLocaleString()} posts`}
           </span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center py-2">
           {/* Donut Chart with Restrained Compact Legend */}
           <div className="md:col-span-7 flex justify-start">
-            {composition && (
-              <SentimentDonut
-                data={{
-                  positive: composition.positive,
-                  neutral: composition.neutral,
-                  negative: composition.negative,
-                }}
-                totalCount={composition.totalAnalyzed}
-                size={160}
-                strokeWidth={17}
-                centerSubtitle="analyzed posts"
-              />
-            )}
+            <SentimentDonut
+              data={{
+                positive: composition.positive,
+                neutral: composition.neutral,
+                negative: composition.negative,
+              }}
+              totalCount={composition.totalAnalyzed}
+              size={160}
+              strokeWidth={17}
+              centerSubtitle="analyzed posts"
+            />
           </div>
 
           {/* Qualitative Context & Dominance Insights */}
@@ -135,12 +199,12 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
               <span className="font-mono text-[10px] text-[#8A8A82] uppercase tracking-wider block">
                 Dominant Polarity
               </span>
-              <span className="font-sans font-bold text-base text-[#C62828] capitalize">
-                {composition?.dominantSentiment} Skew ({composition?.negative}%)
+              <span className={`font-sans font-bold text-base capitalize ${dominantColor}`}>
+                {composition.dominantSentiment} Skew ({dominantPct}%)
               </span>
             </div>
             <p className="font-sans text-xs text-[#575757] leading-relaxed">
-              {composition?.description}
+              {composition.description}
             </p>
             <div className="flex items-center gap-4 pt-1 font-mono text-[11px] text-[#8A8A82]">
               <span>Coverage: {platformFilter !== 'all' ? `${platformFilter.toUpperCase()} Channels` : '4 Monitored Networks'}</span>
@@ -177,7 +241,7 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
               }`}
             >
               <span className="w-2 h-2 rounded-full bg-[#C62828]" />
-              <span>Negative ({composition ? `${composition.negative}%` : '63%'})</span>
+              <span>Negative ({composition.negative}%)</span>
             </button>
 
             <button
@@ -191,7 +255,7 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
               }`}
             >
               <span className="w-2 h-2 rounded-full bg-[#64748B]" />
-              <span>Neutral ({composition ? `${composition.neutral}%` : '21%'})</span>
+              <span>Neutral ({composition.neutral}%)</span>
             </button>
 
             <button
@@ -205,168 +269,177 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
               }`}
             >
               <span className="w-2 h-2 rounded-full bg-[#2E7D32]" />
-              <span>Positive ({composition ? `${composition.positive}%` : '16%'})</span>
+              <span>Positive ({composition.positive}%)</span>
             </button>
           </div>
         </div>
 
         {/* Analytical Smooth Curve Chart Canvas */}
-        <div className="relative pt-2">
-          <svg
-            viewBox={`0 0 ${chartWidth} ${chartHeight}`}
-            className="w-full h-auto select-none overflow-visible"
-            onMouseLeave={() => setHoveredIndex(null)}
-          >
-            {/* Horizontal Grid guidelines */}
-            {[0, 25, 50, 75, 100].map((yVal) => {
-              const y = padding.top + graphHeight - (yVal / 100) * graphHeight;
-              return (
-                <g key={yVal}>
-                  <line
-                    x1={padding.left}
-                    y1={y}
-                    x2={chartWidth - padding.right}
-                    y2={y}
-                    stroke="#E8E8E1"
-                    strokeDasharray="2,3"
-                  />
-                  <text
-                    x={padding.left - 10}
-                    y={y + 3}
-                    textAnchor="end"
-                    className="font-mono text-[9px] fill-[#8A8A82]"
-                  >
-                    {yVal}%
-                  </text>
-                </g>
-              );
-            })}
-
-            {/* Negative Line Path */}
-            {visibleSeries.negative && (
-              <motion.path
-                initial={{ pathLength: 0.2, opacity: 0.8 }}
-                animate={{ pathLength: 1, opacity: 1 }}
-                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                d={getPathForSeries('negative')}
-                fill="none"
-                stroke="#C62828"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            )}
-
-            {/* Neutral Line Path */}
-            {visibleSeries.neutral && (
-              <motion.path
-                initial={{ pathLength: 0.2, opacity: 0.8 }}
-                animate={{ pathLength: 1, opacity: 1 }}
-                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                d={getPathForSeries('neutral')}
-                fill="none"
-                stroke="#64748B"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            )}
-
-            {/* Positive Line Path */}
-            {visibleSeries.positive && (
-              <motion.path
-                initial={{ pathLength: 0.2, opacity: 0.8 }}
-                animate={{ pathLength: 1, opacity: 1 }}
-                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                d={getPathForSeries('positive')}
-                fill="none"
-                stroke="#2E7D32"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            )}
-
-            {/* Interactive Crosshair & Hover Hitboxes */}
-            {trends.map((d, i) => {
-              const x = padding.left + (i / (trends.length - 1)) * graphWidth;
-              const isHovered = hoveredIndex === i;
-
-              return (
-                <g
-                  key={i}
-                  onMouseEnter={() => setHoveredIndex(i)}
-                  className="cursor-pointer"
-                >
-                  <rect
-                    x={x - 22}
-                    y={padding.top}
-                    width={44}
-                    height={graphHeight}
-                    fill="transparent"
-                  />
-
-                  {/* Vertical Guideline */}
-                  {isHovered && (
+        {trends.length === 0 ? (
+          <div className="p-8 text-center bg-[#FFFFFF] border border-[#E8E8E1] rounded-xs font-sans text-xs text-[#8A8A82]">
+            No trajectory interval points recorded in this window.
+          </div>
+        ) : (
+          <div className="relative pt-2">
+            <svg
+              viewBox={`0 0 ${chartWidth} ${chartHeight}`}
+              className="w-full h-auto select-none overflow-visible"
+              onMouseLeave={() => setHoveredIndex(null)}
+            >
+              {/* Horizontal Grid guidelines */}
+              {[0, 25, 50, 75, 100].map((yVal) => {
+                const y = padding.top + graphHeight - (yVal / 100) * graphHeight;
+                return (
+                  <g key={yVal}>
                     <line
-                      x1={x}
-                      y1={padding.top}
-                      x2={x}
-                      y2={padding.top + graphHeight}
-                      stroke="#171717"
-                      strokeWidth="1.2"
-                      strokeDasharray="2,2"
+                      x1={padding.left}
+                      y1={y}
+                      x2={chartWidth - padding.right}
+                      y2={y}
+                      stroke="#E8E8E1"
+                      strokeDasharray="2,3"
                     />
-                  )}
+                    <text
+                      x={padding.left - 10}
+                      y={y + 3}
+                      textAnchor="end"
+                      className="font-mono text-[9px] fill-[#8A8A82]"
+                    >
+                      {yVal}%
+                    </text>
+                  </g>
+                );
+              })}
 
-                  {/* Hover Points */}
-                  {isHovered && visibleSeries.negative && (
-                    <circle
-                      cx={x}
-                      cy={padding.top + graphHeight - (d.negative / 100) * graphHeight}
-                      r="4"
-                      fill="#C62828"
-                      stroke="#FFFFFF"
-                      strokeWidth="1.5"
-                    />
-                  )}
-                  {isHovered && visibleSeries.neutral && (
-                    <circle
-                      cx={x}
-                      cy={padding.top + graphHeight - (d.neutral / 100) * graphHeight}
-                      r="4"
-                      fill="#64748B"
-                      stroke="#FFFFFF"
-                      strokeWidth="1.5"
-                    />
-                  )}
-                  {isHovered && visibleSeries.positive && (
-                    <circle
-                      cx={x}
-                      cy={padding.top + graphHeight - (d.positive / 100) * graphHeight}
-                      r="4"
-                      fill="#2E7D32"
-                      stroke="#FFFFFF"
-                      strokeWidth="1.5"
-                    />
-                  )}
+              {/* Negative Line Path */}
+              {visibleSeries.negative && (
+                <motion.path
+                  initial={{ pathLength: 0.2, opacity: 0.8 }}
+                  animate={{ pathLength: 1, opacity: 1 }}
+                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  d={getPathForSeries('negative')}
+                  fill="none"
+                  stroke="#C62828"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              )}
 
-                  {/* X Axis Time Labels */}
-                  <text
-                    x={x}
-                    y={chartHeight - 8}
-                    textAnchor="middle"
-                    className={`font-mono text-[10px] ${
-                      isHovered ? 'fill-[#171717] font-bold' : 'fill-[#8A8A82]'
-                    }`}
+              {/* Neutral Line Path */}
+              {visibleSeries.neutral && (
+                <motion.path
+                  initial={{ pathLength: 0.2, opacity: 0.8 }}
+                  animate={{ pathLength: 1, opacity: 1 }}
+                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  d={getPathForSeries('neutral')}
+                  fill="none"
+                  stroke="#64748B"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              )}
+
+              {/* Positive Line Path */}
+              {visibleSeries.positive && (
+                <motion.path
+                  initial={{ pathLength: 0.2, opacity: 0.8 }}
+                  animate={{ pathLength: 1, opacity: 1 }}
+                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  d={getPathForSeries('positive')}
+                  fill="none"
+                  stroke="#2E7D32"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              )}
+
+              {/* Interactive Crosshair & Hover Hitboxes */}
+              {trends.map((d, i) => {
+                const x =
+                  trends.length > 1
+                    ? padding.left + (i / (trends.length - 1)) * graphWidth
+                    : padding.left + graphWidth / 2;
+                const isHovered = hoveredIndex === i;
+
+                return (
+                  <g
+                    key={i}
+                    onMouseEnter={() => setHoveredIndex(i)}
+                    className="cursor-pointer"
                   >
-                    {d.timeLabel}
-                  </text>
-                </g>
-              );
-            })}
-          </svg>
-        </div>
+                    <rect
+                      x={x - 22}
+                      y={padding.top}
+                      width={44}
+                      height={graphHeight}
+                      fill="transparent"
+                    />
+
+                    {/* Vertical Guideline */}
+                    {isHovered && (
+                      <line
+                        x1={x}
+                        y1={padding.top}
+                        x2={x}
+                        y2={padding.top + graphHeight}
+                        stroke="#171717"
+                        strokeWidth="1.2"
+                        strokeDasharray="2,2"
+                      />
+                    )}
+
+                    {/* Hover Points */}
+                    {isHovered && visibleSeries.negative && (
+                      <circle
+                        cx={x}
+                        cy={padding.top + graphHeight - (d.negative / 100) * graphHeight}
+                        r="4"
+                        fill="#C62828"
+                        stroke="#FFFFFF"
+                        strokeWidth="1.5"
+                      />
+                    )}
+                    {isHovered && visibleSeries.neutral && (
+                      <circle
+                        cx={x}
+                        cy={padding.top + graphHeight - (d.neutral / 100) * graphHeight}
+                        r="4"
+                        fill="#64748B"
+                        stroke="#FFFFFF"
+                        strokeWidth="1.5"
+                      />
+                    )}
+                    {isHovered && visibleSeries.positive && (
+                      <circle
+                        cx={x}
+                        cy={padding.top + graphHeight - (d.positive / 100) * graphHeight}
+                        r="4"
+                        fill="#2E7D32"
+                        stroke="#FFFFFF"
+                        strokeWidth="1.5"
+                      />
+                    )}
+
+                    {/* X Axis Time Labels */}
+                    <text
+                      x={x}
+                      y={chartHeight - 8}
+                      textAnchor="middle"
+                      className={`font-mono text-[10px] ${
+                        isHovered ? 'fill-[#171717] font-bold' : 'fill-[#8A8A82]'
+                      }`}
+                    >
+                      {d.timeLabel}
+                    </text>
+                  </g>
+                );
+              })}
+            </svg>
+          </div>
+        )}
 
         {/* Hover Crosshair Summary Callout */}
         {activeHoverPoint && (
@@ -377,7 +450,7 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
           >
             <div className="flex items-center gap-2">
               <span className="text-[#8A8A82]">Time Interval:</span>
-              <span className="font-bold text-[#171717]">{activeHoverPoint.timeLabel} UTC</span>
+              <span className="font-bold text-[#171717]">{activeHoverPoint.timeLabel}</span>
             </div>
             <div className="flex items-center gap-6">
               <span className="text-[#C62828] font-medium">
@@ -399,7 +472,7 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
 
       {/* 2. SECONDARY SECTION: Emotion Breakdown & Platform Comparison (Integrated, clean horizontal bars) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 pt-4 border-t border-[#E8E8E1]">
-        {/* A. Emotion Breakdown (No 5 separate cards! Clean horizontal spectrum) */}
+        {/* A. Emotion Breakdown */}
         <section className="space-y-4">
           <div>
             <h3 className="font-sans font-bold text-base text-[#171717]">
@@ -411,47 +484,53 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
           </div>
 
           <div className="space-y-4 pt-1">
-            {emotions.map((item) => (
-              <div key={item.emotion} className="space-y-1.5">
-                <div className="flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2">
-                    <span className="font-sans font-medium text-[#171717]">
-                      {item.label}
-                    </span>
-                    <span className="font-mono text-[10px] text-[#8A8A82]">
-                      ({item.volume.toLocaleString()})
-                    </span>
+            {emotions.length === 0 ? (
+              <p className="font-sans text-xs text-[#8A8A82]">
+                No emotional discourse signals detected in this range.
+              </p>
+            ) : (
+              emotions.map((item) => (
+                <div key={item.emotion} className="space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="font-sans font-medium text-[#171717]">
+                        {item.label}
+                      </span>
+                      <span className="font-mono text-[10px] text-[#8A8A82]">
+                        ({item.volume.toLocaleString()})
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 font-mono text-[11px]">
+                      <span className="text-[#8A8A82]">{item.trendDelta}</span>
+                      <span className="font-bold text-[#171717]">{item.percentage}%</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 font-mono text-[11px]">
-                    <span className="text-[#8A8A82]">{item.trendDelta}</span>
-                    <span className="font-bold text-[#171717]">{item.percentage}%</span>
-                  </div>
-                </div>
 
-                {/* Clean Horizontal Growth Bar */}
-                <div className="h-1.5 w-full bg-[#E8E8E1] rounded-full overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${item.percentage}%` }}
-                    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                    className={`h-full rounded-full ${
-                      item.emotion === 'anxiety'
-                        ? 'bg-[#C62828]'
-                        : item.emotion === 'supportive'
-                        ? 'bg-[#2E7D32]'
-                        : item.emotion === 'opposition'
-                        ? 'bg-[#B45309]'
-                        : item.emotion === 'excitement'
-                        ? 'bg-[#2563EB]'
-                        : 'bg-[#64748B]'
-                    }`}
-                  />
+                  {/* Clean Horizontal Growth Bar */}
+                  <div className="h-1.5 w-full bg-[#E8E8E1] rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${item.percentage}%` }}
+                      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                      className={`h-full rounded-full ${
+                        item.emotion === 'anxiety'
+                          ? 'bg-[#C62828]'
+                          : item.emotion === 'supportive'
+                          ? 'bg-[#2E7D32]'
+                          : item.emotion === 'opposition'
+                          ? 'bg-[#B45309]'
+                          : item.emotion === 'excitement'
+                          ? 'bg-[#2563EB]'
+                          : 'bg-[#64748B]'
+                      }`}
+                    />
+                  </div>
+                  <p className="font-sans text-[11px] text-[#575757] leading-relaxed">
+                    {item.description}
+                  </p>
                 </div>
-                <p className="font-sans text-[11px] text-[#575757] leading-relaxed">
-                  {item.description}
-                </p>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </section>
 
@@ -467,39 +546,45 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
           </div>
 
           <div className="space-y-4 pt-1">
-            {platformComparison.map((p) => (
-              <div key={p.platform} className="space-y-1.5 pb-3 border-b border-[#E8E8E1] last:border-b-0">
-                <div className="flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2">
-                    <PlatformBadge platform={p.platform} size="sm" />
-                    <span className="font-mono text-[11px] text-[#8A8A82]">
-                      {p.totalVolume.toLocaleString()} posts
-                    </span>
+            {platformComparison.length === 0 ? (
+              <p className="font-sans text-xs text-[#8A8A82]">
+                No platform comparison data available.
+              </p>
+            ) : (
+              platformComparison.map((p) => (
+                <div key={p.platform} className="space-y-1.5 pb-3 border-b border-[#E8E8E1] last:border-b-0">
+                  <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2">
+                      <PlatformBadge platform={p.platform} size="sm" />
+                      <span className="font-mono text-[11px] text-[#8A8A82]">
+                        {p.totalVolume.toLocaleString()} posts
+                      </span>
+                    </div>
+                    <div className="font-mono text-[11px] space-x-2">
+                      <span className="text-[#C62828]">Neg {p.negativePct}%</span>
+                      <span className="text-[#64748B]">Neu {p.neutralPct}%</span>
+                      <span className="text-[#2E7D32]">Pos {p.positivePct}%</span>
+                    </div>
                   </div>
-                  <div className="font-mono text-[11px] space-x-2">
-                    <span className="text-[#C62828]">Neg {p.negativePct}%</span>
-                    <span className="text-[#64748B]">Neu {p.neutralPct}%</span>
-                    <span className="text-[#2E7D32]">Pos {p.positivePct}%</span>
-                  </div>
-                </div>
 
-                {/* Stacked Horizon Bar */}
-                <div className="h-2 w-full bg-[#E8E8E1] rounded-full overflow-hidden flex">
-                  <div
-                    style={{ width: `${p.negativePct}%` }}
-                    className="bg-[#C62828]"
-                  />
-                  <div
-                    style={{ width: `${p.neutralPct}%` }}
-                    className="bg-[#64748B]"
-                  />
-                  <div
-                    style={{ width: `${p.positivePct}%` }}
-                    className="bg-[#2E7D32]"
-                  />
+                  {/* Stacked Horizon Bar */}
+                  <div className="h-2 w-full bg-[#E8E8E1] rounded-full overflow-hidden flex">
+                    <div
+                      style={{ width: `${p.negativePct}%` }}
+                      className="bg-[#C62828]"
+                    />
+                    <div
+                      style={{ width: `${p.neutralPct}%` }}
+                      className="bg-[#64748B]"
+                    />
+                    <div
+                      style={{ width: `${p.positivePct}%` }}
+                      className="bg-[#2E7D32]"
+                    />
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </section>
       </div>
@@ -544,3 +629,4 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
     </div>
   );
 };
+

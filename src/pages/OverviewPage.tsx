@@ -25,22 +25,33 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
 }) => {
   const [data, setData] = useState<OverviewData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
     setLoading(true);
-    nexusApi.getOverview(timeFilter, platformFilter).then((res) => {
-      if (isMounted) {
-        setData(res);
-        setLoading(false);
-      }
-    });
+    setError(null);
+    nexusApi
+      .getOverview(timeFilter, platformFilter)
+      .then((res) => {
+        if (isMounted) {
+          setData(res);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (isMounted) {
+          console.error('[OverviewPage] Failed to fetch overview data:', err);
+          setError(err.message || 'Failed to load intelligence brief');
+          setLoading(false);
+        }
+      });
     return () => {
       isMounted = false;
     };
   }, [timeFilter, platformFilter]);
 
-  if (loading || !data) {
+  if (loading) {
     return (
       <div className="space-y-12">
         <SkeletonLoader type="metric" count={4} />
@@ -49,7 +60,33 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
     );
   }
 
-  const [leadNarrative, ...secondaryNarratives] = data.narratives;
+  if (error || !data) {
+    return (
+      <div className="space-y-12 max-w-5xl mx-auto">
+        <div className="p-8 border border-[#E8E8E1] bg-[#FFFFFF] rounded-xs text-center space-y-4">
+          <p className="font-sans text-sm text-[#C62828] font-medium">
+            {error || 'Unable to load overview intelligence.'}
+          </p>
+          <button
+            onClick={() => {
+              setLoading(true);
+              setError(null);
+              nexusApi
+                .getOverview(timeFilter, platformFilter)
+                .then((res) => setData(res))
+                .catch((e) => setError(e.message))
+                .finally(() => setLoading(false));
+            }}
+            className="font-sans text-xs px-4 py-2 bg-[#171717] text-white rounded-xs hover:bg-[#333333] transition-colors cursor-pointer inline-flex items-center gap-1.5"
+          >
+            Retry Connection
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const [leadNarrative, ...secondaryNarratives] = data.narratives || [];
 
   return (
     <div className="space-y-16 pb-20 max-w-5xl mx-auto">
@@ -355,17 +392,23 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
               <h4 className="font-sans font-semibold text-sm text-[#171717]">
                 Network Topology
               </h4>
-              <span className="font-mono text-[10px] text-[#8A8A82]">4 Clusters</span>
+              <span className="font-mono text-[10px] text-[#8A8A82]">
+                {data.networkSummary?.activeCommunities ?? 4} Clusters
+              </span>
             </div>
 
             <div className="space-y-2 text-xs font-sans pt-1">
               <div className="flex justify-between items-center py-1 border-b border-[#F0F0EA]">
                 <span className="text-[#575757]">Structural Bridge Nodes</span>
-                <span className="font-mono font-bold text-[#B45309]">2 High-Centrality</span>
+                <span className="font-mono font-bold text-[#B45309]">
+                  {data.networkSummary?.bridgeNodesCount ?? 0} High-Centrality
+                </span>
               </div>
               <div className="flex justify-between items-center py-1 border-b border-[#F0F0EA]">
                 <span className="text-[#575757]">Monitored Influence Nodes</span>
-                <span className="font-mono font-medium text-[#171717]">142 Nodes</span>
+                <span className="font-mono font-medium text-[#171717]">
+                  {data.networkSummary?.monitoredNodes ?? 0} Nodes
+                </span>
               </div>
               <div className="flex justify-between items-center py-1">
                 <span className="text-[#575757]">Key Structural Channels</span>

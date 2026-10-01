@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   ZoomIn,
@@ -11,6 +11,7 @@ import {
   NetworkCommunity,
   NetworkEdge,
   NetworkNode,
+  NetworkSummary,
   Platform,
   TimeFilter
 } from '../types/nexus';
@@ -28,18 +29,18 @@ export const NetworkPage: React.FC<NetworkPageProps> = ({
   platformFilter,
   onSelectNode,
 }) => {
-  // Architectural state: Network page -> selectedTimeRange state -> getNetwork({ daysBack })
   const [selectedTimeRange, setSelectedTimeRange] = useState<TimeFilter>(timeFilter || '24h');
   const [nodes, setNodes] = useState<NetworkNode[]>([]);
   const [edges, setEdges] = useState<NetworkEdge[]>([]);
   const [communities, setCommunities] = useState<NetworkCommunity[]>([]);
-  const [summary, setSummary] = useState({
-    activeCommunities: 4,
-    monitoredNodes: 10,
-    interactionLinks: 12,
-    bridgeNodes: 2,
+  const [summary, setSummary] = useState<NetworkSummary>({
+    activeCommunities: 0,
+    monitoredNodes: 0,
+    interactionLinks: 0,
+    bridgeNodes: 0,
   });
-  const [initialLoading, setInitialLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [selectedCommunityId, setSelectedCommunityId] = useState<string>('all');
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
@@ -59,39 +60,71 @@ export const NetworkPage: React.FC<NetworkPageProps> = ({
     }
   }, [timeFilter]);
 
-  // Dynamic network dataset fetching based on selected time range
-  useEffect(() => {
+  // Dynamic network dataset fetching based on selected time range and platform
+  const fetchNetwork = useCallback(() => {
     let isMounted = true;
+    setLoading(true);
+    setError(null);
+    setHoveredNodeId(null);
+    setSelectedNodeId(null);
 
-    // Convert time range to daysBack horizon
-    let daysBack = 1;
-    if (selectedTimeRange === '24h') daysBack = 1;
-    else if (selectedTimeRange === '7d') daysBack = 7;
-    else if (selectedTimeRange === '30d') daysBack = 30;
-    else if (selectedTimeRange === '10m') daysBack = 10 / (24 * 60);
-    else if (selectedTimeRange === '1h') daysBack = 1 / 24;
-    else if (selectedTimeRange === '6h') daysBack = 0.25;
-
-    nexusApi.getNetwork({ daysBack, timeFilter: selectedTimeRange, platform: platformFilter }).then((res) => {
-      if (isMounted) {
-        setNodes(res.nodes);
-        setEdges(res.edges);
-        setCommunities(res.communities);
-        setSummary(res.summary);
-        setInitialLoading(false);
-      }
-    });
+    nexusApi
+      .getNetwork({ timeFilter: selectedTimeRange, platform: platformFilter })
+      .then((res) => {
+        if (isMounted) {
+          setNodes(res.nodes || []);
+          setEdges(res.edges || []);
+          setCommunities(res.communities || []);
+          setSummary(res.summary || {
+            activeCommunities: res.communities?.length || 0,
+            monitoredNodes: res.nodes?.length || 0,
+            interactionLinks: res.edges?.length || 0,
+            bridgeNodes: (res.nodes || []).filter((n) => n.isBridge).length,
+          });
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (isMounted) {
+          console.error('[NetworkPage] Failed to fetch network graph:', err);
+          setError(err.message || 'Failed to load network intelligence.');
+          setLoading(false);
+        }
+      });
 
     return () => {
       isMounted = false;
     };
   }, [selectedTimeRange, platformFilter]);
 
-  if (initialLoading) {
+  useEffect(() => {
+    const cleanup = fetchNetwork();
+    return cleanup;
+  }, [fetchNetwork]);
+
+  if (loading) {
     return (
       <div className="space-y-12 max-w-5xl mx-auto">
         <SkeletonLoader type="chart" />
         <SkeletonLoader type="card" count={2} />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-12 max-w-5xl mx-auto">
+        <div className="p-8 border border-[#E8E8E1] bg-[#FFFFFF] rounded-xs text-center space-y-4">
+          <p className="font-sans text-sm text-[#C62828] font-medium">
+            {error || 'Unable to load network graph intelligence.'}
+          </p>
+          <button
+            onClick={fetchNetwork}
+            className="font-sans text-xs px-4 py-2 bg-[#171717] text-white rounded-xs hover:bg-[#333333] transition-colors cursor-pointer inline-flex items-center gap-1.5"
+          >
+            Retry Connection
+          </button>
+        </div>
       </div>
     );
   }

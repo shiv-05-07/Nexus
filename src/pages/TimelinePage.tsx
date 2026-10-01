@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import React, { useEffect, useState, useCallback } from 'react';
+import { motion } from 'motion/react';
 import {
   Search,
   Clock,
@@ -8,9 +8,11 @@ import {
   Heart,
   Repeat,
   MessageCircle,
-  ArrowUpRight
+  ArrowUpRight,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
-import { Platform, SentimentType, TimeFilter, TimelineEvent } from '../types/nexus';
+import { Platform, TimeFilter, TimelineEvent } from '../types/nexus';
 import { nexusApi } from '../services/api/nexusApi';
 import { PlatformBadge } from '../components/common/PlatformBadge';
 import { SentimentBadge } from '../components/common/SentimentBadge';
@@ -23,36 +25,75 @@ interface TimelinePageProps {
   onSelectEvent: (event: TimelineEvent) => void;
 }
 
+const PAGE_SIZE = 50;
+
 export const TimelinePage: React.FC<TimelinePageProps> = ({
   timeFilter,
   platformFilter,
   onSelectEvent,
 }) => {
   const [events, setEvents] = useState<TimelineEvent[]>([]);
+  const [total, setTotal] = useState<number>(0);
+  const [offset, setOffset] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'timeline' | 'table'>('timeline');
   const [sentimentFilter, setSentimentFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [debouncedQuery, setDebouncedQuery] = useState<string>('');
 
+  // Debounce search query by 250ms
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Reset offset to 0 whenever filters change
+  useEffect(() => {
+    setOffset(0);
+  }, [platformFilter, sentimentFilter, debouncedQuery, timeFilter]);
+
+  // Fetch timeline from real backend
+  const fetchTimeline = useCallback(() => {
     let isMounted = true;
     setLoading(true);
+    setError(null);
+
     nexusApi
       .getTimeline({
         platform: platformFilter,
         sentiment: sentimentFilter,
-        searchQuery,
+        searchQuery: debouncedQuery,
+        timeFilter,
+        limit: PAGE_SIZE,
+        offset,
       })
       .then((res) => {
         if (isMounted) {
-          setEvents(res);
+          setEvents(res.items);
+          setTotal(res.total);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (isMounted) {
+          console.error('[TimelinePage] Failed to fetch dispatches:', err);
+          setError(err.message || 'Failed to load timeline dispatches');
           setLoading(false);
         }
       });
+
     return () => {
       isMounted = false;
     };
-  }, [platformFilter, sentimentFilter, searchQuery, timeFilter]);
+  }, [platformFilter, sentimentFilter, debouncedQuery, timeFilter, offset]);
+
+  useEffect(() => {
+    const cleanup = fetchTimeline();
+    return cleanup;
+  }, [fetchTimeline]);
 
   return (
     <div className="space-y-8 pb-16 max-w-4xl mx-auto">
@@ -120,8 +161,23 @@ export const TimelinePage: React.FC<TimelinePageProps> = ({
       {/* 2. Loading State */}
       {loading && <SkeletonLoader type={viewMode === 'timeline' ? 'timeline' : 'table'} count={5} />}
 
+      {/* Error State */}
+      {error && !loading && (
+        <div className="p-8 border border-[#E8E8E1] bg-[#FFFFFF] rounded-xs text-center space-y-4">
+          <p className="font-sans text-sm text-[#C62828] font-medium">
+            {error}
+          </p>
+          <button
+            onClick={() => fetchTimeline()}
+            className="font-sans text-xs px-4 py-2 bg-[#171717] text-white rounded-xs hover:bg-[#333333] transition-colors cursor-pointer inline-flex items-center gap-1.5"
+          >
+            Retry Connection
+          </button>
+        </div>
+      )}
+
       {/* 3. Empty State */}
-      {!loading && events.length === 0 && (
+      {!loading && !error && events.length === 0 && (
         <EmptyState
           title="No timeline events match the filter"
           description="Try selecting 'All platforms' or resetting your sentiment filters."
@@ -134,7 +190,7 @@ export const TimelinePage: React.FC<TimelinePageProps> = ({
       )}
 
       {/* 4. Living Stream Vertical Timeline View — NO HEAVY CARD BOXES */}
-      {!loading && events.length > 0 && viewMode === 'timeline' && (
+      {!loading && !error && events.length > 0 && viewMode === 'timeline' && (
         <div className="relative pl-6 md:pl-24 space-y-8 before:absolute before:left-2 md:before:left-18 before:top-2 before:bottom-2 before:w-[1px] before:bg-[#E8E8E1]">
           {events.map((evt, idx) => (
             <motion.div
@@ -219,7 +275,7 @@ export const TimelinePage: React.FC<TimelinePageProps> = ({
       )}
 
       {/* 5. Structured Table View */}
-      {!loading && events.length > 0 && viewMode === 'table' && (
+      {!loading && !error && events.length > 0 && viewMode === 'table' && (
         <div className="border border-[#E8E8E1] rounded-xs overflow-x-auto bg-[#FFFFFF]">
           <table className="w-full text-left text-xs font-sans">
             <thead className="bg-[#F7F7F4] border-b border-[#E8E8E1] text-[#575757] font-mono text-[10px] uppercase tracking-wider">
@@ -267,6 +323,40 @@ export const TimelinePage: React.FC<TimelinePageProps> = ({
           </table>
         </div>
       )}
+
+      {/* 6. Pagination Controls (Minimal, hairline-divided) */}
+      {!loading && !error && events.length > 0 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-[#E8E8E1]">
+          <div className="font-mono text-xs text-[#8A8A82]">
+            Showing <span className="text-[#171717] font-semibold">{total === 0 ? 0 : offset + 1}</span>–
+            <span className="text-[#171717] font-semibold">{Math.min(offset + events.length, total)}</span> of{' '}
+            <span className="text-[#171717] font-semibold">{total.toLocaleString()}</span> dispatches
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              disabled={offset === 0 || loading}
+              onClick={() => setOffset((prev) => Math.max(0, prev - PAGE_SIZE))}
+              className="px-3 py-1.5 text-xs font-sans rounded-xs border border-[#D6D6CC] text-[#171717] hover:bg-[#F0F0EA] disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer inline-flex items-center gap-1"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+              <span>Previous</span>
+            </button>
+            <span className="font-mono text-xs text-[#575757] px-2">
+              Page {Math.floor(offset / PAGE_SIZE) + 1} of {Math.max(1, Math.ceil(total / PAGE_SIZE))}
+            </span>
+            <button
+              disabled={offset + PAGE_SIZE >= total || loading}
+              onClick={() => setOffset((prev) => prev + PAGE_SIZE)}
+              className="px-3 py-1.5 text-xs font-sans rounded-xs border border-[#D6D6CC] text-[#171717] hover:bg-[#F0F0EA] disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer inline-flex items-center gap-1"
+            >
+              <span>Next</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+
