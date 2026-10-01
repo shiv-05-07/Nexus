@@ -1,261 +1,166 @@
-export type ScreenId = 
-  | 'overview'
-  | 'timeline'
-  | 'sentiment'
-  | 'trends'
-  | 'audience'
-  | 'network'
-  | 'investigate'
-  | 'coordination'
-  | 'integrity';
+export type ScreenId = 'overview' | 'timeline' | 'sentiment' | 'trends' | 'network';
 
-export type DataMode = 'LIVE' | 'ARCHIVE' | 'SYNTHETIC';
+export type TimeFilter = '10m' | '1h' | '6h' | '24h' | '7d' | '30d';
 
-export type TimeRange = '10m' | '1h' | '6h' | '24h' | '7d';
+export type Platform = 'all' | 'x' | 'telegram' | 'reddit' | 'youtube';
 
-export type Platform = 'ALL' | 'X' | 'TELEGRAM' | 'YOUTUBE' | 'REDDIT';
+export type SentimentType = 'positive' | 'neutral' | 'negative';
 
-export type ReviewState = 'UNREVIEWED' | 'CONFIRMED' | 'DISMISSED';
-
-export type UserRole = 'ANALYST' | 'AUDITOR' | 'VIEWER' | 'ADMINISTRATOR';
-
-export interface UserIdentity {
-  id: string; // e.g. "AN-9042"
-  name: string; // e.g. "Senior Narrative Analyst"
-  role: UserRole;
-  department: string; // e.g. "NTRO / CYBER-INT"
-  avatarInitials: string;
-}
-
-export interface RolePermissions {
-  canMutateCoordination: boolean; // Confirm / Dismiss signals
-  canVerifyEvidence: boolean; // Verify Record in Integrity
-  canInvestigate: boolean; // Launch investigation
-  canAccessAdminPanel: boolean; // Admin controls
-}
-
-export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
-  ANALYST: {
-    canMutateCoordination: true,
-    canVerifyEvidence: true,
-    canInvestigate: true,
-    canAccessAdminPanel: false,
-  },
-  AUDITOR: {
-    canMutateCoordination: false,
-    canVerifyEvidence: true,
-    canInvestigate: true,
-    canAccessAdminPanel: false,
-  },
-  VIEWER: {
-    canMutateCoordination: false,
-    canVerifyEvidence: false,
-    canInvestigate: true,
-    canAccessAdminPanel: false,
-  },
-  ADMINISTRATOR: {
-    canMutateCoordination: true,
-    canVerifyEvidence: true,
-    canInvestigate: true,
-    canAccessAdminPanel: true,
-  },
-};
-
-export const DEMO_IDENTITIES: Record<UserRole, UserIdentity> = {
-  ANALYST: {
-    id: 'AN-9042',
-    name: 'Senior Narrative Analyst',
-    role: 'ANALYST',
-    department: 'NTRO / CYBER-INT',
-    avatarInitials: 'AN',
-  },
-  AUDITOR: {
-    id: 'AU-1173',
-    name: 'Evidence Auditor',
-    role: 'AUDITOR',
-    department: 'NTRO / COMPLIANCE',
-    avatarInitials: 'AU',
-  },
-  VIEWER: {
-    id: 'VW-2210',
-    name: 'Read-Only Intelligence Viewer',
-    role: 'VIEWER',
-    department: 'NTRO / EXECUTIVE',
-    avatarInitials: 'VW',
-  },
-  ADMINISTRATOR: {
-    id: 'AD-001',
-    name: 'System Administrator',
-    role: 'ADMINISTRATOR',
-    department: 'NTRO / SYS-ADMIN',
-    avatarInitials: 'AD',
-  },
-};
-
-export interface TimelineEvent {
-  id: string;
-  timestamp: string; // ISO or HH:MM:SS
-  timeAgo: string;
-  minutesAgo: number;
-  platform: 'X' | 'TELEGRAM' | 'YOUTUBE' | 'REDDIT';
-  title: string;
-  description: string;
-  topicId?: string;
-  topicName?: string;
-  eventCount: number;
-  sentimentDelta?: string;
-  community?: string;
-  nodeId?: string;
-  urgency: 'high' | 'medium' | 'low';
-}
-
-export interface IntelligenceMetric {
-  key: string;
-  label: string;
-  value: number;
-  format: 'number' | 'percentage' | 'delta';
-  delta: string;
-  isPositiveDelta: boolean;
-  timestamp: string;
-}
+export type EmotionType = 'anxiety' | 'excitement' | 'supportive' | 'opposition' | 'sarcasm';
 
 export interface EmergingNarrative {
   id: string;
-  rank: string;
-  topic: string;
-  trendScore: number;
-  acceleration: string; // e.g. "+312%"
-  volume: string; // e.g. "4.2K / 2h"
-  mentionCount: number;
-  sentiment: {
-    positive: number;
-    neutral: number;
-    negative: number;
-  };
-  platforms: ('X' | 'TELEGRAM' | 'YOUTUBE' | 'REDDIT')[];
-  communitiesCount: number;
-  primaryCommunity: string;
-  keyBridgeNode: string;
+  name: string;
   summary: string;
-  status: 'EMERGING' | 'STABLE' | 'DECLINING';
+  growthPct: number;
+  mentionCount: number;
+  sentiment: SentimentType;
+  dominantEmotion: EmotionType;
+  platforms: ('x' | 'telegram' | 'reddit' | 'youtube')[];
+  sparkline: number[];
+  accelerationScore: number;
+  firstObserved: string;
+  lastObserved: string;
+  communityIds: string[];
+  keyQuotes: {
+    author: string;
+    platform: 'x' | 'telegram' | 'reddit' | 'youtube';
+    text: string;
+    timestamp: string;
+  }[];
 }
 
-export interface IntelligenceAlert {
+export interface TimelineEvent {
   id: string;
-  time: string;
-  title: string;
-  detail: string;
-  type: 'EMERGING' | 'CROSS_PLATFORM' | 'BRIDGE_NODE' | 'COORDINATION';
-  topicId?: string;
-  read: boolean;
+  timestamp: string;
+  timeFormatted: string;
+  platform: 'x' | 'telegram' | 'reddit' | 'youtube';
+  topicId: string;
+  topicName: string;
+  authorHandle: string;
+  authorAlias?: string;
+  content: string;
+  sentiment: SentimentType;
+  emotion: EmotionType;
+  engagement: {
+    likes: number;
+    reposts: number;
+    comments: number;
+    views?: number;
+  };
+  reachScore: number;
+  verified?: boolean;
 }
 
 export interface SentimentDataPoint {
-  time: string;
+  timestamp: string;
+  timeLabel: string;
   positive: number;
   neutral: number;
   negative: number;
-  sarcasmLikelihood: number;
+  volume: number;
 }
 
-export interface EmotionBreakdown {
-  supportive: number;
-  opposition: number;
-  anxiety: number;
-  anger: number;
-  excitement: number;
-  sarcasm: number;
+export interface EmotionItem {
+  emotion: EmotionType;
+  label: string;
+  percentage: number;
+  volume: number;
+  trendDelta: string;
+  description: string;
+}
+
+export interface PlatformSentimentComparison {
+  platform: 'x' | 'telegram' | 'reddit' | 'youtube';
+  platformName: string;
+  positivePct: number;
+  neutralPct: number;
+  negativePct: number;
+  totalVolume: number;
+}
+
+export interface TrendItem {
+  id: string;
+  name: string;
+  volume: number;
+  accelerationPct: number;
+  sentiment: SentimentType;
+  dominantEmotion: EmotionType;
+  platforms: ('x' | 'telegram' | 'reddit' | 'youtube')[];
+  communityName: string;
+  sparkline: number[];
+  isAccelerating: boolean;
+  x: number; // Volume coordinate for scatter plot
+  y: number; // Acceleration coordinate for scatter plot
+  radius: number;
 }
 
 export interface NetworkNode {
   id: string;
   label: string;
+  alias: string;
   communityId: string;
   communityName: string;
+  role: string;
+  pagerank: number;
   betweenness: number;
-  pageRank: number;
-  observedActivity: number;
-  platform: 'X' | 'TELEGRAM' | 'YOUTUBE' | 'REDDIT';
+  connectionsCount: number;
+  isBridge: boolean;
   x: number;
   y: number;
-  isBridge?: boolean;
+  recentTopics: string[];
+  activityVolume: number;
+  avatarColor: string;
 }
 
 export interface NetworkEdge {
   id: string;
   source: string;
   target: string;
-  type: 'reply' | 'repost' | 'mention' | 'quote' | 'forward';
   weight: number;
+  interactionType: 'reply' | 'repost' | 'mention' | 'quote';
 }
 
-export interface PropagationStep {
-  stepIndex: number;
-  time: string;
-  title: string;
-  entity: string;
-  type: 'OBSERVED' | 'COMMUNITY' | 'BRIDGE_NODE' | 'PLATFORM';
-  detail: string;
-  platform?: string;
-  nodeId?: string;
-  communityId?: string;
-  active: boolean;
-}
-
-export interface AudienceCluster {
+export interface NetworkCommunity {
   id: string;
   name: string;
-  ageBracket: string; // e.g. "18–24 (63%)"
-  languages: string; // e.g. "Hindi / English (71%)"
-  region: string; // e.g. "Western India (58%)"
-  interests: string; // e.g. "Technology (46%)"
-  sampleSize: string; // e.g. "3,842"
-  confidence: number; // e.g. 0.74
-  coverage: number; // e.g. 0.68
-  isUnknown?: boolean;
+  color: string;
+  nodeCount: number;
+  dominantSentiment: SentimentType;
+  description: string;
 }
 
-export interface CoordinationCluster {
-  id: string;
-  name: string;
-  membersCount: number;
-  sharedItemsCount: number;
-  medianTimingGapSec: number;
-  similarityScore: number;
-  synchronyScore: number;
-  pValue: number;
-  fdrAdjusted: boolean;
-  reviewState: ReviewState;
-  nodeIds: string[];
-  summary: string;
+export interface AudienceAggregate {
+  ageGroups: { range: string; percentage: number }[];
+  languages: { language: string; percentage: number }[];
+  regions: { region: string; percentage: number }[];
+  methodologyNote: string;
 }
 
-export interface EvidenceRecord {
-  id: string; // e.g. "NX-2026-0917"
-  timestamp: string;
-  source: string;
-  model: string;
-  confidence: number;
-  previousHash: string;
-  recordHash: string;
-  signatureStatus: 'VERIFIED' | 'PENDING' | 'INVALID';
-  chainStatus: 'VALID' | 'TAMPERED';
-  merkleCheckpoint: string;
-  payloadSummary: string;
-}
-
-export interface NexusDataset {
-  name: string;
-  metrics: IntelligenceMetric[];
+export interface OverviewData {
+  metrics: {
+    totalPosts: number;
+    activeTopicsCount: number;
+    emergingGrowthPct: number;
+    negativeSentimentPct: number;
+    lastUpdatedSecondsAgo: number;
+  };
   narratives: EmergingNarrative[];
-  alerts: IntelligenceAlert[];
-  timelineEvents: TimelineEvent[];
-  sentimentSeries: SentimentDataPoint[];
-  emotionBreakdown: EmotionBreakdown;
-  networkNodes: NetworkNode[];
-  networkEdges: NetworkEdge[];
-  propagationSequence: PropagationStep[];
-  audienceClusters: AudienceCluster[];
-  coordinationClusters: CoordinationCluster[];
-  evidenceRecords: EvidenceRecord[];
+  sentimentBreakdown: {
+    positive: number;
+    neutral: number;
+    negative: number;
+  };
+  audience: AudienceAggregate;
+  networkSummary: {
+    activeCommunities: number;
+    bridgeNodesCount: number;
+    monitoredNodes: number;
+  };
 }
+
+export type DetailDrawerState = 
+  | { type: 'narrative'; data: EmergingNarrative }
+  | { type: 'node'; data: NetworkNode }
+  | { type: 'event'; data: TimelineEvent }
+  | null;

@@ -4,59 +4,81 @@
   --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'IBM Plex Mono', monospace;
 
-  --color-obsidian: #0D1012;
-  --color-graphite-dark: #171A1C;
-  --color-graphite-soft: #232729;
-  --color-ivory: #E8E3D8;
-  --color-sand: #BDB5A6;
-  --color-copper: #C9784A;
-  --color-teal: #5AA9A0;
-  --color-amber: #D6A84F;
-  --color-red-crit: #C75C5C;
-  --color-steel: #737C80;
+  --color-canvas: #F7F7F4;
+  --color-surface: #FFFFFF;
+  --color-surface-subtle: #F0F0EA;
+  --color-border-light: #E6E6DF;
+  --color-border-dark: #D4D4CA;
+  
+  --color-charcoal: #171717;
+  --color-charcoal-muted: #575757;
+  --color-charcoal-subtle: #8A8A82;
+
+  --color-positive: #2E7D32;
+  --color-positive-bg: #EEF7EF;
+  --color-negative: #C62828;
+  --color-negative-bg: #FDF0F0;
+  --color-neutral: #64748B;
+  --color-neutral-bg: #F1F5F9;
+  
+  --color-amber-accent: #B45309;
+  --color-amber-bg: #FEF3C7;
+  --color-indigo-accent: #3730A3;
+  --color-indigo-bg: #EEF2FF;
 }
 
 @layer base {
-  body {
-    background-color: #0D1012;
-    color: #E8E3D8;
-    font-family: var(--font-sans);
-    letter-spacing: -0.01em;
+  * {
+    border-color: #E6E6DF;
   }
 
-  /* Custom scrollbar for dark analyst UI */
+  body {
+    background-color: #F7F7F4;
+    color: #171717;
+    font-family: var(--font-sans);
+    letter-spacing: -0.012em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Refined scrollbar for editorial desktop UI */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: #171A1C;
+    background: #F7F7F4;
   }
   ::-webkit-scrollbar-thumb {
-    background: #232729;
-    border-radius: 2px;
+    background: #D4D4CA;
+    border-radius: 9999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #737C80;
+    background: #A8A89C;
   }
 }
 
-/* Tabular numbers helper */
 .tabular-nums {
   font-variant-numeric: tabular-nums;
 }
 
-/* Pulse animation without glowing neon */
-@keyframes quiet-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.95); }
+/* Subtle breathing indicator for LIVE status */
+@keyframes breathing-dot {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.85);
+    opacity: 0.5;
+  }
 }
 
-.animate-quiet-pulse {
-  animation: quiet-pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.animate-breathing-dot {
+  animation: breathing-dot 3s ease-in-out infinite;
 }
 
-/* Subtle motion curve */
-.transition-bezier {
+/* Smooth motion default cubic-bezier */
+.ease-editorial {
   transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
