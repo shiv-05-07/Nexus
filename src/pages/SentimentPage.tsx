@@ -1,15 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import {
-  Smile,
-  Frown,
-  Meh,
-  Info,
-  ChevronDown,
-  ChevronUp,
-  Layers,
-  Activity
-} from 'lucide-react';
+import { Info, ChevronDown, ChevronUp } from 'lucide-react';
 import {
   EmotionItem,
   Platform,
@@ -64,7 +55,7 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
 
   if (loading) {
     return (
-      <div className="space-y-8 max-w-6xl mx-auto">
+      <div className="space-y-10 max-w-5xl mx-auto">
         <SkeletonLoader type="chart" />
         <SkeletonLoader type="card" count={2} />
       </div>
@@ -73,36 +64,43 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
 
   // SVG Chart Dimensions
   const chartWidth = 740;
-  const chartHeight = 220;
-  const padding = { top: 20, right: 20, bottom: 30, left: 35 };
+  const chartHeight = 240;
+  const padding = { top: 25, right: 25, bottom: 35, left: 40 };
   const graphWidth = chartWidth - padding.left - padding.right;
   const graphHeight = chartHeight - padding.top - padding.bottom;
 
-  // Build SVG path strings for multi-series
+  // Build smooth SVG path strings
   const getPathForSeries = (key: 'positive' | 'neutral' | 'negative') => {
     if (trends.length < 2) return '';
     const points = trends.map((d, i) => {
       const x = padding.left + (i / (trends.length - 1)) * graphWidth;
       const y = padding.top + graphHeight - (d[key] / 100) * graphHeight;
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
+      return { x, y };
     });
-    return `M ${points.join(' L ')}`;
+
+    return points.reduce((acc, curr, idx, arr) => {
+      if (idx === 0) return `M ${curr.x.toFixed(1)},${curr.y.toFixed(1)}`;
+      const prev = arr[idx - 1];
+      const cpX1 = prev.x + (curr.x - prev.x) / 2;
+      const cpX2 = prev.x + (curr.x - prev.x) / 2;
+      return `${acc} C ${cpX1.toFixed(1)},${prev.y.toFixed(1)} ${cpX2.toFixed(1)},${curr.y.toFixed(1)} ${curr.x.toFixed(1)},${curr.y.toFixed(1)}`;
+    }, '');
   };
 
   const activeHoverPoint = hoveredIndex !== null ? trends[hoveredIndex] : null;
 
   return (
-    <div className="space-y-8 max-w-6xl mx-auto pb-12">
-      {/* 1. Dominant Visualization: Sentiment Trajectory Over Time */}
-      <section className="p-6 bg-[#FFFFFF] border border-[#E6E6DF] rounded-xs shadow-2xs space-y-4">
-        {/* Header & Series Toggles */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-12 pb-16 max-w-5xl mx-auto">
+      {/* 1. PRIMARY ELEMENT: Sentiment-over-Time Trajectory (Clean, spacious, uncarded) */}
+      <section className="space-y-6">
+        {/* Section Header & Interactive Filter Toggles */}
+        <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-4 border-b border-[#E8E8E1] pb-3">
           <div>
-            <h2 className="font-sans font-bold text-base md:text-lg text-[#171717] tracking-tight">
+            <h2 className="font-sans font-bold text-lg md:text-xl text-[#171717] tracking-tight">
               Sentiment Trajectory
             </h2>
-            <p className="font-sans text-xs text-[#575757]">
-              Continuous percentage composition across the active time window
+            <p className="font-sans text-xs text-[#575757] mt-0.5">
+              Continuous longitudinal composition across the active time window
             </p>
           </div>
 
@@ -112,10 +110,10 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
               onClick={() =>
                 setVisibleSeries((p) => ({ ...p, negative: !p.negative }))
               }
-              className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-sans rounded-xs border transition-colors cursor-pointer ${
+              className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-sans rounded-xs transition-colors cursor-pointer ${
                 visibleSeries.negative
-                  ? 'bg-[#FDF0F0] border-[#F9D2D2] text-[#C62828] font-semibold'
-                  : 'bg-[#FFFFFF] border-[#E6E6DF] text-[#8A8A82]'
+                  ? 'bg-[#FDF0F0] text-[#C62828] font-semibold'
+                  : 'text-[#8A8A82] hover:text-[#171717]'
               }`}
             >
               <span className="w-2 h-2 rounded-full bg-[#C62828]" />
@@ -126,10 +124,10 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
               onClick={() =>
                 setVisibleSeries((p) => ({ ...p, neutral: !p.neutral }))
               }
-              className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-sans rounded-xs border transition-colors cursor-pointer ${
+              className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-sans rounded-xs transition-colors cursor-pointer ${
                 visibleSeries.neutral
-                  ? 'bg-[#F1F5F9] border-[#E2E8F0] text-[#64748B] font-semibold'
-                  : 'bg-[#FFFFFF] border-[#E6E6DF] text-[#8A8A82]'
+                  ? 'bg-[#F1F5F9] text-[#64748B] font-semibold'
+                  : 'text-[#8A8A82] hover:text-[#171717]'
               }`}
             >
               <span className="w-2 h-2 rounded-full bg-[#64748B]" />
@@ -140,10 +138,10 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
               onClick={() =>
                 setVisibleSeries((p) => ({ ...p, positive: !p.positive }))
               }
-              className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-sans rounded-xs border transition-colors cursor-pointer ${
+              className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-sans rounded-xs transition-colors cursor-pointer ${
                 visibleSeries.positive
-                  ? 'bg-[#EEF7EF] border-[#D2ECD6] text-[#2E7D32] font-semibold'
-                  : 'bg-[#FFFFFF] border-[#E6E6DF] text-[#8A8A82]'
+                  ? 'bg-[#EEF7EF] text-[#2E7D32] font-semibold'
+                  : 'text-[#8A8A82] hover:text-[#171717]'
               }`}
             >
               <span className="w-2 h-2 rounded-full bg-[#2E7D32]" />
@@ -152,14 +150,14 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
           </div>
         </div>
 
-        {/* Interactive SVG Chart */}
-        <div className="relative overflow-x-auto">
+        {/* Analytical Smooth Curve Chart Canvas */}
+        <div className="relative pt-2">
           <svg
             viewBox={`0 0 ${chartWidth} ${chartHeight}`}
-            className="w-full h-auto max-h-72 select-none overflow-visible"
+            className="w-full h-auto select-none overflow-visible"
             onMouseLeave={() => setHoveredIndex(null)}
           >
-            {/* Horizontal Grid lines */}
+            {/* Horizontal Grid guidelines */}
             {[0, 25, 50, 75, 100].map((yVal) => {
               const y = padding.top + graphHeight - (yVal / 100) * graphHeight;
               return (
@@ -169,11 +167,11 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
                     y1={y}
                     x2={chartWidth - padding.right}
                     y2={y}
-                    stroke="#E6E6DF"
-                    strokeDasharray="2,2"
+                    stroke="#E8E8E1"
+                    strokeDasharray="2,3"
                   />
                   <text
-                    x={padding.left - 8}
+                    x={padding.left - 10}
                     y={y + 3}
                     textAnchor="end"
                     className="font-mono text-[9px] fill-[#8A8A82]"
@@ -186,7 +184,10 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
 
             {/* Negative Line Path */}
             {visibleSeries.negative && (
-              <path
+              <motion.path
+                initial={{ pathLength: 0.2, opacity: 0.8 }}
+                animate={{ pathLength: 1, opacity: 1 }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                 d={getPathForSeries('negative')}
                 fill="none"
                 stroke="#C62828"
@@ -198,11 +199,14 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
 
             {/* Neutral Line Path */}
             {visibleSeries.neutral && (
-              <path
+              <motion.path
+                initial={{ pathLength: 0.2, opacity: 0.8 }}
+                animate={{ pathLength: 1, opacity: 1 }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                 d={getPathForSeries('neutral')}
                 fill="none"
                 stroke="#64748B"
-                strokeWidth="2"
+                strokeWidth="1.8"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
@@ -210,17 +214,20 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
 
             {/* Positive Line Path */}
             {visibleSeries.positive && (
-              <path
+              <motion.path
+                initial={{ pathLength: 0.2, opacity: 0.8 }}
+                animate={{ pathLength: 1, opacity: 1 }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                 d={getPathForSeries('positive')}
                 fill="none"
                 stroke="#2E7D32"
-                strokeWidth="2"
+                strokeWidth="1.8"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
             )}
 
-            {/* Hover Points & Interactive Crosshair Zones */}
+            {/* Interactive Crosshair & Hover Hitboxes */}
             {trends.map((d, i) => {
               const x = padding.left + (i / (trends.length - 1)) * graphWidth;
               const isHovered = hoveredIndex === i;
@@ -231,16 +238,15 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
                   onMouseEnter={() => setHoveredIndex(i)}
                   className="cursor-pointer"
                 >
-                  {/* Invisible Hitbox */}
                   <rect
-                    x={x - 20}
+                    x={x - 22}
                     y={padding.top}
-                    width={40}
+                    width={44}
                     height={graphHeight}
                     fill="transparent"
                   />
 
-                  {/* Vertical Crosshair */}
+                  {/* Vertical Guideline */}
                   {isHovered && (
                     <line
                       x1={x}
@@ -249,11 +255,11 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
                       y2={padding.top + graphHeight}
                       stroke="#171717"
                       strokeWidth="1.2"
-                      strokeDasharray="3,3"
+                      strokeDasharray="2,2"
                     />
                   )}
 
-                  {/* Dots for series */}
+                  {/* Hover Points */}
                   {isHovered && visibleSeries.negative && (
                     <circle
                       cx={x}
@@ -285,10 +291,10 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
                     />
                   )}
 
-                  {/* X Axis Label */}
+                  {/* X Axis Time Labels */}
                   <text
                     x={x}
-                    y={chartHeight - 6}
+                    y={chartHeight - 8}
                     textAnchor="middle"
                     className={`font-mono text-[10px] ${
                       isHovered ? 'fill-[#171717] font-bold' : 'fill-[#8A8A82]'
@@ -302,25 +308,25 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
           </svg>
         </div>
 
-        {/* Hover Readout Tooltip Box */}
+        {/* Hover Crosshair Summary Callout */}
         {activeHoverPoint && (
           <motion.div
             initial={{ opacity: 0, y: 3 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-3 bg-[#F7F7F4] border border-[#E6E6DF] rounded-xs flex flex-wrap items-center justify-between gap-4 text-xs font-mono"
+            className="p-3 bg-[#FFFFFF] border border-[#E8E8E1] rounded-xs flex flex-wrap items-center justify-between gap-4 text-xs font-mono"
           >
             <div className="flex items-center gap-2">
               <span className="text-[#8A8A82]">Time Interval:</span>
               <span className="font-bold text-[#171717]">{activeHoverPoint.timeLabel} UTC</span>
             </div>
             <div className="flex items-center gap-6">
-              <span className="text-[#C62828] font-semibold">
+              <span className="text-[#C62828] font-medium">
                 Negative: {activeHoverPoint.negative}%
               </span>
-              <span className="text-[#64748B] font-semibold">
+              <span className="text-[#64748B] font-medium">
                 Neutral: {activeHoverPoint.neutral}%
               </span>
-              <span className="text-[#2E7D32] font-semibold">
+              <span className="text-[#2E7D32] font-medium">
                 Positive: {activeHoverPoint.positive}%
               </span>
               <span className="text-[#575757]">
@@ -331,10 +337,10 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
         )}
       </section>
 
-      {/* 2. Two-Column Supporting Section: Emotions & Platform Breakdown */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* A. Emotion Distribution */}
-        <section className="p-6 bg-[#FFFFFF] border border-[#E6E6DF] rounded-xs space-y-4">
+      {/* 2. SECONDARY SECTION: Emotion Breakdown & Platform Comparison (Integrated, clean horizontal bars) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 pt-4 border-t border-[#E8E8E1]">
+        {/* A. Emotion Breakdown (No 5 separate cards! Clean horizontal spectrum) */}
+        <section className="space-y-4">
           <div>
             <h3 className="font-sans font-bold text-base text-[#171717]">
               Emotion Breakdown
@@ -344,26 +350,26 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
             </p>
           </div>
 
-          <div className="space-y-4 pt-2">
+          <div className="space-y-4 pt-1">
             {emotions.map((item) => (
               <div key={item.emotion} className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
-                    <span className="font-sans font-semibold text-[#171717]">
+                    <span className="font-sans font-medium text-[#171717]">
                       {item.label}
                     </span>
                     <span className="font-mono text-[10px] text-[#8A8A82]">
-                      ({item.volume.toLocaleString()} posts)
+                      ({item.volume.toLocaleString()})
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 font-mono">
-                    <span className="text-[#575757] text-[11px]">{item.trendDelta}</span>
+                  <div className="flex items-center gap-2 font-mono text-[11px]">
+                    <span className="text-[#8A8A82]">{item.trendDelta}</span>
                     <span className="font-bold text-[#171717]">{item.percentage}%</span>
                   </div>
                 </div>
 
-                {/* Bar */}
-                <div className="h-2 w-full bg-[#F0F0EA] rounded-full overflow-hidden">
+                {/* Clean Horizontal Growth Bar */}
+                <div className="h-1.5 w-full bg-[#E8E8E1] rounded-full overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${item.percentage}%` }}
@@ -390,22 +396,22 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
         </section>
 
         {/* B. Platform Comparison */}
-        <section className="p-6 bg-[#FFFFFF] border border-[#E6E6DF] rounded-xs space-y-4">
+        <section className="space-y-4">
           <div>
             <h3 className="font-sans font-bold text-base text-[#171717]">
               Platform Comparison
             </h3>
             <p className="font-sans text-xs text-[#575757]">
-              Differential tone distribution across major networks
+              Cross-platform tone dispersion across monitored networks
             </p>
           </div>
 
-          <div className="space-y-5 pt-2">
+          <div className="space-y-4 pt-1">
             {platformComparison.map((p) => (
-              <div key={p.platform} className="space-y-2 p-3 bg-[#F7F7F4] border border-[#E6E6DF] rounded-xs">
+              <div key={p.platform} className="space-y-1.5 pb-3 border-b border-[#E8E8E1] last:border-b-0">
                 <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
-                    <PlatformBadge platform={p.platform} />
+                    <PlatformBadge platform={p.platform} size="sm" />
                     <span className="font-mono text-[11px] text-[#8A8A82]">
                       {p.totalVolume.toLocaleString()} posts
                     </span>
@@ -417,8 +423,8 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
                   </div>
                 </div>
 
-                {/* Stacked comparison bar */}
-                <div className="h-2.5 w-full bg-[#E0E0D6] rounded-full overflow-hidden flex">
+                {/* Stacked Horizon Bar */}
+                <div className="h-2 w-full bg-[#E8E8E1] rounded-full overflow-hidden flex">
                   <div
                     style={{ width: `${p.negativePct}%` }}
                     className="bg-[#C62828]"
@@ -438,22 +444,22 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
         </section>
       </div>
 
-      {/* 3. Collapsible Methodology Briefing */}
-      <section className="border border-[#E6E6DF] rounded-xs overflow-hidden bg-[#FFFFFF]">
+      {/* 3. Collapsible Methodology (Analyst Technical Note) */}
+      <section className="border-t border-[#E8E8E1] pt-4">
         <button
           onClick={() => setIsMethodologyOpen((prev) => !prev)}
-          className="w-full px-5 py-3.5 flex items-center justify-between text-left hover:bg-[#F9F9F6] transition-colors cursor-pointer"
+          className="flex items-center justify-between w-full text-left py-2 text-xs font-sans text-[#575757] hover:text-[#171717] transition-colors cursor-pointer"
         >
           <div className="flex items-center gap-2">
-            <Info className="w-4 h-4 text-[#8A8A82]" />
-            <span className="font-sans text-xs font-semibold text-[#171717]">
-              Classification & Sentiment Methodology
+            <Info className="w-3.5 h-3.5 text-[#8A8A82]" />
+            <span className="font-medium">
+              Sentiment Classification & Tone Calibration Note
             </span>
           </div>
           {isMethodologyOpen ? (
-            <ChevronUp className="w-4 h-4 text-[#8A8A82]" />
+            <ChevronUp className="w-3.5 h-3.5 text-[#8A8A82]" />
           ) : (
-            <ChevronDown className="w-4 h-4 text-[#8A8A82]" />
+            <ChevronDown className="w-3.5 h-3.5 text-[#8A8A82]" />
           )}
         </button>
 
@@ -463,13 +469,13 @@ export const SentimentPage: React.FC<SentimentPageProps> = ({
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="px-5 pb-5 text-xs font-sans text-[#575757] border-t border-[#F0F0EA] pt-3 space-y-2 leading-relaxed"
+              className="py-3 text-xs font-sans text-[#575757] space-y-1.5 leading-relaxed"
             >
               <p>
-                Tone classification utilizes calibrated multilingual semantic embeddings combined with contextual emotion scoring. Posts are categorized into valence bands with threshold verification.
+                Tone classification utilizes multilingual semantic embeddings calibrated against high-confidence benchmark corpora.
               </p>
               <p>
-                Ambiguous colloquialisms and dialect mixtures (e.g. Hinglish code-switching) undergo syntactic normalization before polarity determination.
+                Ambiguous colloquialisms and vernacular code-mixing undergo contextual normalization prior to polarity scoring.
               </p>
             </motion.div>
           )}

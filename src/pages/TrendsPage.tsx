@@ -1,14 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { motion } from 'motion/react';
-import {
-  TrendingUp,
-  Zap,
-  ArrowUpRight,
-  Sparkles,
-  Layers,
-  ChevronRight,
-  Filter
-} from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { ChevronRight, ArrowUpRight } from 'lucide-react';
 import { EmergingNarrative, Platform, TimeFilter, TrendItem } from '../types/nexus';
 import { nexusApi } from '../services/api/nexusApi';
 import { SentimentBadge } from '../components/common/SentimentBadge';
@@ -47,7 +39,7 @@ export const TrendsPage: React.FC<TrendsPageProps> = ({
 
   if (loading) {
     return (
-      <div className="space-y-8 max-w-6xl mx-auto">
+      <div className="space-y-10 max-w-5xl mx-auto">
         <SkeletonLoader type="chart" />
         <SkeletonLoader type="card" count={3} />
       </div>
@@ -62,75 +54,75 @@ export const TrendsPage: React.FC<TrendsPageProps> = ({
   };
 
   // Landscape Scatter Plot SVG Dimensions
-  const plotWidth = 700;
-  const plotHeight = 280;
-  const padding = { top: 30, right: 40, bottom: 40, left: 50 };
+  const plotWidth = 760;
+  const plotHeight = 320;
+  const padding = { top: 35, right: 40, bottom: 45, left: 55 };
   const innerWidth = plotWidth - padding.left - padding.right;
   const innerHeight = plotHeight - padding.top - padding.bottom;
 
   return (
-    <div className="space-y-8 max-w-6xl mx-auto pb-12">
-      {/* 1. Dominant Visualization: Trend Landscape Scatter / Bubble Graph */}
-      <section className="p-6 bg-[#FFFFFF] border border-[#E6E6DF] rounded-xs shadow-2xs space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+    <div className="space-y-12 pb-16 max-w-5xl mx-auto">
+      {/* 1. DOMINANT VISUAL MOMENT: Trend Landscape (Spacious scatter canvas, no enclosing card-box) */}
+      <section className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 border-b border-[#E8E8E1] pb-3">
           <div>
-            <h2 className="font-sans font-bold text-base md:text-lg text-[#171717] tracking-tight">
+            <h2 className="font-sans font-bold text-lg md:text-xl text-[#171717] tracking-tight">
               Trend Landscape
             </h2>
-            <p className="font-sans text-xs text-[#575757]">
-              Differentiating high-volume baseline topics from small, rapidly accelerating breakouts
+            <p className="font-sans text-xs text-[#575757] mt-0.5">
+              Comparing established baseline topics against small, rapidly accelerating breakouts
             </p>
           </div>
 
-          <div className="flex items-center gap-2 text-xs font-mono text-[#8A8A82]">
-            <span className="flex items-center gap-1">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#C62828]" /> Neg
+          <div className="flex items-center gap-3 text-xs font-mono text-[11px] text-[#8A8A82]">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-[#C62828]" /> Neg
             </span>
-            <span className="flex items-center gap-1">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#64748B]" /> Neu
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-[#64748B]" /> Neu
             </span>
-            <span className="flex items-center gap-1">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#2E7D32]" /> Pos
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-[#2E7D32]" /> Pos
             </span>
           </div>
         </div>
 
-        {/* Scatter Plot SVG */}
-        <div className="relative overflow-x-auto bg-[#FAFAF8] border border-[#F0F0EA] rounded-xs p-2">
+        {/* Spacious Scatter Canvas */}
+        <div className="relative pt-2">
           <svg
             viewBox={`0 0 ${plotWidth} ${plotHeight}`}
             className="w-full h-auto select-none overflow-visible"
             onMouseLeave={() => setHoveredTrend(null)}
           >
-            {/* Quadrant Divider Guidelines */}
+            {/* Subtle Grid Guidelines */}
             <line
               x1={padding.left + innerWidth / 2}
               y1={padding.top}
               x2={padding.left + innerWidth / 2}
               y2={padding.top + innerHeight}
-              stroke="#E6E6DF"
-              strokeDasharray="3,3"
+              stroke="#E8E8E1"
+              strokeDasharray="2,3"
             />
             <line
               x1={padding.left}
               y1={padding.top + innerHeight / 2}
               x2={padding.left + innerWidth}
               y2={padding.top + innerHeight / 2}
-              stroke="#E6E6DF"
-              strokeDasharray="3,3"
+              stroke="#E8E8E1"
+              strokeDasharray="2,3"
             />
 
-            {/* Quadrant Labels */}
+            {/* Quadrant Editorial Labels */}
             <text
               x={padding.left + 8}
-              y={padding.top + 14}
+              y={padding.top + 16}
               className="font-mono text-[9px] fill-[#B45309] font-semibold uppercase tracking-wider"
             >
-              Rapid Breakouts (High Velocity)
+              Breakout Surge (High Velocity)
             </text>
             <text
               x={padding.left + innerWidth - 8}
-              y={padding.top + innerHeight - 8}
+              y={padding.top + innerHeight - 10}
               textAnchor="end"
               className="font-mono text-[9px] fill-[#8A8A82] uppercase tracking-wider"
             >
@@ -142,21 +134,21 @@ export const TrendsPage: React.FC<TrendsPageProps> = ({
               x={padding.left + innerWidth / 2}
               y={plotHeight - 8}
               textAnchor="middle"
-              className="font-mono text-[10px] fill-[#575757]"
+              className="font-mono text-[10px] fill-[#8A8A82] tracking-wider uppercase"
             >
               Activity Volume (Mentions) →
             </text>
             <text
-              x={14}
+              x={16}
               y={padding.top + innerHeight / 2}
               textAnchor="middle"
-              transform={`rotate(-90 14 ${padding.top + innerHeight / 2})`}
-              className="font-mono text-[10px] fill-[#575757]"
+              transform={`rotate(-90 16 ${padding.top + innerHeight / 2})`}
+              className="font-mono text-[10px] fill-[#8A8A82] tracking-wider uppercase"
             >
-              Acceleration Rate (%) →
+              Acceleration Index (%) →
             </text>
 
-            {/* Trend Bubbles */}
+            {/* Trend Bubbles with Smooth Spring Scales */}
             {trends.map((item) => {
               const cx = padding.left + (item.x / 100) * innerWidth;
               const cy = padding.top + innerHeight - (item.y / 100) * innerHeight;
@@ -176,7 +168,7 @@ export const TrendsPage: React.FC<TrendsPageProps> = ({
                   onMouseEnter={() => setHoveredTrend(item)}
                   className="cursor-pointer group"
                 >
-                  {/* Subtle Radar Ring if Accelerating */}
+                  {/* Subtle radar ring if breakout accelerating */}
                   {item.isAccelerating && (
                     <circle
                       cx={cx}
@@ -184,40 +176,45 @@ export const TrendsPage: React.FC<TrendsPageProps> = ({
                       r={item.radius + 6}
                       fill="none"
                       stroke={fillColor}
-                      strokeOpacity="0.3"
+                      strokeOpacity="0.25"
                       strokeWidth="1.2"
                       strokeDasharray="2,2"
                     />
                   )}
 
                   {/* Main Bubble */}
-                  <circle
+                  <motion.circle
                     cx={cx}
                     cy={cy}
-                    r={isHovered ? item.radius + 3 : item.radius}
+                    r={item.radius}
+                    animate={{
+                      scale: isHovered ? 1.15 : 1,
+                    }}
+                    transition={{ type: 'spring', stiffness: 350, damping: 25 }}
                     fill={fillColor}
-                    fillOpacity={isHovered ? 0.85 : 0.65}
+                    fillOpacity={isHovered ? 0.85 : 0.6}
                     stroke={fillColor}
                     strokeWidth="1.5"
-                    className="transition-all duration-200"
                   />
 
-                  {/* Inner Text / Label */}
+                  {/* Top Label */}
                   <text
                     x={cx}
                     y={cy - item.radius - 6}
                     textAnchor="middle"
-                    className={`font-sans text-[10px] font-semibold transition-all ${
-                      isHovered ? 'fill-[#171717] font-bold' : 'fill-[#575757]'
+                    className={`font-sans text-[10px] transition-all select-none ${
+                      isHovered ? 'fill-[#171717] font-bold' : 'fill-[#575757] font-medium'
                     }`}
                   >
                     {item.name.length > 22 ? `${item.name.slice(0, 20)}...` : item.name}
                   </text>
+
+                  {/* Inner Percentage */}
                   <text
                     x={cx}
                     y={cy + 3}
                     textAnchor="middle"
-                    className="font-mono text-[9px] fill-white font-bold"
+                    className="font-mono text-[9px] fill-white font-bold select-none"
                   >
                     +{item.accelerationPct}%
                   </text>
@@ -227,23 +224,23 @@ export const TrendsPage: React.FC<TrendsPageProps> = ({
           </svg>
         </div>
 
-        {/* Hovered Item Callout Bar */}
+        {/* Selected / Hovered Bubble Readout Callout */}
         {hoveredTrend && (
           <motion.div
-            initial={{ opacity: 0, y: 2 }}
+            initial={{ opacity: 0, y: 3 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-3 bg-[#F7F7F4] border border-[#E6E6DF] rounded-xs flex flex-wrap items-center justify-between gap-4 text-xs"
+            className="p-3 bg-[#FFFFFF] border border-[#E8E8E1] rounded-xs flex flex-wrap items-center justify-between gap-4 text-xs font-sans"
           >
             <div>
-              <span className="font-mono font-bold text-[#171717]">
+              <span className="font-semibold text-[#171717]">
                 {hoveredTrend.name}
               </span>
-              <span className="font-sans text-[#575757] ml-2">
+              <span className="text-[#8A8A82] ml-2">
                 ({hoveredTrend.communityName})
               </span>
             </div>
             <div className="flex items-center gap-4 font-mono text-[11px]">
-              <span className="text-[#B45309] font-semibold">
+              <span className="text-[#B45309] font-medium">
                 Velocity: +{hoveredTrend.accelerationPct}%
               </span>
               <span className="text-[#171717]">
@@ -255,8 +252,8 @@ export const TrendsPage: React.FC<TrendsPageProps> = ({
         )}
       </section>
 
-      {/* 2. Ranked Trend List */}
-      <section className="space-y-4">
+      {/* 2. RANKED MOMENTUM INDEX (Clean editorial list, no card wrapping) */}
+      <section className="space-y-4 pt-4 border-t border-[#E8E8E1]">
         <div>
           <h3 className="font-sans font-bold text-base text-[#171717]">
             Ranked Momentum Index
@@ -266,19 +263,19 @@ export const TrendsPage: React.FC<TrendsPageProps> = ({
           </p>
         </div>
 
-        <div className="space-y-3">
+        <div className="divide-y divide-[#E8E8E1] border-b border-[#E8E8E1]">
           {trends.map((item, idx) => (
             <motion.div
               key={item.id}
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.04 }}
+              transition={{ delay: Math.min(idx * 0.03, 0.2) }}
               onClick={() => handleItemClick(item)}
-              className="p-4 bg-[#FFFFFF] border border-[#E6E6DF] hover:border-[#D4D4CA] rounded-xs shadow-2xs hover:shadow-xs transition-all cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 group"
+              className="py-4 px-2 hover:bg-[#FFFFFF] transition-colors cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 group"
             >
               {/* Left Column */}
               <div className="flex items-start md:items-center gap-4 flex-1">
-                <span className="font-mono text-sm font-bold text-[#8A8A82] w-6 shrink-0">
+                <span className="font-mono text-sm font-semibold text-[#8A8A82] w-6 shrink-0">
                   #{idx + 1}
                 </span>
 
@@ -309,7 +306,7 @@ export const TrendsPage: React.FC<TrendsPageProps> = ({
               {/* Right Column: Numbers + Sparkline */}
               <div className="flex items-center justify-between md:justify-end gap-6 shrink-0">
                 <div className="text-left md:text-right">
-                  <div className="font-mono font-bold text-sm text-[#B45309]">
+                  <div className="font-mono font-semibold text-sm text-[#B45309]">
                     +{item.accelerationPct}%
                   </div>
                   <div className="font-mono text-[11px] text-[#8A8A82]">
@@ -321,8 +318,8 @@ export const TrendsPage: React.FC<TrendsPageProps> = ({
                   <Sparkline data={item.sparkline} width={80} height={24} color="#B45309" />
                 </div>
 
-                <div className="w-6 h-6 rounded-full bg-[#F7F7F4] group-hover:bg-[#171717] group-hover:text-white flex items-center justify-center transition-colors">
-                  <ChevronRight className="w-3.5 h-3.5" />
+                <div className="w-6 h-6 rounded-full flex items-center justify-center text-[#8A8A82] group-hover:text-[#171717] transition-colors">
+                  <ArrowUpRight className="w-3.5 h-3.5" />
                 </div>
               </div>
             </motion.div>

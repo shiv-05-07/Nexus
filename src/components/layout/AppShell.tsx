@@ -24,6 +24,7 @@ export const AppShell: React.FC = () => {
   const [platformFilter, setPlatformFilter] = useState<Platform>('all');
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [dataProvenance, setDataProvenance] = useState<string>('DEMO DATA');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   
   // Reusable unified detail drawer state
   const [drawerSelection, setDrawerSelection] = useState<DetailDrawerState>(null);
@@ -32,7 +33,7 @@ export const AppShell: React.FC = () => {
     setIsRefreshing(true);
     setTimeout(() => {
       setIsRefreshing(false);
-    }, 450);
+    }, 400);
   };
 
   const handleToggleDataProvenance = () => {
@@ -47,6 +48,8 @@ export const AppShell: React.FC = () => {
         onNavigate={(screen) => setCurrentScreen(screen)}
         dataProvenance={dataProvenance}
         onToggleDataProvenance={handleToggleDataProvenance}
+        isMobileOpen={isMobileMenuOpen}
+        onCloseMobile={() => setIsMobileMenuOpen(false)}
       />
 
       {/* 2. Main Center Workspace */}
@@ -60,17 +63,19 @@ export const AppShell: React.FC = () => {
           onPlatformFilterChange={setPlatformFilter}
           onManualRefresh={handleManualRefresh}
           isRefreshing={isRefreshing}
+          onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
         />
 
         {/* Scrollable Analytical Content Viewport with Motion Transition */}
-        <main className="flex-1 overflow-y-auto px-6 py-6 relative">
+        <main className="flex-1 overflow-y-auto px-4 md:px-8 py-6 relative">
           <AnimatePresence mode="wait">
             <motion.div
               key={`${currentScreen}-${timeFilter}-${platformFilter}`}
-              initial={{ opacity: 0, y: 6 }}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+              className="max-w-6xl mx-auto"
             >
               {currentScreen === 'overview' && (
                 <OverviewPage

@@ -1,14 +1,13 @@
 import React from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   Compass,
   Clock,
   Smile,
   TrendingUp,
   Share2,
-  Sliders,
-  User,
-  Radio
+  Radio,
+  X
 } from 'lucide-react';
 import { ScreenId } from '../../types/nexus';
 
@@ -18,6 +17,8 @@ interface SidebarProps {
   userRole?: string;
   dataProvenance?: string;
   onToggleDataProvenance?: () => void;
+  isMobileOpen?: boolean;
+  onCloseMobile?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -26,6 +27,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   userRole = 'Lead Analyst',
   dataProvenance = 'DEMO DATA',
   onToggleDataProvenance,
+  isMobileOpen = false,
+  onCloseMobile,
 }) => {
   const navItems: { id: ScreenId; label: string; icon: React.FC<{ className?: string }> }[] = [
     { id: 'overview', label: 'Overview', icon: Compass },
@@ -35,20 +38,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'network', label: 'Network', icon: Share2 },
   ];
 
-  return (
-    <aside className="w-56 md:w-60 bg-[#FFFFFF] border-r border-[#E6E6DF] flex flex-col justify-between shrink-0 h-screen select-none z-20">
+  const content = (
+    <div className="flex flex-col justify-between h-full bg-[#FFFFFF] border-r border-[#E8E8E1] select-none">
       {/* Brand & Subtitle */}
       <div>
-        <div className="px-5 py-6 border-b border-[#F0F0EA]">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#171717]" />
-            <span className="font-sans font-extrabold text-base tracking-tight text-[#171717]">
-              NEXUS
-            </span>
+        <div className="px-6 py-6 border-b border-[#F0F0EA] flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#171717]" />
+              <span className="font-sans font-bold text-base tracking-tight text-[#171717]">
+                NEXUS
+              </span>
+            </div>
+            <p className="font-sans text-[10px] text-[#8A8A82] tracking-wider uppercase mt-1 pl-4 font-medium">
+              Social Intelligence
+            </p>
           </div>
-          <p className="font-sans text-[11px] text-[#575757] tracking-wider uppercase mt-1 pl-4">
-            Social Intelligence
-          </p>
+          {onCloseMobile && (
+            <button
+              onClick={onCloseMobile}
+              className="md:hidden p-1.5 text-[#575757] hover:text-[#171717] rounded-xs cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
         </div>
 
         {/* Navigation List */}
@@ -60,11 +73,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
             return (
               <button
                 key={item.id}
-                onClick={() => onNavigate(item.id)}
-                className={`w-full relative flex items-center gap-3 px-3.5 py-2.5 rounded-xs text-xs font-medium text-left transition-colors cursor-pointer group ${
+                onClick={() => {
+                  onNavigate(item.id);
+                  if (onCloseMobile) onCloseMobile();
+                }}
+                className={`w-full relative flex items-center gap-3 px-3.5 py-2.5 rounded-xs text-xs text-left transition-colors cursor-pointer group ${
                   isActive
                     ? 'text-[#171717] font-semibold'
-                    : 'text-[#575757] hover:text-[#171717] hover:bg-[#F7F7F4]'
+                    : 'text-[#575757] hover:text-[#171717] hover:bg-[#F7F7F4] font-medium'
                 }`}
               >
                 {/* Active Indicator Motion Pill */}
@@ -72,21 +88,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <motion.div
                     layoutId="sidebarActivePill"
                     className="absolute inset-0 bg-[#F0F0EA] rounded-xs -z-10"
-                    transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 32 }}
                   />
                 )}
                 {/* Active Left Border Accent */}
                 {isActive && (
                   <motion.div
                     layoutId="sidebarActiveLine"
-                    className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-4 bg-[#171717] rounded-r-xs"
-                    transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                    className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-[#171717] rounded-r-xs"
+                    transition={{ type: 'spring', stiffness: 400, damping: 32 }}
                   />
                 )}
 
                 <Icon
                   className={`w-4 h-4 transition-transform duration-200 group-hover:scale-105 ${
-                    isActive ? 'text-[#171717] stroke-[2.2]' : 'text-[#8A8A82] stroke-[1.8]'
+                    isActive ? 'text-[#171717] stroke-[2.2]' : 'text-[#8A8A82] stroke-[1.75]'
                   }`}
                 />
                 <span className="tracking-tight">{item.label}</span>
@@ -98,15 +114,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Footer Profile & Data Provenance */}
       <div className="p-3 border-t border-[#F0F0EA] space-y-2">
-        {/* Data Provenance Badge */}
+        {/* Data Provenance Indicator */}
         <div
           onClick={onToggleDataProvenance}
-          className="flex items-center justify-between px-3 py-1.5 bg-[#F7F7F4] border border-[#E6E6DF] rounded-xs cursor-pointer hover:bg-[#F0F0EA] transition-colors"
-          title="Toggle data stream mode"
+          className="flex items-center justify-between px-3 py-1.5 bg-[#F7F7F4] hover:bg-[#F0F0EA] border border-[#E8E8E1] rounded-xs cursor-pointer transition-colors"
+          title="Click to toggle data stream simulation mode"
         >
           <div className="flex items-center gap-2">
-            <Radio className="w-3 h-3 text-[#B45309] animate-breathing-dot" />
-            <span className="font-mono text-[10px] font-medium text-[#575757] tracking-wider uppercase">
+            <Radio className="w-3 h-3 text-[#B45309] animate-calm-pulse" />
+            <span className="font-mono text-[10px] text-[#575757] tracking-wider uppercase font-medium">
               {dataProvenance}
             </span>
           </div>
@@ -114,20 +130,53 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* User Identity */}
-        <div className="flex items-center gap-2.5 px-3 py-2 rounded-xs bg-[#FFFFFF] hover:bg-[#F7F7F4] transition-colors">
-          <div className="w-6 h-6 rounded-full bg-[#171717] text-white flex items-center justify-center font-mono text-[10px] font-semibold">
+        <div className="flex items-center gap-2.5 px-3 py-2 rounded-xs">
+          <div className="w-6 h-6 rounded-full bg-[#171717] text-white flex items-center justify-center font-mono text-[10px] font-semibold shrink-0">
             LA
           </div>
           <div className="flex-1 min-w-0">
             <div className="font-sans text-xs font-semibold text-[#171717] truncate">
               {userRole}
             </div>
-            <div className="font-sans text-[10px] text-[#8A8A82] truncate">
-              AN-9042 • Sector 04
+            <div className="font-mono text-[10px] text-[#8A8A82] truncate">
+              AN-9042 • SEC-04
             </div>
           </div>
         </div>
       </div>
-    </aside>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop Sidebar Rail */}
+      <aside className="hidden md:flex w-56 lg:w-60 flex-col shrink-0 h-screen z-20">
+        {content}
+      </aside>
+
+      {/* Mobile Drawer */}
+      <AnimatePresence>
+        {isMobileOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={onCloseMobile}
+              className="fixed inset-0 bg-[#171717]/25 backdrop-blur-xs z-40 md:hidden"
+            />
+            <motion.aside
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 30, stiffness: 350 }}
+              className="fixed top-0 left-0 bottom-0 w-64 z-50 md:hidden shadow-xl"
+            >
+              {content}
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+    </>
   );
 };

@@ -7,8 +7,8 @@
   --color-canvas: #F7F7F4;
   --color-surface: #FFFFFF;
   --color-surface-subtle: #F0F0EA;
-  --color-border-light: #E6E6DF;
-  --color-border-dark: #D4D4CA;
+  --color-border-light: #E8E8E1;
+  --color-border-dark: #D6D6CC;
   
   --color-charcoal: #171717;
   --color-charcoal-muted: #575757;
@@ -29,7 +29,7 @@
 
 @layer base {
   * {
-    border-color: #E6E6DF;
+    border-color: #E8E8E1;
   }
 
   body {
@@ -43,14 +43,14 @@
 
   /* Refined scrollbar for editorial desktop UI */
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
   }
   ::-webkit-scrollbar-track {
-    background: #F7F7F4;
+    background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: #D4D4CA;
+    background: #D6D6CC;
     border-radius: 9999px;
   }
   ::-webkit-scrollbar-thumb:hover {
@@ -62,23 +62,28 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Subtle breathing indicator for LIVE status */
-@keyframes breathing-dot {
+/* Calm, subtle pulse for live indicator - zero neon glow */
+@keyframes calm-pulse {
   0%, 100% {
-    transform: scale(1);
     opacity: 1;
+    transform: scale(1);
   }
   50% {
-    transform: scale(0.85);
-    opacity: 0.5;
+    opacity: 0.35;
+    transform: scale(0.92);
   }
 }
 
-.animate-breathing-dot {
-  animation: breathing-dot 3s ease-in-out infinite;
+.animate-calm-pulse {
+  animation: calm-pulse 3.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* Smooth motion default cubic-bezier */
-.ease-editorial {
+/* Premium editorial bezier curve */
+.transition-editorial {
   transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Hairline border utility */
+.border-hairline {
+  border-color: #E8E8E1;
 }
