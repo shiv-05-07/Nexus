@@ -38,7 +38,7 @@ export const DetailDrawer: React.FC<DetailDrawerProps> = ({
             className="fixed inset-0 bg-[#171717]/25 backdrop-blur-xs z-40"
           />
 
-          {/* Slide-over Drawer Panel / Full screen on small mobile */}
+          {/* Slide-over Drawer Panel with Spring Physics */}
           <motion.div
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
@@ -63,7 +63,12 @@ export const DetailDrawer: React.FC<DetailDrawerProps> = ({
             </div>
 
             {/* Scrollable Content Body with Subtle Stagger */}
-            <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1, duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+              className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6"
+            >
               {/* 1. NARRATIVE TYPE */}
               {selection.type === 'narrative' && (
                 <div className="space-y-6">
@@ -78,7 +83,7 @@ export const DetailDrawer: React.FC<DetailDrawerProps> = ({
                     <h2 className="font-sans font-bold text-xl text-[#171717] leading-snug">
                       {selection.data.name}
                     </h2>
-                    <p className="font-sans text-xs text-[#575757] leading-relaxed pt-1">
+                    <p className="font-sans text-xs text-[#575757] leading-relaxed pt-1 font-normal">
                       {selection.data.summary}
                     </p>
                   </div>
@@ -337,7 +342,7 @@ export const DetailDrawer: React.FC<DetailDrawerProps> = ({
                   </div>
                 </div>
               )}
-            </div>
+            </motion.div>
           </motion.div>
         </>
       )}

@@ -5,7 +5,6 @@ import {
   ZoomOut,
   RotateCcw,
   Search,
-  ArrowUpRight
 } from 'lucide-react';
 import {
   NetworkCommunity,
@@ -62,7 +61,7 @@ export const NetworkPage: React.FC<NetworkPageProps> = ({
 
   if (loading) {
     return (
-      <div className="space-y-10 max-w-5xl mx-auto">
+      <div className="space-y-12 max-w-5xl mx-auto">
         <SkeletonLoader type="chart" />
         <SkeletonLoader type="card" count={2} />
       </div>
@@ -125,51 +124,51 @@ export const NetworkPage: React.FC<NetworkPageProps> = ({
   };
 
   return (
-    <div className="space-y-10 pb-16 max-w-5xl mx-auto">
+    <div className="space-y-12 pb-20 max-w-5xl mx-auto">
       {/* 1. TOP METRICS STRIP (Minimal, uncarded horizontal baseline) */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pb-4 border-b border-[#E8E8E1]">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pb-6 border-b border-[#E8E8E1]">
         <div>
-          <span className="font-mono text-[11px] text-[#8A8A82] uppercase tracking-wider block">
+          <span className="font-mono text-[10px] text-[#8A8A82] uppercase tracking-wider block">
             Active Communities
           </span>
-          <span className="font-mono font-medium text-xl md:text-2xl text-[#171717] tracking-tight">
+          <span className="font-mono font-medium text-2xl text-[#171717] tracking-tight">
             {communities.length} Clusters
           </span>
           <span className="font-sans text-[11px] text-[#8A8A82] block mt-0.5">cohesive sub-groups</span>
         </div>
         <div>
-          <span className="font-mono text-[11px] text-[#8A8A82] uppercase tracking-wider block">
+          <span className="font-mono text-[10px] text-[#8A8A82] uppercase tracking-wider block">
             Observed Nodes
           </span>
-          <span className="font-mono font-medium text-xl md:text-2xl text-[#171717] tracking-tight">
+          <span className="font-mono font-medium text-2xl text-[#171717] tracking-tight">
             142 Accounts
           </span>
           <span className="font-sans text-[11px] text-[#8A8A82] block mt-0.5">monitored handles</span>
         </div>
         <div>
-          <span className="font-mono text-[11px] text-[#8A8A82] uppercase tracking-wider block">
+          <span className="font-mono text-[10px] text-[#8A8A82] uppercase tracking-wider block">
             Interaction Links
           </span>
-          <span className="font-mono font-medium text-xl md:text-2xl text-[#171717] tracking-tight">
+          <span className="font-mono font-medium text-2xl text-[#171717] tracking-tight">
             488 Edges
           </span>
           <span className="font-sans text-[11px] text-[#8A8A82] block mt-0.5">replies, quotes, reposts</span>
         </div>
         <div>
-          <span className="font-mono text-[11px] text-[#B45309] uppercase tracking-wider block font-semibold">
+          <span className="font-mono text-[10px] text-[#B45309] uppercase tracking-wider block font-semibold">
             Bridge Nodes
           </span>
-          <span className="font-mono font-medium text-xl md:text-2xl text-[#B45309] tracking-tight">
-            2 Key Mediators
+          <span className="font-mono font-medium text-2xl text-[#B45309] tracking-tight">
+            2 Structural
           </span>
-          <span className="font-sans text-[11px] text-[#8A8A82] block mt-0.5">high betweenness</span>
+          <span className="font-sans text-[11px] text-[#8A8A82] block mt-0.5">cross-sector flow</span>
         </div>
       </div>
 
-      {/* 2. SOCIAL ECOSYSTEM GRAPH (Spacious, calm, smooth transitions) */}
+      {/* 2. SOCIAL ECOSYSTEM GRAPH (Spacious, calm, clear taxonomy legend) */}
       <section className="space-y-4">
-        {/* Graph Toolbar Controls */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#E8E8E1]">
+        {/* Graph Toolbar Controls & Structural Legend */}
+        <div className="flex flex-wrap items-center justify-between gap-4 pb-3 border-b border-[#E8E8E1]">
           {/* Community Filter Pills */}
           <div className="flex flex-wrap items-center gap-1.5">
             <button
@@ -199,7 +198,7 @@ export const NetworkPage: React.FC<NetworkPageProps> = ({
           </div>
 
           {/* Search Node & Zoom Controls */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <div className="relative">
               <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-[#8A8A82]" />
               <input
@@ -237,9 +236,25 @@ export const NetworkPage: React.FC<NetworkPageProps> = ({
           </div>
         </div>
 
+        {/* Structural Legend Bar */}
+        <div className="flex items-center gap-6 px-1 text-xs font-mono text-[11px] text-[#575757]">
+          <span className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#171717]" />
+            <span>Community member</span>
+          </span>
+          <span className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rotate-45 bg-[#B45309] inline-block" />
+            <span>High-centrality node</span>
+          </span>
+          <span className="flex items-center gap-2">
+            <span className="w-3 h-3 rotate-45 border-2 border-[#B45309] bg-transparent inline-block" />
+            <span>Bridge node</span>
+          </span>
+        </div>
+
         {/* Graph Canvas Viewport */}
         <div
-          className="w-full h-[490px] bg-[#FAF8F5] border border-[#E8E8E1] rounded-xs relative overflow-hidden cursor-grab active:cursor-grabbing select-none"
+          className="w-full h-[500px] bg-[#FAF8F5] border border-[#E8E8E1] rounded-xs relative overflow-hidden cursor-grab active:cursor-grabbing select-none"
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
@@ -286,7 +301,7 @@ export const NetworkPage: React.FC<NetworkPageProps> = ({
                     y2={targetNode.y}
                     stroke={isConnectedToFocus ? '#171717' : '#D6D6CC'}
                     strokeWidth={isConnectedToFocus ? 2.2 : Math.max(1, edge.weight * 0.35)}
-                    strokeOpacity={isFaded ? 0.08 : isConnectedToFocus ? 0.95 : 0.45}
+                    strokeOpacity={isFaded ? 0.06 : isConnectedToFocus ? 0.95 : 0.45}
                     strokeDasharray={edge.interactionType === 'quote' ? '3,3' : undefined}
                     className="transition-all duration-250"
                   />
@@ -294,15 +309,16 @@ export const NetworkPage: React.FC<NetworkPageProps> = ({
               })}
             </g>
 
-            {/* Nodes with spring scales and opacity control */}
+            {/* Nodes with Shapes Corresponding to Legend: ● / ◆ / ◇ */}
             <g className="nodes">
               {displayedNodes.map((node) => {
                 const isSelected = selectedNodeId === node.id;
                 const isHovered = hoveredNodeId === node.id;
                 const isConnected = !activeFocusId || connectedNodeIds.has(node.id);
-                const opacity = isConnected ? 1 : 0.18;
+                const opacity = isConnected ? 1 : 0.15;
 
-                const baseRadius = 14 + node.pagerank * 110;
+                const baseRadius = 13 + node.pagerank * 110;
+                const isHighCentrality = node.pagerank > 0.08 && !node.isBridge;
 
                 return (
                   <g
@@ -316,39 +332,61 @@ export const NetworkPage: React.FC<NetworkPageProps> = ({
                     style={{ opacity, cursor: 'pointer' }}
                     className="transition-opacity duration-250"
                   >
-                    {/* Bridge Node Subtle Concentric Ring */}
-                    {node.isBridge && (
-                      <circle
+                    {/* A. BRIDGE NODE: ◇ (Hollow / Framed Diamond with Accent Border) */}
+                    {node.isBridge ? (
+                      <g transform={`translate(${node.x}, ${node.y})`}>
+                        {/* Outer framing diamond */}
+                        <polygon
+                          points={`0,-${baseRadius + 6} ${baseRadius + 6},0 0,${baseRadius + 6} -${baseRadius + 6},0`}
+                          fill="none"
+                          stroke="#B45309"
+                          strokeWidth="1.5"
+                          strokeDasharray="2,2"
+                        />
+                        {/* Inner node shape */}
+                        <motion.polygon
+                          points={`0,-${baseRadius} ${baseRadius},0 0,${baseRadius} -${baseRadius},0`}
+                          animate={{ scale: isHovered || isSelected ? 1.2 : 1 }}
+                          transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+                          fill={node.avatarColor}
+                          stroke="#FFFFFF"
+                          strokeWidth="2.5"
+                        />
+                      </g>
+                    ) : isHighCentrality ? (
+                      /* B. HIGH-CENTRALITY NODE: ◆ (Solid Diamond) */
+                      <g transform={`translate(${node.x}, ${node.y})`}>
+                        <motion.polygon
+                          points={`0,-${baseRadius} ${baseRadius},0 0,${baseRadius} -${baseRadius},0`}
+                          animate={{ scale: isHovered || isSelected ? 1.2 : 1 }}
+                          transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+                          fill={node.avatarColor}
+                          stroke="#FFFFFF"
+                          strokeWidth="2.5"
+                        />
+                      </g>
+                    ) : (
+                      /* C. COMMUNITY MEMBER: ● (Solid Circle) */
+                      <motion.circle
                         cx={node.x}
                         cy={node.y}
-                        r={baseRadius + 6}
-                        fill="none"
-                        stroke="#B45309"
-                        strokeWidth="1.2"
-                        strokeDasharray="2,2"
+                        r={baseRadius}
+                        animate={{
+                          scale: isHovered || isSelected ? 1.2 : 1,
+                        }}
+                        transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+                        fill={node.avatarColor}
+                        stroke="#FFFFFF"
+                        strokeWidth="2.5"
                       />
                     )}
-
-                    {/* Node Core Circle */}
-                    <motion.circle
-                      cx={node.x}
-                      cy={node.y}
-                      r={baseRadius}
-                      animate={{
-                        scale: isHovered || isSelected ? 1.2 : 1,
-                      }}
-                      transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-                      fill={node.avatarColor}
-                      stroke="#FFFFFF"
-                      strokeWidth="2.5"
-                    />
 
                     {/* Node Handle Label */}
                     <text
                       x={node.x}
-                      y={node.y + baseRadius + 14}
+                      y={node.y + baseRadius + 15}
                       textAnchor="middle"
-                      className={`font-mono text-[10px] select-none transition-all ${
+                      className={`font-mono text-[10px] select-none transition-colors ${
                         isHovered || isSelected ? 'fill-[#171717] font-bold' : 'fill-[#575757]'
                       }`}
                     >
@@ -359,7 +397,7 @@ export const NetworkPage: React.FC<NetworkPageProps> = ({
                     {(isHovered || isSelected) && (
                       <text
                         x={node.x}
-                        y={node.y + baseRadius + 26}
+                        y={node.y + baseRadius + 28}
                         textAnchor="middle"
                         className="font-sans text-[9px] fill-[#8A8A82] select-none"
                       >
@@ -372,7 +410,7 @@ export const NetworkPage: React.FC<NetworkPageProps> = ({
             </g>
           </svg>
 
-          {/* Quick Interaction Guide */}
+          {/* Quick Interaction Guide Overlay */}
           <div className="absolute bottom-3 left-3 bg-[#FFFFFF]/90 backdrop-blur-xs px-3 py-1.5 border border-[#E8E8E1] rounded-xs text-[11px] font-sans text-[#575757] flex items-center gap-3">
             <span>Select node to inspect structural centrality</span>
             <span className="text-[#8A8A82]">|</span>
@@ -381,7 +419,7 @@ export const NetworkPage: React.FC<NetworkPageProps> = ({
         </div>
       </section>
 
-      {/* 3. IDENTIFIED COMMUNITY CLUSTERS (Clean editorial rows/columns) */}
+      {/* 3. IDENTIFIED COMMUNITY CLUSTERS (Clean editorial layout) */}
       <section className="space-y-4 pt-4 border-t border-[#E8E8E1]">
         <div>
           <h3 className="font-sans font-bold text-base text-[#171717]">
@@ -397,10 +435,10 @@ export const NetworkPage: React.FC<NetworkPageProps> = ({
             <div
               key={comm.id}
               onClick={() => setSelectedCommunityId(comm.id)}
-              className="p-4 bg-[#FFFFFF] border border-[#E8E8E1] hover:border-[#D6D6CC] rounded-xs transition-all cursor-pointer space-y-2 group shadow-2xs hover:shadow-xs"
+              className="py-4 px-3 hover:bg-[#FFFFFF]/70 transition-colors cursor-pointer space-y-1.5 border-b border-[#E8E8E1] last:border-b-0 md:last:border-b group"
             >
               <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: comm.color }} />
+                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: comm.color }} />
                 <h4 className="font-sans font-semibold text-xs text-[#171717] group-hover:text-[#B45309] transition-colors">
                   {comm.name}
                 </h4>
@@ -408,7 +446,7 @@ export const NetworkPage: React.FC<NetworkPageProps> = ({
               <p className="font-sans text-[11px] text-[#575757] leading-relaxed line-clamp-2">
                 {comm.description}
               </p>
-              <div className="pt-2 border-t border-[#F0F0EA] flex items-center justify-between font-mono text-[10px] text-[#8A8A82]">
+              <div className="pt-1 flex items-center justify-between font-mono text-[10px] text-[#8A8A82]">
                 <span>{comm.nodeCount} accounts</span>
                 <span className="capitalize font-medium">{comm.dominantSentiment} tone</span>
               </div>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import { ArrowUpRight, ChevronRight, Share2, Users, Radio, Quote } from 'lucide-react';
+import { ArrowUpRight, ChevronRight, Quote } from 'lucide-react';
 import { EmergingNarrative, OverviewData, Platform, ScreenId, TimeFilter } from '../types/nexus';
 import { nexusApi } from '../services/api/nexusApi';
 import { AnimatedNumber } from '../components/common/AnimatedNumber';
@@ -41,7 +41,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
 
   if (loading || !data) {
     return (
-      <div className="space-y-10">
+      <div className="space-y-12">
         <SkeletonLoader type="metric" count={4} />
         <SkeletonLoader type="card" count={2} />
       </div>
@@ -51,158 +51,98 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
   const [leadNarrative, ...secondaryNarratives] = data.narratives;
 
   return (
-    <div className="space-y-12 pb-16">
-      {/* 1. CURRENT SITUATION (Briefing Synopsis & Horizontal Metrics) */}
-      <section className="space-y-6">
-        {/* Executive Editorial Briefing Statement */}
-        <div className="max-w-3xl space-y-2">
-          <div className="font-mono text-[10px] text-[#8A8A82] uppercase tracking-widest font-medium">
-            Intelligence Briefing • {timeFilter.toUpperCase()} Window
-          </div>
-          <p className="font-sans text-base md:text-lg text-[#171717] font-normal leading-relaxed">
-            Metropolitan transit disruption in Western depot sectors remains the dominant narrative driver. 
-            Cross-platform chatter shows an <span className="font-semibold text-[#B45309]">acute +182% momentum surge</span>, 
-            skewing overall sentiment to <span className="font-semibold text-[#C62828]">63% negative</span> while decentralized citizen carpools begin establishing secondary positive clusters.
-          </p>
-        </div>
-
-        {/* Minimalist Horizontal Metrics Strip - No heavy card containers */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-4 pb-6 border-y border-[#E8E8E1]">
-          <div className="space-y-1">
-            <span className="font-mono text-[11px] text-[#8A8A82] block uppercase tracking-wider">
-              Monitored Posts
-            </span>
-            <div className="text-2xl md:text-3xl font-mono font-medium text-[#171717] tracking-tight">
-              <AnimatedNumber value={data.metrics.totalPosts} />
-            </div>
-            <span className="font-sans text-[11px] text-[#8A8A82] block">cross-channel intake</span>
-          </div>
-
-          <div className="space-y-1">
-            <span className="font-mono text-[11px] text-[#8A8A82] block uppercase tracking-wider">
-              Active Topics
-            </span>
-            <div className="text-2xl md:text-3xl font-mono font-medium text-[#171717] tracking-tight">
-              <AnimatedNumber value={data.metrics.activeTopicsCount} />
-            </div>
-            <span className="font-sans text-[11px] text-[#8A8A82] block">distinct conversation threads</span>
-          </div>
-
-          <div className="space-y-1">
-            <span className="font-mono text-[11px] text-[#B45309] block uppercase tracking-wider font-semibold">
-              Emerging Velocity
-            </span>
-            <div className="text-2xl md:text-3xl font-mono font-medium text-[#B45309] tracking-tight">
-              <AnimatedNumber value={data.metrics.emergingGrowthPct} prefix="+" suffix="%" />
-            </div>
-            <span className="font-sans text-[11px] text-[#8A8A82] block">breakout acceleration</span>
-          </div>
-
-          <div className="space-y-1">
-            <span className="font-mono text-[11px] text-[#C62828] block uppercase tracking-wider font-semibold">
-              Negative Skew
-            </span>
-            <div className="text-2xl md:text-3xl font-mono font-medium text-[#C62828] tracking-tight">
-              <AnimatedNumber value={data.metrics.negativeSentimentPct} suffix="%" />
-            </div>
-            <span className="font-sans text-[11px] text-[#8A8A82] block">public distress & friction</span>
-          </div>
-        </div>
-      </section>
-
-      {/* 2. EMERGING NARRATIVES — THE PRIMARY VISUAL FOCAL POINT */}
+    <div className="space-y-16 pb-20 max-w-5xl mx-auto">
+      {/* 1. EMERGING NARRATIVES — UNDISPUTED VISUAL FOCAL POINT */}
       <section className="space-y-6">
         <div className="flex items-baseline justify-between border-b border-[#E8E8E1] pb-3">
           <div>
-            <h2 className="font-sans font-bold text-lg md:text-xl text-[#171717] tracking-tight">
+            <span className="font-mono text-[10px] text-[#8A8A82] uppercase tracking-widest font-medium">
+              Briefing Priority 01
+            </span>
+            <h2 className="font-sans font-bold text-xl md:text-2xl text-[#171717] tracking-tight mt-0.5">
               Emerging Narratives
             </h2>
-            <p className="font-sans text-xs text-[#575757] mt-0.5">
-              Ranked by propagation velocity and cross-platform acceleration
-            </p>
           </div>
           <button
             onClick={() => onNavigateToScreen('trends')}
-            className="text-xs font-sans font-medium text-[#171717] hover:text-[#575757] inline-flex items-center gap-1 transition-colors cursor-pointer"
+            className="text-xs font-sans font-medium text-[#575757] hover:text-[#171717] inline-flex items-center gap-1 transition-colors cursor-pointer"
           >
-            <span>Explore full landscape</span>
+            <span>Explore momentum index</span>
             <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
 
-        {/* A. LEAD DOMINANT NARRATIVE (Featured, significantly larger breathing room & impact) */}
+        {/* A. LEAD NARRATIVE — Expansive, high-impact editorial briefing showcase */}
         {leadNarrative && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
             onClick={() => onSelectNarrative(leadNarrative)}
-            className="bg-[#FFFFFF] border border-[#E8E8E1] hover:border-[#D6D6CC] p-6 md:p-8 rounded-xs transition-all cursor-pointer group shadow-2xs hover:shadow-xs relative"
+            className="py-6 px-1 transition-all cursor-pointer group"
           >
-            {/* Top Tag Row */}
+            {/* Meta Row: Priority Badge, Sentiment, Platforms, Velocity */}
             <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-              <div className="flex items-center gap-2.5">
-                <span className="font-mono text-xs font-bold text-[#FFFFFF] bg-[#171717] px-2 py-0.5 rounded-xs">
-                  #1 LEAD SIGNAL
+              <div className="flex items-center gap-3">
+                <span className="font-mono text-[10px] font-bold text-[#FFFFFF] bg-[#171717] px-2 py-0.5 rounded-xs tracking-wider">
+                  #1 LEAD TOPIC
                 </span>
                 <SentimentBadge sentiment={leadNarrative.sentiment} size="sm" />
-                <div className="flex items-center gap-1 ml-1">
+                <div className="flex items-center gap-1">
                   {leadNarrative.platforms.map((p) => (
                     <PlatformBadge key={p} platform={p} size="sm" />
                   ))}
                 </div>
               </div>
 
-              {/* Large Velocity Callout */}
-              <div className="flex items-baseline gap-2">
-                <span className="font-sans text-xs text-[#575757]">Velocity:</span>
-                <span className="font-mono text-base md:text-lg font-bold text-[#B45309]">
+              <div className="flex items-baseline gap-1.5 font-mono">
+                <span className="text-[11px] text-[#8A8A82] uppercase tracking-wider">Momentum</span>
+                <span className="text-base md:text-lg font-bold text-[#B45309]">
                   ↑ +{leadNarrative.growthPct}%
                 </span>
               </div>
             </div>
 
-            {/* Main Headline & Context Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              {/* Left Column: Title & Synthesis */}
+            {/* Headline and Narrative Core */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
               <div className="lg:col-span-8 space-y-3">
-                <h3 className="font-sans font-bold text-xl md:text-2xl text-[#171717] group-hover:text-[#B45309] transition-colors leading-snug tracking-tight">
+                <h3 className="font-sans font-bold text-2xl md:text-3xl text-[#171717] group-hover:text-[#B45309] transition-colors leading-tight tracking-tight">
                   {leadNarrative.name}
                 </h3>
-                <p className="font-sans text-xs md:text-sm text-[#575757] leading-relaxed">
+                <p className="font-sans text-sm text-[#575757] leading-relaxed max-w-2xl font-normal">
                   {leadNarrative.summary}
                 </p>
 
-                {/* Direct Citation Excerpt */}
+                {/* Direct Key Quote Excerpt */}
                 {leadNarrative.keyQuotes?.[0] && (
-                  <div className="pt-2 flex items-start gap-2.5 text-xs text-[#171717] font-sans italic border-t border-[#F0F0EA] mt-4">
+                  <div className="pt-3 flex items-start gap-3 text-xs text-[#171717] font-sans italic border-t border-[#E8E8E1] mt-5">
                     <Quote className="w-3.5 h-3.5 text-[#B45309] shrink-0 mt-0.5 not-italic" />
                     <span>"{leadNarrative.keyQuotes[0].text}"</span>
-                    <span className="font-mono not-italic text-[10px] text-[#8A8A82] shrink-0">
-                      — {leadNarrative.keyQuotes[0].author} ({leadNarrative.keyQuotes[0].platform})
+                    <span className="font-mono not-italic text-[10px] text-[#8A8A82] shrink-0 ml-auto">
+                      {leadNarrative.keyQuotes[0].author} ({leadNarrative.keyQuotes[0].platform.toUpperCase()})
                     </span>
                   </div>
                 )}
               </div>
 
-              {/* Right Column: Large Sparkline & Volume */}
-              <div className="lg:col-span-4 flex flex-col items-start lg:items-end justify-between self-stretch pt-2 lg:pt-0 border-t lg:border-t-0 border-[#F0F0EA]">
+              {/* Sparkline & Mention Volume */}
+              <div className="lg:col-span-4 flex flex-col items-start lg:items-end justify-between self-stretch pt-2 lg:pt-0">
                 <div className="text-left lg:text-right space-y-0.5">
-                  <div className="font-mono text-xl md:text-2xl font-semibold text-[#171717] tabular-nums">
+                  <div className="font-mono text-2xl md:text-3xl font-medium text-[#171717] tabular-nums">
                     {leadNarrative.mentionCount.toLocaleString()}
                   </div>
                   <div className="font-sans text-xs text-[#8A8A82]">verified mentions</div>
                 </div>
 
-                {/* High Resolution Sparkline */}
-                <div className="w-full lg:w-48 my-3">
+                {/* Large Responsive Sparkline */}
+                <div className="w-full lg:w-52 my-3">
                   <Sparkline
                     data={leadNarrative.sparkline}
-                    width={192}
-                    height={48}
+                    width={208}
+                    height={52}
                     color="#B45309"
                     strokeWidth={2.2}
-                    fillOpacity={0.12}
+                    fillOpacity={0.1}
                   />
                   <div className="flex justify-between font-mono text-[9px] text-[#8A8A82] mt-1">
                     <span>{leadNarrative.firstObserved}</span>
@@ -210,8 +150,8 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
                   </div>
                 </div>
 
-                <div className="inline-flex items-center gap-1.5 text-xs font-sans font-medium text-[#171717] group-hover:text-[#B45309] transition-colors">
-                  <span>Inspect propagation trail</span>
+                <div className="inline-flex items-center gap-1 text-xs font-sans font-medium text-[#171717] group-hover:text-[#B45309] transition-colors">
+                  <span>Inspect trajectory</span>
                   <ArrowUpRight className="w-3.5 h-3.5" />
                 </div>
               </div>
@@ -219,20 +159,20 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
           </motion.div>
         )}
 
-        {/* B. SECONDARY NARRATIVES (Clean, elegant editorial rows without card-box clutter) */}
-        <div className="divide-y divide-[#E8E8E1] border-b border-[#E8E8E1]">
+        {/* B. SECONDARY NARRATIVES — Editorial hairline divider rows, zero card containers */}
+        <div className="divide-y divide-[#E8E8E1] border-t border-b border-[#E8E8E1]">
           {secondaryNarratives.map((narrative, idx) => (
             <motion.div
               key={narrative.id}
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: (idx + 1) * 0.05, duration: 0.25 }}
+              transition={{ delay: (idx + 1) * 0.04, duration: 0.25 }}
               onClick={() => onSelectNarrative(narrative)}
-              className="py-4 px-2 hover:bg-[#FFFFFF] transition-colors cursor-pointer group flex flex-col md:flex-row md:items-center justify-between gap-4"
+              className="py-4 px-1 hover:bg-[#FFFFFF]/60 transition-colors cursor-pointer group flex flex-col md:flex-row md:items-center justify-between gap-4"
             >
               {/* Left Column */}
-              <div className="space-y-1.5 flex-1 min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
+              <div className="space-y-1 flex-1 min-w-0">
+                <div className="flex flex-wrap items-center gap-2.5">
                   <span className="font-mono text-xs text-[#8A8A82] font-semibold">
                     #{idx + 2}
                   </span>
@@ -247,7 +187,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
                   </div>
                 </div>
 
-                <h4 className="font-sans font-semibold text-sm md:text-base text-[#171717] group-hover:text-[#B45309] transition-colors">
+                <h4 className="font-sans font-semibold text-base text-[#171717] group-hover:text-[#B45309] transition-colors pt-0.5">
                   {narrative.name}
                 </h4>
 
@@ -257,7 +197,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
               </div>
 
               {/* Right Column: Volume & Sparkline */}
-              <div className="flex items-center justify-between md:justify-end gap-6 shrink-0">
+              <div className="flex items-center justify-between md:justify-end gap-8 shrink-0">
                 <div className="text-left md:text-right">
                   <div className="font-mono text-sm font-semibold text-[#171717] tabular-nums">
                     {narrative.mentionCount.toLocaleString()}
@@ -269,7 +209,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
                   <Sparkline data={narrative.sparkline} width={96} height={26} color="#B45309" />
                 </div>
 
-                <div className="w-6 h-6 rounded-full flex items-center justify-center text-[#8A8A82] group-hover:text-[#171717] transition-colors">
+                <div className="w-5 h-5 flex items-center justify-center text-[#8A8A82] group-hover:text-[#171717] transition-colors">
                   <ChevronRight className="w-4 h-4" />
                 </div>
               </div>
@@ -278,16 +218,65 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
         </div>
       </section>
 
-      {/* 3. SUPPORTING CONTEXTUAL INTELLIGENCE (Sentiment, Audience, Network) */}
-      <section className="space-y-4 pt-4">
-        <h3 className="font-sans font-bold text-sm text-[#171717] uppercase tracking-wider font-mono">
-          Contextual Signals
-        </h3>
+      {/* 2. ACTIVITY CHANGE & MACRO METRICS (Clean horizontal baseline) */}
+      <section className="space-y-4">
+        <span className="font-mono text-[10px] text-[#8A8A82] uppercase tracking-widest font-medium block">
+          Briefing Priority 02 • Activity Velocity
+        </span>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-2">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 py-6 border-y border-[#E8E8E1]">
+          <div className="space-y-1">
+            <span className="font-mono text-[10px] text-[#8A8A82] block uppercase tracking-wider">
+              Total Intake
+            </span>
+            <div className="text-2xl md:text-3xl font-mono font-medium text-[#171717] tracking-tight">
+              <AnimatedNumber value={data.metrics.totalPosts} />
+            </div>
+            <span className="font-sans text-[11px] text-[#8A8A82] block">across monitored nodes</span>
+          </div>
+
+          <div className="space-y-1">
+            <span className="font-mono text-[10px] text-[#8A8A82] block uppercase tracking-wider">
+              Active Topics
+            </span>
+            <div className="text-2xl md:text-3xl font-mono font-medium text-[#171717] tracking-tight">
+              <AnimatedNumber value={data.metrics.activeTopicsCount} />
+            </div>
+            <span className="font-sans text-[11px] text-[#8A8A82] block">coherent dialogue threads</span>
+          </div>
+
+          <div className="space-y-1">
+            <span className="font-mono text-[10px] text-[#B45309] block uppercase tracking-wider font-semibold">
+              Emerging Velocity
+            </span>
+            <div className="text-2xl md:text-3xl font-mono font-medium text-[#B45309] tracking-tight">
+              <AnimatedNumber value={data.metrics.emergingGrowthPct} prefix="+" suffix="%" />
+            </div>
+            <span className="font-sans text-[11px] text-[#8A8A82] block">peak acceleration index</span>
+          </div>
+
+          <div className="space-y-1">
+            <span className="font-mono text-[10px] text-[#C62828] block uppercase tracking-wider font-semibold">
+              Negative Skew
+            </span>
+            <div className="text-2xl md:text-3xl font-mono font-medium text-[#C62828] tracking-tight">
+              <AnimatedNumber value={data.metrics.negativeSentimentPct} suffix="%" />
+            </div>
+            <span className="font-sans text-[11px] text-[#8A8A82] block">distress & conflict proportion</span>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. SUPPORTING CONTEXTUAL INTELLIGENCE (Sentiment, Audience, Network) */}
+      <section className="space-y-6 pt-2">
+        <span className="font-mono text-[10px] text-[#8A8A82] uppercase tracking-widest font-medium block">
+          Briefing Priority 03–05 • Ecosystem Context
+        </span>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           {/* A. Sentiment Composition Snapshot */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between border-b border-[#E8E8E1] pb-2">
               <h4 className="font-sans font-semibold text-sm text-[#171717]">
                 Sentiment Balance
               </h4>
@@ -295,8 +284,8 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
             </div>
 
             {/* Seamless Segmented Bar */}
-            <div className="space-y-2">
-              <div className="h-2 w-full bg-[#E8E8E1] rounded-full overflow-hidden flex">
+            <div className="space-y-2 pt-1">
+              <div className="h-1.5 w-full bg-[#E8E8E1] rounded-full overflow-hidden flex">
                 <div
                   style={{ width: `${data.sentimentBreakdown.negative}%` }}
                   className="bg-[#C62828]"
@@ -322,7 +311,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
             </div>
 
             <p className="font-sans text-xs text-[#575757] leading-relaxed">
-              Distress in regional transit routes dominates negative polarity, while municipal cleanliness initiatives provide mild positive balance.
+              Transit disruption distress dominates negative polarity, while volunteer carpool mutual-aid channels offer emerging positive balance.
             </p>
 
             <button
@@ -330,22 +319,22 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
               className="text-xs font-sans font-medium text-[#171717] hover:underline inline-flex items-center gap-1 cursor-pointer pt-1"
             >
               <span>Inspect sentiment trends</span>
-              <ChevronRight className="w-3.5 h-3.5" />
+              <ChevronRight className="w-3 h-3" />
             </button>
           </div>
 
           {/* B. Audience Signals Snapshot */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between border-b border-[#E8E8E1] pb-2">
               <h4 className="font-sans font-semibold text-sm text-[#171717]">
                 Audience Signals
               </h4>
               <span className="font-mono text-[9px] px-1.5 py-0.2 bg-[#F0F0EA] text-[#575757] rounded-xs uppercase">
-                Aggregate
+                Macro Est.
               </span>
             </div>
 
-            <div className="space-y-2 text-xs font-sans">
+            <div className="space-y-2 text-xs font-sans pt-1">
               <div className="flex justify-between items-center py-1 border-b border-[#F0F0EA]">
                 <span className="text-[#575757]">Core Demographic Age</span>
                 <span className="font-mono font-medium text-[#171717]">18–24 (48%)</span>
@@ -355,7 +344,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
                 <span className="font-mono font-medium text-[#171717]">Hindi / English (61%)</span>
               </div>
               <div className="flex justify-between items-center py-1">
-                <span className="text-[#575757]">Geographic Density</span>
+                <span className="text-[#575757]">Geographic Core</span>
                 <span className="font-mono font-medium text-[#171717]">Western Region (43%)</span>
               </div>
             </div>
@@ -367,16 +356,16 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
 
           {/* C. Network Community Context */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between border-b border-[#E8E8E1] pb-2">
               <h4 className="font-sans font-semibold text-sm text-[#171717]">
                 Network Topology
               </h4>
               <span className="font-mono text-[10px] text-[#8A8A82]">4 Clusters</span>
             </div>
 
-            <div className="space-y-2 text-xs font-sans">
+            <div className="space-y-2 text-xs font-sans pt-1">
               <div className="flex justify-between items-center py-1 border-b border-[#F0F0EA]">
-                <span className="text-[#575757]">Active Bridge Nodes</span>
+                <span className="text-[#575757]">Structural Bridge Nodes</span>
                 <span className="font-mono font-bold text-[#B45309]">2 High-Centrality</span>
               </div>
               <div className="flex justify-between items-center py-1 border-b border-[#F0F0EA]">
@@ -394,7 +383,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
               className="text-xs font-sans font-medium text-[#171717] hover:underline inline-flex items-center gap-1 cursor-pointer pt-1"
             >
               <span>Explore social ecosystem</span>
-              <ChevronRight className="w-3.5 h-3.5" />
+              <ChevronRight className="w-3 h-3" />
             </button>
           </div>
         </div>
