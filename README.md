@@ -12,6 +12,20 @@ NEXUS is an analytical workspace engineered to convert fragmented, multi-platfor
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v4-38B2AC.svg)](https://tailwindcss.com/)
 [![Status](https://img.shields.io/badge/Prototype_Status-Audited_%26_Verified-success.svg)]()
 
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                                   NEXUS TECH STACK                                     │
+├─────────────────┬─────────────────┬────────────────────┬───────────────────────────────┤
+│ Frontend        │ Backend         │ Database & ORM     │ Analytics & Tooling           │
+├─────────────────┼─────────────────┼────────────────────┼───────────────────────────────┤
+│ • React 19      │ • Node.js 22    │ • PostgreSQL       │ • PageRank & Centrality       │
+│ • TypeScript    │ • Express 4.21  │ • Supabase Pooler  │ • Brandes Betweenness         │
+│ • Vite 8        │ • REST Router   │ • Prisma ORM 6.19  │ • Mulberry32 Deterministic PRNG│
+│ • Tailwind v4   │ • RBAC Guard    │ • 6 Relational DB  │ • Motion Transitions          │
+│ • Lucide Icons  │ • tsx Engine    │   Models & Indices │ • Lucide React Iconography    │
+└─────────────────┴─────────────────┴────────────────────┴───────────────────────────────┘
+```
+
 ---
 
 ## Table of Contents
@@ -554,6 +568,45 @@ Formally verifies a chronological dispatch record in the database.
 
 ## 11. Technology Stack
 
+### 11.1 Architecture & Layer Breakdown
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                                 NEXUS LAYERED STACK                                    │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│  1. PRESENTATION LAYER (Client-Side)                                                   │
+│     • React 19.0.1 (Single Page Application, Functional Hooks)                         │
+│     • TypeScript 7.0.2 (Static Typing & Shared Contract Interfaces)                   │
+│     • Vite 8.3.0 (ESM Bundler & Hot-Module Development Middleware)                     │
+│     • Tailwind CSS v4.3.3 (@tailwindcss/vite Modern Theme Tokens)                      │
+│     • Motion (motion/react 12.23.24 for Fluid Transitions & Tab Fades)                 │
+│     • Lucide React (Crisp, Semantic Operational Iconography)                           │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│  2. APPLICATION & SERVICE LAYER (Server-Side)                                          │
+│     • Node.js 22.x LTS Runtime                                                         │
+│     • Express 4.21.2 REST API Server                                                   │
+│     • Domain Services: OverviewService, TimelineService, SentimentService,             │
+│       TrendService, NetworkService, ProfileService                                     │
+│     • Server-Side RBAC Guardrails (HTTP 403 Forbidden on Unauthorized Roles)           │
+│     • tsx 4.21.0 (TypeScript Execution Engine)                                         │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│  3. ANALYTICS & GRAPH COMPUTATION LAYER                                                │
+│     • PageRank Centrality Engine (Power Iteration Method, d=0.85)                      │
+│     • Brandes' Algorithm (Shortest-Path Betweenness Centrality)                        │
+│     • Cross-Community Structural Bridge Node Classifier                                │
+│     • 8-Bucket Temporal Acceleration Engine (Growth % & Acceleration Scores)           │
+│     • Deterministic Mulberry32 PRNG (Reproducible Seed Generation)                     │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│  4. DATA & PERSISTENCE LAYER                                                           │
+│     • PostgreSQL 15+ (Relational Database via Supabase)                                │
+│     • PgBouncer Transaction Connection Pooler (Port 6543)                              │
+│     • Prisma ORM 6.19.3 (Type-Safe Query Builder, Schema, & Migrations)                │
+│     • 6 Relational Entities: User, Post, Topic, Community, Engagement, NetworkEdge     │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 11.2 Technology & Dependency Matrix
+
 | Layer | Technology | Version | Purpose |
 |---|---|---|---|
 | **Frontend Framework** | React | `19.0.1` | Declarative UI rendering & state management |
@@ -567,6 +620,7 @@ Formally verifies a chronological dispatch record in the database.
 | **TypeScript Execution** | `tsx` | `4.21.0` | Zero-config TypeScript execution for server/scripts |
 | **Database ORM** | Prisma | `6.19.3` | Type-safe PostgreSQL client, schema, & migrations |
 | **Database Engine** | PostgreSQL (Supabase) | `15+` | Relational persistence & connection pooling |
+| **Graph Algorithms** | Native TypeScript | — | PageRank (Power Method) & Brandes Betweenness Centrality |
 
 ---
 
